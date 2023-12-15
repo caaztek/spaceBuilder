@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "three": "^0.159.0",
+    "three-csg-ts": "^3.1.13"
+  },
+  "devDependencies": {
+    "vite": "^5.0.6"
+  }
+}
