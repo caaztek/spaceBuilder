@@ -194,7 +194,7 @@ export default class Block extends SceneEntity {
         this.object.add(this.blockObjectMoving);
 
         this.makeSlides();
-        this.makeMovingObject();
+        this.makeMovingObject()
     }
 
     makeSlides() {
