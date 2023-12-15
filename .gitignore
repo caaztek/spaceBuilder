@@ -10,3 +10,12 @@
 
 # Built Visual Studio Code Extensions
 *.vsix
+
+# Node modules
+node_modules/
+```
+
+crane2.js
+mainBackUp.js
+wall.js
+woodMember.js
