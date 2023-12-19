@@ -1,4 +1,4 @@
-import { SceneEntity, ThreeUtilities } from './sceneManager.js';
+import { SceneEntity } from './sceneManager.js';
 import { LinearModifier, PlanarModifier } from './modifier.js';
 import * as THREE from 'three';
 
@@ -69,6 +69,8 @@ export default class Column extends SceneEntity {
 
         /* empty column */
         this.blocks.forEach(block => block.deleteEntity());
+        this.blocks = [];
+        //this.object.remove(this.pointLight);
 
         /* set array of occupancy */
         this.rightOccupants = {};
@@ -78,6 +80,7 @@ export default class Column extends SceneEntity {
         /* position modifier */
         let topPosition = new THREE.Vector3(0,- this.depth, this.height);
         this.topModifier.updatePosition(topPosition);
+
     }
 
     setWidth(width) {

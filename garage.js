@@ -1,4 +1,5 @@
-import { SceneEntity, ThreeUtilities } from './sceneManager.js';
+import { SceneEntity } from './sceneManager.js';
+import ThreeUtilities from './threeUtilities';
 import { LinearModifier, PlanarModifier } from './modifier.js';
 import * as THREE from 'three';
 import Shelf from './shelf.js';
@@ -10,7 +11,6 @@ export default class Garage extends SceneEntity {
         /* handle gui */
         this.showGarageModifier = true;
         this.addGUI();
-
 
         /* handle all default values  */
         this.length = 200;
@@ -26,6 +26,11 @@ export default class Garage extends SceneEntity {
         this.cameraStartDepth = 350;
         this.floorMaterial = new THREE.MeshLambertMaterial({ color: "#e6e6e6" });
         this.wallMaterial = new THREE.MeshLambertMaterial({ color: "#f2f2f2" });
+
+        /* make a few updates to ojectCache */
+        this.sceneManager.objectCache.addObject("plasticBin", 'models/bin10In.gltf', 39);
+        this.sceneManager.objectCache.addObject("officeMug", 'models/officeMug.glb', 39,Math.PI/2);
+        this.sceneManager.objectCache.addObject("officeChair", 'models/officeChair.glb', 39);
 
         /* set objects. They need to be memorized for updates */
         this.objects = {
@@ -58,9 +63,31 @@ export default class Garage extends SceneEntity {
     }
 
     setCamera() {
-        this.sceneManager.camera.position.set(this.length/2, -this.cameraStartDepth, this.cameraStartHeight);
-        this.sceneManager.camera.lookAt(this.length/2, 0, this.cameraStartTargetHeight);
-        this.sceneManager.controls.target.set(this.length/2, 0, this.cameraStartTargetHeight);
+        this.sceneManager.camera.position.set(this.length / 2, -this.cameraStartDepth, this.cameraStartHeight);
+        this.sceneManager.camera.lookAt(this.length / 2, 0, this.cameraStartTargetHeight);
+        this.sceneManager.controls.target.set(this.length / 2, 0, this.cameraStartTargetHeight);
+    }
+
+    updateLights() {
+        if (this.lights != undefined) this.object.remove(this.lights);
+
+        let totalLight = 130 * this.length;
+        let lightSpacing = 50;
+        let percentLengthOccupied = 0.8;
+
+        this.lights = new THREE.Group();
+
+        let numberOfLights = Math.floor(this.length * percentLengthOccupied / lightSpacing);
+
+        let startX = this.length * percentLengthOccupied / 2 - numberOfLights * lightSpacing / 2;
+
+        for (let i = 0; i < numberOfLights; i++) {
+            let light = new THREE.PointLight(0xffffff,totalLight / numberOfLights);
+            light.position.set(startX + i * lightSpacing, -100, this.height + 50 );
+            this.lights.add(light);
+        }
+
+        this.object.add(this.lights);
     }
 
     addModifiers() {
@@ -73,7 +100,7 @@ export default class Garage extends SceneEntity {
                 } else if (modifierType == "moved") {
                     let minLength = this.minLength;
                     if (this.shelves.length > 0) { minLength = this.shelves[0].lastX() + this.shelves[0].startX + this.wallThickness + this.shelves[0].partitionThickness / 2 }
-                    this.length = Math.max(this.startLength + modifier.offsetDistance,minLength);
+                    this.length = Math.max(this.startLength + modifier.offsetDistance, minLength);
                     this.update();
                 }
             })
@@ -87,8 +114,8 @@ export default class Garage extends SceneEntity {
                     this.startHeight = this.height;
                 } else if (modifierType == "moved") {
                     let minHeight = this.minHeight;
-                    if (this.shelves.length > 0) { minHeight = this.shelves[0].maxHeight()}
-                    this.height = Math.max(this.startHeight + modifier.offsetDistance,minHeight)
+                    if (this.shelves.length > 0) { minHeight = this.shelves[0].maxHeight() }
+                    this.height = Math.max(this.startHeight + modifier.offsetDistance, minHeight)
                     this.update();
                 }
             })
@@ -135,6 +162,9 @@ export default class Garage extends SceneEntity {
 
         /* update modifier position */
         this.rightModifier.updatePosition(new THREE.Vector3(this.length - this.wallThickness, -this.wallThickness, this.height / 2))
-        this.topModifier.updatePosition(new THREE.Vector3(this.length / 2, -this.wallThickness/2, this.height))
+        this.topModifier.updatePosition(new THREE.Vector3(this.length / 2, -this.wallThickness / 2, this.height))
+
+        /* updateLights */
+        this.updateLights();
     }
 }

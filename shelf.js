@@ -1,8 +1,12 @@
-import { SceneEntity, ThreeUtilities } from './sceneManager.js';
+import { SceneEntity } from './sceneManager.js';
+import ThreeUtilities from './threeUtilities';
 import { LinearModifier, PlanarModifier } from './modifier.js';
 import * as THREE from 'three';
 import Column from './column.js';
-import Block, { FixedShelf, PullShelf, PullDesk } from './block.js';
+import Block, { FixedShelf, PullShelf } from './blocks/block.js';
+import PullDesk from './blocks/pullDesk.js';
+import PlasticBin from './blocks/plasticBin.js';
+import FixedDesk from './blocks/fixedDesk.js';
 
 /* class containing all the information for a given shelf unit, made of many columns */
 export default class Shelf extends SceneEntity {
@@ -24,6 +28,9 @@ export default class Shelf extends SceneEntity {
         this.modifierOffset = 3;
         this.verticalStep = 4; //big influence on all the blocks. Assume we start at height 0 for now.
 
+        /* set block list */
+        this.setBlockList();
+
         /* add GUI */
         this.showShelfModifier = true;
         this.addGUI();
@@ -31,7 +38,7 @@ export default class Shelf extends SceneEntity {
         /* set columns */
         this.matchExactWidth = true; //if match then we can't use exact column width. Maybe just use them as guides.
         this.defaultWidthStep = 10; //all width will be a multiple of this. This is also the minimum width.
-        this.defaultColumnWidths = [2, 4]; //as multiples of defaultWidthStep
+        this.defaultColumnWidths = [3, 5]; //as multiples of defaultWidthStep
         this.targetWidthMargin = 0;
         this.targetWidthMarginPerColumnTotal = 0.2;
 
@@ -44,6 +51,19 @@ export default class Shelf extends SceneEntity {
         this.setColumns();
         this.setModifiers();
         this.update();
+
+
+    }
+
+    setBlockList() {
+        this.baseBlockList = [FixedShelf, PullShelf, PullDesk, PlasticBin, FixedDesk];
+        this.shelfFilling = {};
+        this.shelfFillingList = [];
+        this.baseBlockList.forEach((block) => {
+            this.shelfFilling[block.parameters().name] = 0.5; //value between 0 and 1
+            this.shelfFillingList.push({ block: block, numberToFill: 0, priority: block.parameters().priority });
+        });
+
     }
 
     switchModifierVisibility(value) {
@@ -187,9 +207,6 @@ export default class Shelf extends SceneEntity {
         this.crossSupport.add(ThreeUtilities.returnObjectOutline(this.crossSupport));
         this.object.add(this.crossSupport);
 
-        /* update all the columns */
-        this.columns.forEach((column) => { column.update() });
-
         /* update modifiers position */
         this.leftModifier.updatePosition(new THREE.Vector3(- this.modifierOffset, - this.depth, 10));
         this.rightModifier.updatePosition(new THREE.Vector3(this.lastX() + this.modifierOffset, - this.depth, 10));
@@ -215,32 +232,97 @@ export default class Shelf extends SceneEntity {
     }
 
     fillShelf() {
-        /* create blocks to fill the shelf */
-        let blockList = Block.blockList();
+        /* update all the columns (empty+reset arrays) */
+        this.columns.forEach((column) => { column.update() });
 
-        //let firstBlock = new blockList[0](this.sceneManager, column,10);
-        while (true) {
-            let bestScore = new FixedShelf(this.sceneManager, this).findBestPosition(true);
-            if (bestScore.score == 0) break;
-            //if (bestScore == 0) break;
+        /* fill vertical space taken by cross supports. */
+        this.columns.forEach((column) => {
+            let startIndex = Math.floor(this.crossSupportStartZ / this.verticalStep);
+            let endIndex = Math.ceil((this.crossSupportStartZ + this.crossSupportHeight) / this.verticalStep);
+            for (var i = startIndex; i <= endIndex; i++) {
+                column.rightOccupants[i] = this.crossSupport;
+                column.leftOccupants[i] = this.crossSupport;
+                column.centerOccupants[i] = this.crossSupport;
+            }
+        });
+
+        /* find the total weight of fill per column blocks */
+        let totalFillPerColumnWeight = 0;
+        this.shelfFillingList.forEach((block) => {
+            if (block.block.parameters().fillPerColumn) totalFillPerColumnWeight += this.shelfFilling[block.block.parameters().name];
+        });
+
+        /* find to total number of columns */
+        let numberOfColumns = this.columns.length;
+
+        /* find the total weight of fill per area blocks */
+        let totalFillPerAreaWeight = 0;
+        this.shelfFillingList.forEach((block) => {
+            if (!block.block.parameters().fillPerColumn) totalFillPerAreaWeight += this.shelfFilling[block.block.parameters().name];
+        });
+
+        /* find the total area (# of center positions) */
+        let totalArea = 0;
+        this.columns.forEach((column) => {
+            totalArea += column.height / column.verticalStep;
+        });
+
+        /* update number to fill*/
+        this.shelfFillingList.forEach((block) => {
+            if (block.block.parameters().fillPerColumn) {
+                block.numberToFill = Math.floor(this.shelfFilling[block.block.parameters().name] * numberOfColumns / totalFillPerColumnWeight);
+            } else {
+                block.numberToFill = Math.floor(this.shelfFilling[block.block.parameters().name] * totalArea / (totalFillPerAreaWeight * (block.block.parameters().centerSlotsOccupyAbove + block.block.parameters().centerSlotsOccupyBelow)));
+            }
+        });
+
+        /* sort the filing list */
+        this.shelfFillingList.sort((a, b) => b.priority - a.priority);
+
+
+        /* go through the list and fill */
+        for (var i = 0; i < this.shelfFillingList.length; i++) {
+            let block = this.shelfFillingList[i];
+            for (var j = 0; j < block.numberToFill; j++) {
+                let bestScore = new block.block(this.sceneManager, this).findBestPosition(true);
+                if (bestScore.score == 0) break;
+            }
         }
-        //let block2 = new FixedShelf(this.sceneManager, this).findBestPosition(true)
-        // let block3 = new PullShelf(this.sceneManager, this.columns[1],10);
-        // let block4 = new PullDesk(this.sceneManager, this.columns[1],12);
-        // let block5 = new PullDesk(this.sceneManager, this.columns[0],12);
-        // let block6 = new PullDesk(this.sceneManager, this.columns[2],12);
+
+        if (false) {
+            /* add 1 Fixed Shelf */
+            let bestScore = new FixedDesk(this.sceneManager, this).findBestPosition(true);
+
+            /* first fill with as many desks as available */
+            while (true) {
+                let bestScore = new PullDesk(this.sceneManager, this).findBestPosition(true);
+                if (bestScore.score == 0) break;
+                //if (bestScore == 0) break;
+            }
+
+
+            /* add 5 bins */
+            for (var i = 0; i < 5; i += 1) {
+                let bestScore = new PlasticBin(this.sceneManager, this).findBestPosition(true);
+                if (bestScore.score == 0) break;
+            }
+
+            /* add 5 pull shelves */
+            for (var i = 0; i < 30; i += 1) {
+                let bestScore = new PullShelf(this.sceneManager, this).findBestPosition(true);
+                if (bestScore.score == 0) break;
+            }
+        }
+
     }
 
     addGUI() {
         super.addGUI();
 
         /* create GUI for filling preferences */
-        let blockList = Block.blockList();
-        this.shelfFilling = {}
-        blockList.forEach((block) => {
-            this.shelfFilling[block.parameters().name] = 0.5; //value between 0 and 1 to ask for more or less of a given block
-            this.guiFolder.add(this.shelfFilling, block.parameters().name, 0, 1,1).step(0.1).onChange((value) => {
-                //console.log(value);
+        this.baseBlockList.forEach((block) => {
+            this.guiFolder.add(this.shelfFilling, block.parameters().name, 0, 1, 1).step(0.05).onChange((value) => {
+                this.fillShelf();
             });
         });
     }

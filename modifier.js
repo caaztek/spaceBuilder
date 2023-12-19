@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { SceneEntity, ThreeUtilities } from './sceneManager';
+import { SceneEntity } from './sceneManager';
+import ThreeUtilities from './threeUtilities';
 
 /**
  * class to manage all modifiers :

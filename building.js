@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { SceneEntity, ThreeUtilities } from './sceneManager.js';
+import { SceneEntity} from './sceneManager.js';
+import ThreeUtilities from './threeUtilities';
 import Layer, { FloorLayer, FoundationLayer, WallLayer, GroundLayer } from './layer.js';
 import Crane from './crane2.js';
 import WoodMember from './woodMember.js';

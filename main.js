@@ -1,5 +1,5 @@
 import Garage from './garage.js';
-import SceneManager, { ThreeUtilities } from './sceneManager.js';
+import SceneManager from './sceneManager.js';
 import * as THREE from 'three';
 
 let sceneManager = new SceneManager()
