@@ -4,6 +4,10 @@ import { LinearModifier, PlanarModifier } from './modifier.js';
 import * as THREE from 'three';
 import Shelf from './shelf.js';
 
+import bin10In from './models/bin10In.gltf';
+import officeMug from './models/officeMug.glb';
+import officeChair from './models/officeChair.glb';
+
 export default class Garage extends SceneEntity {
     constructor(sceneManager, parent) {
         super(sceneManager, parent, "garage");
@@ -28,9 +32,13 @@ export default class Garage extends SceneEntity {
         this.wallMaterial = new THREE.MeshLambertMaterial({ color: "#f2f2f2" });
 
         /* make a few updates to ojectCache */
-        this.sceneManager.objectCache.addObject("plasticBin", 'models/bin10In.gltf', 39);
-        this.sceneManager.objectCache.addObject("officeMug", 'models/officeMug.glb', 39,Math.PI/2);
-        this.sceneManager.objectCache.addObject("officeChair", 'models/officeChair.glb', 39);
+        // this.sceneManager.objectCache.addObject("plasticBin", 'models/bin10In.gltf', 39);
+        // this.sceneManager.objectCache.addObject("officeMug", 'models/officeMug.glb', 39,Math.PI/2);
+        // this.sceneManager.objectCache.addObject("officeChair", 'models/officeChair.glb', 39);
+
+        this.sceneManager.objectCache.addObject("plasticBin", bin10In, 39);
+        this.sceneManager.objectCache.addObject("officeMug", officeMug, 39,Math.PI/2);
+        this.sceneManager.objectCache.addObject("officeChair", officeChair, 39);
 
         /* set objects. They need to be memorized for updates */
         this.objects = {
