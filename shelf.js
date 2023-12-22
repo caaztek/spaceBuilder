@@ -38,7 +38,7 @@ export default class Shelf extends SceneEntity {
         /* set columns */
         this.matchExactWidth = true; //if match then we can't use exact column width. Maybe just use them as guides.
         this.defaultWidthStep = 10; //all width will be a multiple of this. This is also the minimum width.
-        this.defaultColumnWidths = [3, 5]; //as multiples of defaultWidthStep
+        this.defaultColumnWidths = [2, 5]; //as multiples of defaultWidthStep
         this.targetWidthMargin = 0;
         this.targetWidthMarginPerColumnTotal = 0.2;
 
@@ -270,9 +270,9 @@ export default class Shelf extends SceneEntity {
         /* update number to fill*/
         this.shelfFillingList.forEach((block) => {
             if (block.block.parameters().fillPerColumn) {
-                block.numberToFill = Math.floor(this.shelfFilling[block.block.parameters().name] * numberOfColumns / totalFillPerColumnWeight);
+                block.numberToFill = Math.floor(this.shelfFilling[block.block.parameters().name] * this.shelfFilling[block.block.parameters().name] * numberOfColumns / totalFillPerColumnWeight);
             } else {
-                block.numberToFill = Math.floor(this.shelfFilling[block.block.parameters().name] * totalArea / (totalFillPerAreaWeight * (block.block.parameters().centerSlotsOccupyAbove + block.block.parameters().centerSlotsOccupyBelow)));
+                block.numberToFill = Math.floor(this.shelfFilling[block.block.parameters().name] * this.shelfFilling[block.block.parameters().name] * totalArea / (totalFillPerAreaWeight * (block.block.parameters().centerSlotsOccupyAbove + block.block.parameters().centerSlotsOccupyBelow)));
             }
         });
 

@@ -3,6 +3,7 @@ import ThreeUtilities from './threeUtilities';
 import { LinearModifier, PlanarModifier } from './modifier.js';
 import * as THREE from 'three';
 import Shelf from './shelf.js';
+import ObjectCache from './objectCache.js';
 
 import bin10In from './models/bin10In.gltf';
 import officeMug from './models/officeMug.glb';
@@ -36,9 +37,13 @@ export default class Garage extends SceneEntity {
         // this.sceneManager.objectCache.addObject("officeMug", 'models/officeMug.glb', 39,Math.PI/2);
         // this.sceneManager.objectCache.addObject("officeChair", 'models/officeChair.glb', 39);
 
-        this.sceneManager.objectCache.addObject("plasticBin", bin10In, 39);
+        /* set-up object cache */
+        this.sceneManager.objectCache = new ObjectCache(this.sceneManager, this);
+        this.sceneManager.objectCache.addObject("plasticBin", bin10In, 39,0,0,0,[18,27,40]);
         this.sceneManager.objectCache.addObject("officeMug", officeMug, 39,Math.PI/2);
         this.sceneManager.objectCache.addObject("officeChair", officeChair, 39);
+
+        //this.sceneManager.objectCache.testObjectOutline("officeMug", 100);
 
         /* set objects. They need to be memorized for updates */
         this.objects = {

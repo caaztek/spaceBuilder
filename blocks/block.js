@@ -53,13 +53,13 @@ export default class Block extends SceneEntity {
 
         /* check availability of placement */
         for (var i = zIndex - param.rightSlotsOccupyBelow; i < zIndex + param.rightSlotsOccupyAbove; i++) {
-            if (column.rightOccupants[i] != undefined) {return false}
+            if (i < 1 || i > column.maxZIndex() || column.rightOccupants[i] != undefined) {return false}
         }
         for (var i = zIndex - param.leftSlotsOccupyBelow; i < zIndex + param.leftSlotsOccupyAbove; i++) {
-            if (column.leftOccupants[i] != undefined) {return false}
+            if (i < 1 || i > column.maxZIndex() || column.leftOccupants[i] != undefined) {return false}
         }
         for (var i = zIndex - param.centerSlotsOccupyBelow; i < zIndex + param.centerSlotsOccupyAbove; i++) {
-            if (column.centerOccupants[i] != undefined) {return false}
+            if (i < 1 || i > column.maxZIndex() || column.centerOccupants[i] != undefined) {return false}
         }
         return true;
     }

@@ -76,7 +76,7 @@ export default class FixedDesk extends Block {
             objectName.position.set(this.width / 2 - 4,-5,0.8);
             //let scale = 1;
             this.blockObjectMoving.add(objectName);
-        }, false, false);
+        }, false, false, undefined, true);
 
     }
 

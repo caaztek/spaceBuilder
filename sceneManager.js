@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import ObjectCache from './objectCache.js';
+//import ObjectCache from './objectCache.js';
 import ThreeUtilities from './threeUtilities.js';
 
 
@@ -283,8 +283,6 @@ export default class SceneManager extends SceneEntity {
         this.yAxis = new THREE.Vector3(0, 1, 0);
         this.zAxis = new THREE.Vector3(0, 0, 1);
 
-        /* set-up object cache */
-        this.objectCache = new ObjectCache();
     }
 
     setDefaults() {
@@ -835,13 +833,13 @@ export default class SceneManager extends SceneEntity {
         }
 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.keys = {
-            LEFT: 'ArrowLeft', //left arrow
-            UP: 'ArrowUp', // up arrow
-            RIGHT: 'ArrowRight', // right arrow
-            BOTTOM: 'ArrowDown' // down arrow
-        }
-        this.controls.listenToKeyEvents(document);
+        // this.controls.keys = {
+        //     LEFT: 'ArrowLeft', //left arrow
+        //     UP: 'ArrowUp', // up arrow
+        //     RIGHT: 'ArrowRight', // right arrow
+        //     BOTTOM: 'ArrowDown' // down arrow
+        // }
+        // this.controls.listenToKeyEvents(document);
         this.controls.addEventListener('start', () => this.orbitActive = true);
         this.controls.addEventListener('end', () => this.orbitActive = false);
         this.orbitActive = false;
