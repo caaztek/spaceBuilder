@@ -50,6 +50,14 @@ export default class Column extends SceneEntity {
         })
     }
 
+    addPartition(left,partition) {
+        if (left) {
+            this.leftPartition = partition;
+        } else {
+            this.rightPartition = partition;
+        }
+    }
+
     switchModifierVisibility(value) {
         this.topModifier.switchVisibility(value);
     }

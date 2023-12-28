@@ -50,6 +50,7 @@ export default class PullDesk extends Block {
         param.maxPullOutOffset = 10;
 
         param.priority = 9; 
+        param.onePerColumn = true,
         param.fillPerColumn = true
 
         return param;
@@ -57,11 +58,11 @@ export default class PullDesk extends Block {
 
     scoreOption(column, zIndex) {
         /* check if there is another desk in the column */
-        for (var i = 0; i < column.blocks.length; i++) {
-            if (column.blocks[i].parameters.name == "Pull-out desk") {
-                return 0;
-            }
-        }
+        // for (var i = 0; i < column.blocks.length; i++) {
+        //     if (column.blocks[i].parameters.name == "Pull-out desk") {
+        //         return 0;
+        //     }
+        // }
 
         /* if no desk have been found, use standard scoring. */
         return super.scoreOption(column, zIndex);

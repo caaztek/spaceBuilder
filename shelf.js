@@ -7,6 +7,8 @@ import Block, { FixedShelf, PullShelf } from './blocks/block.js';
 import PullDesk from './blocks/pullDesk.js';
 import PlasticBin from './blocks/plasticBin.js';
 import FixedDesk from './blocks/fixedDesk.js';
+import PullRack from './blocks/pullRack.js';
+import Partition from './partition.js';
 
 /* class containing all the information for a given shelf unit, made of many columns */
 export default class Shelf extends SceneEntity {
@@ -21,10 +23,10 @@ export default class Shelf extends SceneEntity {
         this.minHeight = 5;
         this.depth = 30;
         this.partitionThickness = 1.5;
-        this.crossSupportThickness = 1.5;
+        this.crossSupportThickness = 0.75;
         this.crossSupportHeight = 4;
-        this.crossSupportStartZ = 10;
-        this.partitionMaterial = new THREE.MeshLambertMaterial({ color: "#fff2cc" });
+        this.crossSupportStartZ = 12;
+        this.crossSupportMaterial = new THREE.MeshLambertMaterial({ color: "#fff2cc" });
         this.modifierOffset = 3;
         this.verticalStep = 4; //big influence on all the blocks. Assume we start at height 0 for now.
 
@@ -45,7 +47,8 @@ export default class Shelf extends SceneEntity {
         /* vertical partitions will be managed by the shelf */
         this.partitionObject = new THREE.Group();
         this.object.add(this.partitionObject);
-        this.verticalPartitions = [];
+        this.partitions = [];
+
 
         /* update rendering */
         this.setColumns();
@@ -56,14 +59,13 @@ export default class Shelf extends SceneEntity {
     }
 
     setBlockList() {
-        this.baseBlockList = [FixedShelf, PullShelf, PullDesk, PlasticBin, FixedDesk];
+        this.baseBlockList = [FixedShelf, PullShelf, PullDesk, PlasticBin, FixedDesk, PullRack];
         this.shelfFilling = {};
         this.shelfFillingList = [];
         this.baseBlockList.forEach((block) => {
-            this.shelfFilling[block.parameters().name] = 0.5; //value between 0 and 1
+            this.shelfFilling[block.parameters().name] = 0.8; //value between 0 and 1
             this.shelfFillingList.push({ block: block, numberToFill: 0, priority: block.parameters().priority });
         });
-
     }
 
     switchModifierVisibility(value) {
@@ -74,6 +76,36 @@ export default class Shelf extends SceneEntity {
         this.columns.forEach((column) => {
             column.switchModifierVisibility(value);
         });
+    }
+
+    setPartitions() {
+        /* called once columns are calculated */
+
+        /* Erase all previous partition info */
+        if (this.partitions) {
+            this.partitions.forEach((partition) => {
+                partition.deleteEntity();
+            });
+        }
+        this.partitions = [];
+
+        /* make partitions */
+        let column;
+        for (var i = 0; i <= this.columns.length; i++) {
+            column = this.columns[i];
+            let newPartition = new Partition(this.sceneManager, this, this.partitionThickness, this.depth)
+            .setColumns(i == 0 ? undefined : this.columns[i-1], i == this.columns.length ? undefined: this.columns[i]);
+
+            this.partitions.push(newPartition);
+
+            // if (i == 0) this.makePartition(column.startX, this.depth, column.height);
+            // else {
+            //     let partitionHeight = Math.max(column.height, this.columns[i - 1].height);
+            //     this.makePartition(column.startX, this.depth, partitionHeight);
+        }
+        //this.makePartition(column.endX(), this.depth, column.height);
+
+
     }
 
     setColumns() {
@@ -120,10 +152,12 @@ export default class Shelf extends SceneEntity {
 
         /* now we can create columns */
         let currentX = 0;
+        let counter = 0;
         stepArray.forEach((width) => {
-            let newColumn = new Column(this.sceneManager, this, currentX, width * step, this.depth, this.height, this.columns.length)
+            let newColumn = new Column(this.sceneManager, this, currentX, width * step, this.depth, counter < 2 ? this.height * 0.8 : this.height, this.columns.length)
             this.columns.push(newColumn);
             currentX += width * step;
+            counter++;
         });
     }
 
@@ -184,26 +218,14 @@ export default class Shelf extends SceneEntity {
         /* update object position everything in the shelf will be in reference to that*/
         this.object.position.set(this.startX, -this.parent.wallThickness, 0);
 
-        /* make partitions */
-        this.verticalPartitions.forEach((partitionObject) => {
-            ThreeUtilities.disposeHierarchy(partitionObject);
-        });
-        let column;
-        for (var i = 0; i < this.columns.length; i++) {
-            column = this.columns[i];
-            if (i == 0) this.makePartition(column.startX, column.height);
-            else {
-                let partitionHeight = Math.max(column.height, this.columns[i - 1].height);
-                this.makePartition(column.startX, partitionHeight);
-            }
-        }
-        this.makePartition(column.endX(), column.height);
+        /* update partitions */
+        this.setPartitions();
 
         /* make cross support */
         ThreeUtilities.disposeHierarchy(this.crossSupport);
-        let crossSupportGeom = new THREE.BoxGeometry(this.lastX() + this.partitionThickness, this.crossSupportThickness, this.crossSupportHeight);
-        crossSupportGeom.translate(this.lastX() / 2, -this.depth + this.crossSupportThickness / 2, this.crossSupportStartZ);
-        this.crossSupport = new THREE.Mesh(crossSupportGeom, this.partitionMaterial);
+        let crossSupportGeom = new THREE.BoxGeometry(this.lastX() + this.partitionThickness, this.crossSupportHeight, this.crossSupportThickness);
+        crossSupportGeom.translate(this.lastX() / 2, -this.depth + this.crossSupportHeight / 2, this.crossSupportStartZ);
+        this.crossSupport = new THREE.Mesh(crossSupportGeom, this.crossSupportMaterial);
         this.crossSupport.add(ThreeUtilities.returnObjectOutline(this.crossSupport));
         this.object.add(this.crossSupport);
 
@@ -221,9 +243,9 @@ export default class Shelf extends SceneEntity {
         return lastColumn.endX();
     }
 
-    makePartition(x, height) {
+    makePartition(x, depth, height) {
         /* columns don't own their partion, so this has to be handled by the shelf */
-        let partitionGeom = new THREE.BoxGeometry(this.partitionThickness, this.depth, height);
+        let partitionGeom = new THREE.BoxGeometry(this.partitionThickness, depth, height);
         let partitionMesh = new THREE.Mesh(partitionGeom, this.partitionMaterial);
         partitionMesh.position.set(x, -this.depth / 2, height / 2);
         partitionMesh.add(ThreeUtilities.returnObjectOutline(partitionMesh));
@@ -270,9 +292,9 @@ export default class Shelf extends SceneEntity {
         /* update number to fill*/
         this.shelfFillingList.forEach((block) => {
             if (block.block.parameters().fillPerColumn) {
-                block.numberToFill = Math.floor(this.shelfFilling[block.block.parameters().name] * this.shelfFilling[block.block.parameters().name] * numberOfColumns / totalFillPerColumnWeight);
+                block.numberToFill = Math.ceil(this.shelfFilling[block.block.parameters().name] * this.shelfFilling[block.block.parameters().name] * numberOfColumns / totalFillPerColumnWeight);
             } else {
-                block.numberToFill = Math.floor(this.shelfFilling[block.block.parameters().name] * this.shelfFilling[block.block.parameters().name] * totalArea / (totalFillPerAreaWeight * (block.block.parameters().centerSlotsOccupyAbove + block.block.parameters().centerSlotsOccupyBelow)));
+                block.numberToFill = Math.ceil(this.shelfFilling[block.block.parameters().name] * this.shelfFilling[block.block.parameters().name] * totalArea / (totalFillPerAreaWeight * (block.block.parameters().centerSlotsOccupyAbove + block.block.parameters().centerSlotsOccupyBelow)));
             }
         });
 

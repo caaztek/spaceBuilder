@@ -26,6 +26,7 @@ export default class TemplateName extends Block {
         param.centerSlotsOccupyBelow= 1
 
         param.priority = 2, 
+        param.onePerColumn = false,
         param.fillPerColumn = false
 
         return param;

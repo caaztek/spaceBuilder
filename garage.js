@@ -8,6 +8,8 @@ import ObjectCache from './objectCache.js';
 import bin10In from './models/bin10In.gltf';
 import officeMug from './models/officeMug.glb';
 import officeChair from './models/officeChair.glb';
+import coatHanger from './models/coatHanger.glb';
+import shirt from './models/shirt.gltf';
 
 export default class Garage extends SceneEntity {
     constructor(sceneManager, parent) {
@@ -18,7 +20,7 @@ export default class Garage extends SceneEntity {
         this.addGUI();
 
         /* handle all default values  */
-        this.length = 200;
+        this.length = 250;
         this.minLength = 30;
         this.height = 100;
         this.minHeight = 50;
@@ -42,6 +44,8 @@ export default class Garage extends SceneEntity {
         this.sceneManager.objectCache.addObject("plasticBin", bin10In, 39,0,0,0,[18,27,40]);
         this.sceneManager.objectCache.addObject("officeMug", officeMug, 39,Math.PI/2);
         this.sceneManager.objectCache.addObject("officeChair", officeChair, 39);
+        this.sceneManager.objectCache.addObject("coatHanger", coatHanger, 0.15,Math.PI/2,Math.PI/2,0);
+        this.sceneManager.objectCache.addObject("shirt", shirt, 85,0,0,0);
 
         //this.sceneManager.objectCache.testObjectOutline("officeMug", 100);
 

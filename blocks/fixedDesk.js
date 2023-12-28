@@ -46,6 +46,7 @@ export default class FixedDesk extends Block {
         param.allowSlide = false
 
         param.priority = 10; 
+        param.onePerColumn = true,
         param.fillPerColumn = true
 
         return param;

@@ -70,6 +70,14 @@ export default class Block extends SceneEntity {
 
         if (!this.checkOptionAvailability(column, zIndex)) {return 0}
 
+        if (param.onePerColumn) {
+            for (var i = 0; i < column.blocks.length; i++) {
+                if (column.blocks[i].parameters.name == param.name) {
+                    return 0;
+                }
+            }
+        }
+
         /* vertical score */
         let optionHeight = zIndex * column.verticalStep;
         let verticalScore;
@@ -168,6 +176,7 @@ export default class Block extends SceneEntity {
             centerSlotsOccupyBelow: 0,
 
             priority: 2, //to decide the order in which the blocks are placed
+            onePerColumn: false, //if true, only one block of this type can be placed per column. Maybe always the same as fillPerColumn?
             fillPerColumn: false //if true, the 0-1 number in gui indicates the percentage of columns that should be filled. All fillPercolumn blocks should be placed first. 
         }
     }
