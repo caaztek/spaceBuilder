@@ -137,6 +137,8 @@ export default class Block extends SceneEntity {
             slideColor: "#ffffe6",
             objectColor:  "#ffffe6",
 
+            startBlockListFillingValue : 0.8,
+
             maxDistanceFromReference: 100,
             minDistanceFromReference: 6, 
             idealDistanceFromReference: 10,
@@ -343,6 +345,9 @@ export class FixedShelf extends Block {
 
         param.widthMargin = 0.1;
 
+        param.maxDistanceFromReference = 10000;
+        param.minDistanceFromReference = 0;
+
         param.minHeight = 0.75;
         param.maxHeight = 0.75;
         param.idealHeight = 0.75;
@@ -385,6 +390,8 @@ export class PullShelf extends Block {
         param.maxHeight = 0.75;
         param.idealHeight = 0.75;
         param.allowSlide = true;
+
+        param.maxWidth = 30;
 
         param.referenceIsBottom= true;
         param.minDistanceFromReference = 3;

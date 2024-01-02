@@ -39,7 +39,7 @@ export default class Garage extends SceneEntity {
         // this.sceneManager.objectCache.addObject("officeMug", 'models/officeMug.glb', 39,Math.PI/2);
         // this.sceneManager.objectCache.addObject("officeChair", 'models/officeChair.glb', 39);
 
-        /* set-up object cache */
+        /* set-up object cache. Need to import .glb or .gltf file at the top of this document to include them in vite compilation */
         this.sceneManager.objectCache = new ObjectCache(this.sceneManager, this);
         this.sceneManager.objectCache.addObject("plasticBin", bin10In, 39,0,0,0,[18,27,40]);
         this.sceneManager.objectCache.addObject("officeMug", officeMug, 39,Math.PI/2);

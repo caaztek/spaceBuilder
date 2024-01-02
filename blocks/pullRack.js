@@ -84,7 +84,7 @@ export default class PullRack extends Block {
                     this.sceneManager.objectCache.loadObject("shirt", (objectName) => {
                         objectName.position.set(0, y + 0.3, shirtOffset);
                         this.blockObjectMoving.add(objectName);
-                    }, false, false, undefined, true);
+                    }, false, true, "#a3d9d4", true);
                 }
 
             }).call(this, y);

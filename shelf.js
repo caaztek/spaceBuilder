@@ -9,6 +9,7 @@ import PlasticBin from './blocks/plasticBin.js';
 import FixedDesk from './blocks/fixedDesk.js';
 import PullRack from './blocks/pullRack.js';
 import Partition from './partition.js';
+import Drawer from './blocks/drawer.js';
 
 /* class containing all the information for a given shelf unit, made of many columns */
 export default class Shelf extends SceneEntity {
@@ -23,9 +24,9 @@ export default class Shelf extends SceneEntity {
         this.minHeight = 5;
         this.depth = 30;
         this.partitionThickness = 1.5;
-        this.crossSupportThickness = 0.75;
-        this.crossSupportHeight = 4;
-        this.crossSupportStartZ = 12;
+        this.crossSupportThickness = 1.5;
+        this.crossSupportHeight = 1.5;
+        this.crossSupportStartZ = 10.75;
         this.crossSupportMaterial = new THREE.MeshLambertMaterial({ color: "#fff2cc" });
         this.modifierOffset = 3;
         this.verticalStep = 4; //big influence on all the blocks. Assume we start at height 0 for now.
@@ -59,11 +60,11 @@ export default class Shelf extends SceneEntity {
     }
 
     setBlockList() {
-        this.baseBlockList = [FixedShelf, PullShelf, PullDesk, PlasticBin, FixedDesk, PullRack];
+        this.baseBlockList = [FixedShelf, PullShelf, PullDesk, PlasticBin, FixedDesk, PullRack, Drawer];
         this.shelfFilling = {};
         this.shelfFillingList = [];
         this.baseBlockList.forEach((block) => {
-            this.shelfFilling[block.parameters().name] = 0.8; //value between 0 and 1
+            this.shelfFilling[block.parameters().name] = block.parameters().startBlockListFillingValue; //value between 0 and 1
             this.shelfFillingList.push({ block: block, numberToFill: 0, priority: block.parameters().priority });
         });
     }
@@ -228,6 +229,14 @@ export default class Shelf extends SceneEntity {
         this.crossSupport = new THREE.Mesh(crossSupportGeom, this.crossSupportMaterial);
         this.crossSupport.add(ThreeUtilities.returnObjectOutline(this.crossSupport));
         this.object.add(this.crossSupport);
+
+        ThreeUtilities.disposeHierarchy(this.crossSupportBack);
+        let crossSupportGeomBack = new THREE.BoxGeometry(this.lastX() + this.partitionThickness, this.crossSupportHeight, this.crossSupportThickness);
+        crossSupportGeomBack.translate(this.lastX() / 2, -this.crossSupportHeight / 2, this.crossSupportStartZ);
+        this.crossSupportBack = new THREE.Mesh(crossSupportGeomBack, this.crossSupportMaterial);
+        this.crossSupportBack.add(ThreeUtilities.returnObjectOutline(this.crossSupportBack));
+        this.object.add(this.crossSupportBack);
+
 
         /* update modifiers position */
         this.leftModifier.updatePosition(new THREE.Vector3(- this.modifierOffset, - this.depth, 10));

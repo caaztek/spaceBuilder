@@ -18,8 +18,8 @@ export default class Partition extends SceneEntity {
         this.depth = depth;
         this.thickness = thickness;
 
-        this.bandWidth = 4;
-        this.footWidth = 2;
+        this.bandWidth = 1.5;
+        this.footWidth = 1;
         this.footHeight = 10;
         this.crossHeight = 10;
 

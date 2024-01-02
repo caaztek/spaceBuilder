@@ -18,6 +18,7 @@ export default class PlasticBin extends Block {
         param.sliderThickness = 0;
 
         param.minWidth = 20;
+        param.maxWidth = 30;
         param.widthMargin = 1;
 
         param.horizontalWeight = 0; //don't care where it fits horizontally

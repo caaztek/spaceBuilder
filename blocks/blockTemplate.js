@@ -4,6 +4,16 @@ import * as THREE from 'three';
 import ThreeUtilities from '../threeUtilities.js';
 import { CSG } from 'three-csg-ts';
 
+/* default template.
+1. Change TemplateName
+2. Update SetParameter with chosenName.parameters()
+3. Change param.name with proper name. Update all other parameters as necessary
+4. Make custom score if necessary
+5. Uodpate makeSlides() as necessary. Can start from super.makeSlides() if useful. It will make standard slides with a slot
+6. Update makeMovingObject() as necessary. Can start from super.makeMovingObject() if useful. It will make standard moving object with a slot
+7. In Shelf.js, import /block/templateName.js and update setBlockList to include the new block type
+ */
+
 export default class TemplateName extends Block {
     constructor(sceneManager, parent, zIndex = 5) {
         super(sceneManager, parent, zIndex);
