@@ -310,7 +310,7 @@ export default class Shelf extends SceneEntity {
         /* sort the filing list */
         this.shelfFillingList.sort((a, b) => b.priority - a.priority);
 
-
+ 
         /* go through the list and fill */
         for (var i = 0; i < this.shelfFillingList.length; i++) {
             let block = this.shelfFillingList[i];

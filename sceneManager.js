@@ -279,6 +279,7 @@ export default class SceneManager extends SceneEntity {
         this.initializeThreeScene();
 
         /* provides axis for everyone in the scene to use */
+        this.origin = new THREE.Vector3(0, 0, 0);
         this.xAxis = new THREE.Vector3(1, 0, 0);
         this.yAxis = new THREE.Vector3(0, 1, 0);
         this.zAxis = new THREE.Vector3(0, 0, 1);

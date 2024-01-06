@@ -152,7 +152,7 @@ export default class Block extends SceneEntity {
             maxWidth: 100,
             idealWidth: 15,
             widthWeight: 1,
-            widthMargin: 0.5, //margin from edge of partition to edge of block. 
+            widthMargin: 0.5, //margin from edge of partition to edge of block.
 
             minHeight: 10,
             maxHeight: 20,

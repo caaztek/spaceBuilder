@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { SceneEntity } from './sceneManager';
 import ThreeUtilities from './threeUtilities';
+import Dimension from './dimension';
 
 /**
  * class to manage all modifiers :
@@ -45,12 +46,15 @@ export default class Modifier extends SceneEntity {
 
         /* set standard moving function. Attach an array of objects with offsets. Modifier takes care of moving the object on its own.  */
         this.objectArray = [];
-        this.updateSelfPosition = false; //sometimes modifiers need to be update by the object through the justMoved callback.
+        this.updateSelfPosition = false; //sometimes modifiers need to be updated by the object through the justMoved callback.
 
         /* set axis */
         this.xAxis = new THREE.Vector3();
         this.yAxis = new THREE.Vector3();
         this.zAxis = new THREE.Vector3();
+
+        /* set dimension */
+        this.showDimensionWhenMoved = false;
 
         /* set-up bounded functions */
         this.boundJustMoved = this.justMoved.bind(this);
@@ -61,19 +65,15 @@ export default class Modifier extends SceneEntity {
     }
 
     setClickableCube() {
+        /* creates an invisible clickable cube a bit larger than the modifier to make it easier to click/tap */
         this.clickRadius = this.sceneManager.defaults.modifier.clickRadius;
         let cubeGeom = new THREE.BoxGeometry(this.clickRadius, this.clickRadius, this.clickRadius);
         let cubeMat = new THREE.MeshBasicMaterial({ color: "#000000" });
         this.cubeObject = new THREE.Mesh(cubeGeom, cubeMat);
-        // cubeObject.userData = {
-        //     sceneID: this.sceneID, //critical to get called back when clicked on
-        //     type: "modifier"
-        // }
         this.cubeObject.visible = false;
         this.object.add(this.cubeObject);
 
         this.makeClickable(this.cubeObject);
-        //this.clickeableObject = cubeObject;
         return this;
     }
 
@@ -135,13 +135,8 @@ export default class Modifier extends SceneEntity {
     justClicked() {
         if (this.needModifierMode && !this.sceneManager.keysDown["m"]) return;
 
-        // if (this._onClick !== undefined) {
-        //     this._onClick.call(this,this);//pass the entire modifier to the function.
-        // }
-
         this.sceneManager.switchControls(false);
 
-        //console.log("just clicked: " + this.sceneID);
         this.active = true;
         this.startPosition3D = this.object.position.clone();
 
@@ -163,6 +158,11 @@ export default class Modifier extends SceneEntity {
         }
 
         this.pointerStartPosition = this.sceneManager.pointer.clone();
+
+        if (this.showDimensionWhenMoved) {
+            this.dimension.switchVisibility(true);
+            this.dimension.update();
+        }
 
         this.sceneManager.switchInteractions(false);
 
@@ -210,6 +210,10 @@ export default class Modifier extends SceneEntity {
         this.sceneManager.activeModifier = undefined;
         this.sceneManager.switchInteractions(true); //will also reactivate controls.
 
+        if (this.showDimensionWhenMoved) {
+            this.dimension.switchVisibility(false);
+        }
+
         this.callAllUpdates("released");
 
         window.removeEventListener("pointermove", this.boundJustMoved);
@@ -221,17 +225,11 @@ export default class Modifier extends SceneEntity {
         return this.offsetDistance;
     }
 
-    /* will call callback whenever modifier is clicked on */
-    // onClick(callback) {
-    //     this._onClick = callback;
-    //     return this;
-    // }
-
-    /* will call callback whenever mouse is dragging after initial click */
-    // onMove(callback) {
-    //     this._onMove = callback;
-    //     return this;
-    // }
+    updateDimension(startPoint, endPoint,pullDirection, pullOffset,flipText) {
+        this.dimension = new Dimension(this.sceneManager, this.parent, startPoint,endPoint, pullDirection, pullOffset,flipText);
+        this.showDimensionWhenMoved = true;
+        return this;
+    }
 }
 
 

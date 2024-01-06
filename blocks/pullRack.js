@@ -25,7 +25,10 @@ export default class PullRack extends Block {
         param.centerSlotsOccupyAbove = 1
         param.centerSlotsOccupyBelow = 10
 
-        param.minWidth = 10;
+        param.idealHorizontalLocation = 0;
+        param.horizontalWeight = 2;
+
+        param.minWidth = 18;
         param.maxWidth = 30;
         param.idealWidth = 20;
 
@@ -75,12 +78,12 @@ export default class PullRack extends Block {
         for (var y = - 5; y > -this.depth + 5; y -= 5) {
 
             (function (y) { //needed to preserve value of y in callbacks 
-                    this.sceneManager.objectCache.loadObject("coatHanger", (objectName) => {
-                        objectName.position.set(0, y, clothOffset);
-                        this.blockObjectMoving.add(objectName);
-                    }, false, false, undefined, true);
-            
-                if (Math.random() < chance){
+                this.sceneManager.objectCache.loadObject("coatHanger", (objectName) => {
+                    objectName.position.set(0, y, clothOffset);
+                    this.blockObjectMoving.add(objectName);
+                }, false, false, undefined, true);
+
+                if (Math.random() < chance) {
                     this.sceneManager.objectCache.loadObject("shirt", (objectName) => {
                         objectName.position.set(0, y + 0.3, shirtOffset);
                         this.blockObjectMoving.add(objectName);

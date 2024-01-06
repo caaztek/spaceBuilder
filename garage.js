@@ -4,6 +4,7 @@ import { LinearModifier, PlanarModifier } from './modifier.js';
 import * as THREE from 'three';
 import Shelf from './shelf.js';
 import ObjectCache from './objectCache.js';
+import Dimension from './dimension.js';
 
 import bin10In from './models/bin10In.gltf';
 import officeMug from './models/officeMug.glb';
@@ -33,6 +34,8 @@ export default class Garage extends SceneEntity {
         this.cameraStartDepth = 350;
         this.floorMaterial = new THREE.MeshLambertMaterial({ color: "#e6e6e6" });
         this.wallMaterial = new THREE.MeshLambertMaterial({ color: "#f2f2f2" });
+
+        this.dimensionYOffset = 100;
 
         /* make a few updates to ojectCache */
         // this.sceneManager.objectCache.addObject("plasticBin", 'models/bin10In.gltf', 39);
@@ -108,9 +111,12 @@ export default class Garage extends SceneEntity {
     }
 
     addModifiers() {
+
+        let startPoint1 = this.sceneManager.origin.clone().addScaledVector(this.sceneManager.xAxis,this.wallThickness).addScaledVector(this.sceneManager.zAxis, 0)
         this.rightModifier = new LinearModifier(this.sceneManager, this, "line")
             .setScale(2)
             .updateDirection(this.sceneManager.xAxis, this.sceneManager.yAxis)
+            .updateDimension(startPoint1, startPoint1.clone().addScaledVector(this.sceneManager.xAxis,this.length - this.wallThickness * 2), this.sceneManager.yAxis.clone().negate(), 100, 0)
             .onUpdate((modifierType, modifier) => {
                 if (modifierType == "clicked") {
                     this.startLength = this.length;
@@ -118,13 +124,17 @@ export default class Garage extends SceneEntity {
                     let minLength = this.minLength;
                     if (this.shelves.length > 0) { minLength = this.shelves[0].lastX() + this.shelves[0].startX + this.wallThickness + this.shelves[0].partitionThickness / 2 }
                     this.length = Math.max(this.startLength + modifier.offsetDistance, minLength);
+                    modifier.dimension.updateEndPoint(startPoint1.clone().addScaledVector(this.sceneManager.xAxis,this.length-this.wallThickness * 2));
                     this.update();
                 }
             })
 
+        let startPoint = this.sceneManager.origin.clone().addScaledVector(this.sceneManager.yAxis,-this.shortWallLength).addScaledVector(this.sceneManager.xAxis,this.wallThickness / 2)
+
         this.topModifier = new LinearModifier(this.sceneManager, this, "line")
             .setScale(2)
             .updateDirection(this.sceneManager.zAxis, this.sceneManager.yAxis)
+            .updateDimension(startPoint, startPoint.clone().addScaledVector(this.sceneManager.zAxis,this.height), this.sceneManager.yAxis.clone().negate(), 20,Math.PI/2)
             .onUpdate((modifierType, modifier) => {
                 if (modifierType == "clicked") {
                     console.log("clicked");
@@ -133,6 +143,7 @@ export default class Garage extends SceneEntity {
                     let minHeight = this.minHeight;
                     if (this.shelves.length > 0) { minHeight = this.shelves[0].maxHeight() }
                     this.height = Math.max(this.startHeight + modifier.offsetDistance, minHeight)
+                    modifier.dimension.updateEndPoint(startPoint.clone().addScaledVector(this.sceneManager.zAxis,this.height));
                     this.update();
                 }
             })
@@ -183,5 +194,9 @@ export default class Garage extends SceneEntity {
 
         /* updateLights */
         this.updateLights();
+
+        /* quick dimension try */
+        // let dimension = new Dimension(this.sceneManager, this, new THREE.Vector3(0, 0, 0), new THREE.Vector3(250, -100, 0), new THREE.Vector3(0, -1, 0), 150)
+        // .update();
     }
 }
