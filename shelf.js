@@ -29,7 +29,9 @@ export default class Shelf extends SceneEntity {
         this.crossSupportStartZ = 10.75;
         this.crossSupportMaterial = new THREE.MeshLambertMaterial({ color: "#fff2cc" });
         this.modifierOffset = 3;
-        this.verticalStep = 4; //big influence on all the blocks. Assume we start at height 0 for now.
+        this.verticalStep = 4;
+        /* See drawing for clarification. All the modules will have to align to steps.generally modules should no protrude below their stepHeight and module+content not above their steps. Module height is generally referenced by the bottomMost step, but tbd. See draft drawings to clarify*/
+        this.startStep = 2; //distance between ground and first step.
 
         /* set block list */
         this.setBlockList();
@@ -60,14 +62,26 @@ export default class Shelf extends SceneEntity {
     }
 
     setBlockList() {
-        this.baseBlockList = [FixedShelf, PullShelf, PullDesk, PlasticBin, FixedDesk, PullRack, Drawer];
+        this.baseBlockListColumn = [PullDesk, FixedDesk, PullRack]
+        this.baseBlockListArea = [FixedShelf, PullShelf, PlasticBin, Drawer];
+        this.baseBlockList = this.baseBlockListColumn.concat(this.baseBlockListArea);
         this.shelfFilling = {};
         this.shelfFillingList = [];
         this.baseBlockList.forEach((block) => {
-            this.shelfFilling[block.parameters().name] = block.parameters().startBlockListFillingValue; //value between 0 and 1
-            this.shelfFillingList.push({ block: block, numberToFill: 0, priority: block.parameters().priority });
+            this.shelfFilling[block.parameters().name] = 0;
+            this.shelfFillingList.push({
+                block: block,
+                numberToFill: 0,
+                actualFilled: 0, //should be equal to shelfFilling value
+                priority: block.parameters().priority,
+                fillCoefficient: block.parameters().startBlockListFillingCoefficient,
+                maxFill: 10, //will be used to set GUI,
+                installedBlocks: [] //redundant with actualFilled.
+            });
         });
     }
+
+
 
     switchModifierVisibility(value) {
         this.leftModifier.switchVisibility(value);
@@ -95,17 +109,10 @@ export default class Shelf extends SceneEntity {
         for (var i = 0; i <= this.columns.length; i++) {
             column = this.columns[i];
             let newPartition = new Partition(this.sceneManager, this, this.partitionThickness, this.depth)
-            .setColumns(i == 0 ? undefined : this.columns[i-1], i == this.columns.length ? undefined: this.columns[i]);
+                .setColumns(i == 0 ? undefined : this.columns[i - 1], i == this.columns.length ? undefined : this.columns[i]);
 
             this.partitions.push(newPartition);
-
-            // if (i == 0) this.makePartition(column.startX, this.depth, column.height);
-            // else {
-            //     let partitionHeight = Math.max(column.height, this.columns[i - 1].height);
-            //     this.makePartition(column.startX, this.depth, partitionHeight);
         }
-        //this.makePartition(column.endX(), this.depth, column.height);
-
 
     }
 
@@ -277,48 +284,68 @@ export default class Shelf extends SceneEntity {
             }
         });
 
-        /* find the total weight of fill per column blocks */
-        let totalFillPerColumnWeight = 0;
+        /* initialize block list, in case it was filling before*/
         this.shelfFillingList.forEach((block) => {
-            if (block.block.parameters().fillPerColumn) totalFillPerColumnWeight += this.shelfFilling[block.block.parameters().name];
+            block.installedBlocks = [];
+            block.actualFilled = 0;
+            block.fillCoefficient = block.block.parameters().startBlockListFillingCoefficient;
         });
+
 
         /* find to total number of columns */
         let numberOfColumns = this.columns.length;
 
-        /* find the total weight of fill per area blocks */
-        let totalFillPerAreaWeight = 0;
-        this.shelfFillingList.forEach((block) => {
-            if (!block.block.parameters().fillPerColumn) totalFillPerAreaWeight += this.shelfFilling[block.block.parameters().name];
-        });
-
-        /* find the total area (# of center positions) */
+        /* find the total # of steps available for area fills */
         let totalArea = 0;
         this.columns.forEach((column) => {
             totalArea += column.height / column.verticalStep;
         });
 
+        /* find the total weight of fill per column blocks */
+        let totalFillPerColumnWeight = 0;
+        let totalFillPerAreaWeight = 0;
+
+        this.shelfFillingList.forEach((block) => {
+            if (block.block.parameters().fillPerColumn) {
+                totalFillPerColumnWeight += this.shelfFilling[block.block.parameters().name];
+                block.maxFill = numberOfColumns;
+            } else if (!block.block.parameters().fillPerColumn) {
+                totalFillPerAreaWeight += this.shelfFilling[block.block.parameters().name];
+                block.maxFill = totalArea / (block.block.parameters().centerSlotsOccupyAbove + block.block.parameters().centerSlotsOccupyBelow);
+            }
+        });
+
+
         /* update number to fill*/
         this.shelfFillingList.forEach((block) => {
             if (block.block.parameters().fillPerColumn) {
-                block.numberToFill = Math.ceil(this.shelfFilling[block.block.parameters().name] * this.shelfFilling[block.block.parameters().name] * numberOfColumns / totalFillPerColumnWeight);
+                block.numberToFill = Math.round(block.fillCoefficient * block.maxFill / totalFillPerColumnWeight);
             } else {
-                block.numberToFill = Math.ceil(this.shelfFilling[block.block.parameters().name] * this.shelfFilling[block.block.parameters().name] * totalArea / (totalFillPerAreaWeight * (block.block.parameters().centerSlotsOccupyAbove + block.block.parameters().centerSlotsOccupyBelow)));
+                block.numberToFill = Math.round(block.fillCoefficient * block.maxFill / totalFillPerAreaWeight);
             }
         });
 
         /* sort the filing list */
         this.shelfFillingList.sort((a, b) => b.priority - a.priority);
 
- 
+
         /* go through the list and fill */
         for (var i = 0; i < this.shelfFillingList.length; i++) {
             let block = this.shelfFillingList[i];
             for (var j = 0; j < block.numberToFill; j++) {
-                let bestScore = new block.block(this.sceneManager, this).findBestPosition(true);
-                if (bestScore.score == 0) break;
+                let newBlock = new block.block(this.sceneManager, this).findBestPosition(true);
+                // let bestScore = insertedBlock.findBestPosition(true);
+                if (newBlock.score == 0) {
+                    break; //hopefully insertedBlock gets caught by garbage collector?
+                } else {
+                    block.actualFilled++;
+                    block.installedBlocks.push(newBlock);
+                }
             }
         }
+
+        /* update GUI display to reflect the actual filled values */
+        this.updateGUI();
 
         if (false) {
             /* add 1 Fixed Shelf */
@@ -344,17 +371,50 @@ export default class Shelf extends SceneEntity {
                 if (bestScore.score == 0) break;
             }
         }
-
     }
 
     addGUI() {
         super.addGUI();
 
         /* create GUI for filling preferences */
-        this.baseBlockList.forEach((block) => {
-            this.guiFolder.add(this.shelfFilling, block.parameters().name, 0, 1, 1).step(0.05).onChange((value) => {
-                this.fillShelf();
+        this.shelfFillingList.forEach((block) => {
+            block.controller = this.guiFolder.add(this.shelfFilling, block.block.parameters().name, 0, 1, 1).onChange((value) => {
+                let diff = block.actualFilled - value;
+
+                if (diff > 0) {
+                    /* sort installed block by their score */
+                    block.installedBlocks.sort((a, b) => b.score - a.score);
+
+                    /* remove blocks starting from worse score */
+                    for (var i = 0; i < diff; i++) {
+                        let blockToRemove = block.installedBlocks.pop();
+                        blockToRemove.deleteEntity();
+                        block.actualFilled--;
+                    }
+                } else if (diff < 0) {
+                    //need to add a few blocks.
+                    for (var i = 0; i < -diff; i++) {
+                        let newBlock = new block.block(this.sceneManager, this).findBestPosition(true);
+                        if (newBlock.score == 0) {
+                            break; //hopefully insertedBlock gets caught by garbage collector?
+                        } else {
+                            block.actualFilled++;
+                            block.installedBlocks.push(newBlock);
+                        }
+                    }
+
+                }
+
+                this.updateGUI();
             });
+        });
+    }
+
+    updateGUI() {
+        this.shelfFillingList.forEach((block) => {
+            this.shelfFilling[block.block.parameters().name] = block.actualFilled;
+            block.controller.max(block.maxFill);
+            block.controller.updateDisplay();
         });
     }
 

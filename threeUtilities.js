@@ -177,31 +177,45 @@ export default class ThreeUtilities {
         return Math.round(number * Math.pow(10, digits)) / Math.pow(10, digits);
     }
 
+    static roundToPrecision(number, precision) {
+        let maxFraction = Math.pow(2, precision);
+        return Math.round(number * maxFraction) / maxFraction;
+    }
+
     /* will return a clean string down to 1/16" */
-    static toConstructionFormat(num) {
+    static toConstructionFormat(num,maxPrecision  = 4) {
+        let maxFraction = Math.pow(2,maxPrecision);
         const wholePart = Math.floor(num);
         const decimalPart = num - wholePart;
-        const fractionNumerator = Math.round(decimalPart * 16);
+        const fractionNumerator = Math.round(decimalPart * maxFraction);
 
         if (fractionNumerator === 0) {
             return `${wholePart}"`;
-        } else if (fractionNumerator === 16) {
+        } else if (fractionNumerator === maxFraction) {
             return `${wholePart + 1}"`;
         } else {
             let simplifiedNumerator = fractionNumerator;
-            let denominator = 16;
+            let denominator = maxFraction;
 
             // Reduce the fraction to its simplest form
-            if (fractionNumerator % 8 === 0) {
-                simplifiedNumerator = fractionNumerator / 8;
-                denominator = 2;
-            } else if (fractionNumerator % 4 === 0) {
-                simplifiedNumerator = fractionNumerator / 4;
-                denominator = 4;
-            } else if (fractionNumerator % 2 === 0) {
-                simplifiedNumerator = fractionNumerator / 2;
-                denominator = 8;
+            for (var i = maxPrecision - 1; i > 0; i--) {
+                if (fractionNumerator % Math.pow(2,i) === 0) {
+                    simplifiedNumerator = fractionNumerator / Math.pow(2,i);
+                    denominator = maxFraction / Math.pow(2,i);
+                    break;
+                }
             }
+
+            // if (fractionNumerator % 8 === 0) {
+            //     simplifiedNumerator = fractionNumerator / 8;
+            //     denominator = 2;
+            // } else if (fractionNumerator % 4 === 0) {
+            //     simplifiedNumerator = fractionNumerator / 4;
+            //     denominator = 4;
+            // } else if (fractionNumerator % 2 === 0) {
+            //     simplifiedNumerator = fractionNumerator / 2;
+            //     denominator = 8;
+            // }
 
             const fractionString = simplifiedNumerator + '/' + denominator;
             return `${wholePart}"${fractionString}`;

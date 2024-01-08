@@ -15,6 +15,8 @@ export default class Block extends SceneEntity {
 
         this.boundUpdateAnimation = this.updateAnimation.bind(this);
 
+        this.score = 0; //score of the findBestPosition when this block was inserted.
+
         this.setParameters();
         //this.setDimensions();
        // this.update();
@@ -41,10 +43,11 @@ export default class Block extends SceneEntity {
 
         if (insert && bestOption.score != 0) {
             /* we found one valid solution. */
+            this.score = bestOption.score;
             this.setColumn(bestOption.column).setZIndex(bestOption.zIndex).update();
         }
 
-        return bestOption;
+        return this;
     }
 
     checkOptionAvailability(column, zIndex) {
@@ -123,6 +126,24 @@ export default class Block extends SceneEntity {
         }
     }
 
+    releaseOccupancy() {
+        /* removes this block from the parent column block array */
+        this.parent.blocks.splice(this.parent.blocks.indexOf(this),1);
+
+        /* release the occupancy of the column */
+        let param = this.parameters;
+        let zIndex = this.zIndex;
+        for (var i = zIndex - param.rightSlotsOccupyBelow; i < zIndex + param.rightSlotsOccupyAbove; i++) {
+            this.parent.rightOccupants[i] = undefined;
+        }
+        for (var i = zIndex - param.leftSlotsOccupyBelow; i < zIndex + param.leftSlotsOccupyAbove; i++) {
+            this.parent.leftOccupants[i] = undefined;
+        }
+        for (var i = zIndex - param.centerSlotsOccupyBelow; i < zIndex + param.centerSlotsOccupyAbove; i++) {
+            this.parent.centerOccupants[i] = undefined;
+        }
+    }
+
     setZIndex(zIndex) {
         this.zIndex = zIndex;
 
@@ -137,7 +158,7 @@ export default class Block extends SceneEntity {
             slideColor: "#ffffe6",
             objectColor:  "#ffffe6",
 
-            startBlockListFillingValue : 0.8,
+            startBlockListFillingCoefficient : 0.8,
 
             maxDistanceFromReference: 100,
             minDistanceFromReference: 6, 
@@ -328,6 +349,15 @@ export default class Block extends SceneEntity {
 
     hoveredOut() {
         this.blockMesh.material.color.set(this.selected ? this.sceneManager.defaults.selection.colorSelected : this.parameters.objectColor);
+    }
+
+    deleteEntity(releaseOccupancy = true) {
+        /* need to remove this block from column and lists */
+        if (releaseOccupancy) this.releaseOccupancy();
+
+        super.deleteEntity();
+
+        
     }
 
 }

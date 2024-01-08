@@ -76,7 +76,7 @@ export default class Column extends SceneEntity {
         /* called whenever there is a change in overall column size */
 
         /* empty column */
-        this.blocks.forEach(block => block.deleteEntity());
+        this.blocks.forEach(block => block.deleteEntity(false)); //no need to release occupancy in this case
         this.blocks = [];
         //this.object.remove(this.pointLight);
 

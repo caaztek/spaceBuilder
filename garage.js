@@ -115,8 +115,9 @@ export default class Garage extends SceneEntity {
         let startPoint1 = this.sceneManager.origin.clone().addScaledVector(this.sceneManager.xAxis,this.wallThickness).addScaledVector(this.sceneManager.zAxis, 0)
         this.rightModifier = new LinearModifier(this.sceneManager, this, "line")
             .setScale(2)
+            .updatePrecision(3)
             .updateDirection(this.sceneManager.xAxis, this.sceneManager.yAxis)
-            .updateDimension(startPoint1, startPoint1.clone().addScaledVector(this.sceneManager.xAxis,this.length - this.wallThickness * 2), this.sceneManager.yAxis.clone().negate(), 100, 0)
+            .updateDimension(startPoint1, startPoint1.clone().addScaledVector(this.sceneManager.xAxis,this.length - this.wallThickness * 2), this.sceneManager.yAxis.clone().negate(), 100, 0,0)
             .onUpdate((modifierType, modifier) => {
                 if (modifierType == "clicked") {
                     this.startLength = this.length;
@@ -133,8 +134,9 @@ export default class Garage extends SceneEntity {
 
         this.topModifier = new LinearModifier(this.sceneManager, this, "line")
             .setScale(2)
+            .updatePrecision(3)
             .updateDirection(this.sceneManager.zAxis, this.sceneManager.yAxis)
-            .updateDimension(startPoint, startPoint.clone().addScaledVector(this.sceneManager.zAxis,this.height), this.sceneManager.yAxis.clone().negate(), 20,Math.PI/2)
+            .updateDimension(startPoint, startPoint.clone().addScaledVector(this.sceneManager.zAxis,this.height), this.sceneManager.yAxis.clone().negate(), 20,Math.PI/2,0)
             .onUpdate((modifierType, modifier) => {
                 if (modifierType == "clicked") {
                     console.log("clicked");

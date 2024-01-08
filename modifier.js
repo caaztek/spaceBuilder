@@ -62,6 +62,8 @@ export default class Modifier extends SceneEntity {
 
         /* set-up modifier mode. Requires m key to be pressed to activate modifier */
         this.needMode = false;
+
+        this.maxPrecision = 4; //offset will snap to 2^max precision inch fraction. 
     }
 
     setClickableCube() {
@@ -118,6 +120,11 @@ export default class Modifier extends SceneEntity {
     setScale(scale) {
         this.scale = scale;
         this.object.scale.set(scale, scale, scale);
+        return this;
+    }
+
+    updatePrecision(precision) {
+        this.maxPrecision = precision;
         return this;
     }
 
@@ -182,9 +189,11 @@ export default class Modifier extends SceneEntity {
         this.sceneManager.updatePointer(event)
         /* first measure by how much the pointer should have moved. */
         this.offsetDistance = this.sceneManager.pointer.clone().sub(this.pointerStartPosition).dot(this.startOffset2D.clone().sub(this.startPosition2D)) / this.offsetLength;
+        this.offsetDistance = ThreeUtilities.roundToPrecision(this.offsetDistance, this.maxPrecision);
 
         if (this.yAxis) {
             this.offsetDistanceY = this.sceneManager.pointer.clone().sub(this.pointerStartPosition).dot(this.startOffset2DY.clone().sub(this.startPosition2D)) / this.offsetLengthY;
+            this.offsetDistanceY = ThreeUtilities.roundToPrecision(this.offsetDistanceY, this.maxPrecision);
         }
 
         if (this.objectArray.length > 0) {
@@ -225,8 +234,8 @@ export default class Modifier extends SceneEntity {
         return this.offsetDistance;
     }
 
-    updateDimension(startPoint, endPoint,pullDirection, pullOffset,flipText) {
-        this.dimension = new Dimension(this.sceneManager, this.parent, startPoint,endPoint, pullDirection, pullOffset,flipText);
+    updateDimension(startPoint, endPoint,pullDirection, pullOffset,rotateTextX,rotateTextY, precision = this.maxPrecision) {
+        this.dimension = new Dimension(this.sceneManager, this.parent, startPoint,endPoint, pullDirection, pullOffset,rotateTextX,rotateTextY, precision);
         this.showDimensionWhenMoved = true;
         return this;
     }
