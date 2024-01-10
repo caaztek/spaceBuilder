@@ -2,13 +2,19 @@ import * as THREE from 'three';
 import Block from './block.js';
 
 export default class PlasticBin extends Block {
-    constructor(sceneManager, parent, zIndex = 5) {
-        super(sceneManager, parent, zIndex);
+    constructor(sceneManager, parent, variationName) {
+        super(sceneManager, parent, variationName);
     }
 
     static parameters() {
         let param = super.parameters();
-        param.name = "Plastic bin";
+        param.variations = [
+            {
+                variationName: "Plastic bin",
+                variationParameters: {
+                }
+            }
+        ],
 
         param.slideColor = "#ccddff";
         param.objectColor = "#ccddff";
@@ -37,7 +43,8 @@ export default class PlasticBin extends Block {
         param.centerSlotsOccupyAbove= 1;
         param.centerSlotsOccupyBelow= slotsBelow;
 
-        param.priority = 3, 
+        param.startBlockListFillingCoefficient = 0.3;
+        param.priority = 3
         param.fillPerColumn = false
 
         return param;
@@ -80,8 +87,8 @@ export default class PlasticBin extends Block {
         });
     }
     
-    deleteEntity() {
-        super.deleteEntity();
+    deleteEntity(releaseOccupancy,updateShelfFilling) {
+        super.deleteEntity(releaseOccupancy,updateShelfFilling);
         this.binObject = undefined;
     }
 

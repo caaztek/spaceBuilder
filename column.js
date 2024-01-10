@@ -12,6 +12,7 @@ export default class Column extends SceneEntity {
         this.depth = depth;
         this.height = height;
         this.verticalStep = this.parent.verticalStep;
+        this.startStep = this.parent.startStep;
 
         this.partitionThickness = this.parent.partitionThickness;
         this.heightSnapDistance = 3;
@@ -39,10 +40,13 @@ export default class Column extends SceneEntity {
                     let garage = this.findAncestorWithType("garage");
                     let targetHeight = Math.max(Math.min(this.startHeight + modifier.offsetDistance, garage.height), this.parent.minHeight);
                     let index = this.returnIndex();
+                    console.log(index)
                     if (index > 0 && Math.abs(targetHeight - this.parent.columns[index - 1].height) < this.heightSnapDistance) {
                         targetHeight = this.parent.columns[index - 1].height;
+                        console.log("snap1")
                     } else if (index < this.parent.columns.length - 1 && Math.abs(targetHeight - this.parent.columns[index + 1].height) < this.heightSnapDistance) {
                         targetHeight = this.parent.columns[index + 1].height;
+                        console.log("snap2")
                     }
                     this.height = targetHeight;
                     this.sizeUpdate();
@@ -68,7 +72,7 @@ export default class Column extends SceneEntity {
         this.topModifier.switchVisibility(value);
     }
 
-    deleteEntity(deleteLeftPartition = true) {
+    deleteEntity(deleteLeftPartition = true) { 
 
         /* delete modifier */
         this.topModifier.deleteEntity();
@@ -81,6 +85,9 @@ export default class Column extends SceneEntity {
             if (this.leftPartition != undefined && this.leftPartition.leftColumn != undefined) {
                 this.leftPartition.leftColumn.rightPartition = this.rightPartition;
                 this.rightPartition.leftColumn = this.leftPartition.leftColumn;
+            } else if (this.leftPartition != undefined && this.leftPartition.leftColumn == undefined) {
+                /* we just deleted the first column */
+                this.rightPartition.leftColumn = undefined;
             }
             this.leftPartition.deleteEntity();
         }
@@ -93,7 +100,7 @@ export default class Column extends SceneEntity {
     }
 
     maxZIndex() {
-        return Math.floor(this.height / this.verticalStep);
+        return Math.ceil((this.height - this.startStep) / this.verticalStep);
     }
 
     sizeUpdate() {
@@ -104,7 +111,6 @@ export default class Column extends SceneEntity {
         if (newWidth != this.width) {
             widthChange = true;
             this.width = newWidth;
-
             if (this.width <= 0) {
                 this.deleteEntity();
                 return true;

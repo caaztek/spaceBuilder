@@ -5,8 +5,8 @@ import ThreeUtilities from '../threeUtilities.js';
 import { CSG } from 'three-csg-ts';
 
 export default class FixedDesk extends Block {
-    constructor(sceneManager, parent, zIndex = 5) {
-        super(sceneManager, parent, zIndex);
+    constructor(sceneManager, parent, variationName) {
+        super(sceneManager, parent, variationName );
     }
 
     setParameters() {
@@ -17,11 +17,18 @@ export default class FixedDesk extends Block {
     static parameters() {
         let param = super.parameters();
         /* update parameters custom to this block */
-        param.name = "Fixed desk";
+        param.variations= [
+            {
+                variationName: "Fixed desk",
+                variationParameters: {
+                }
+            }
+        ],
 
         param.objectColor=  "#ffffe6",
 
         param.desktopThickness = 1.5;
+        param.slideHeight = 1.5; //bottom of the desk will be aligned with tick
 
         param.referenceIsBottom= true;
         param.minDistanceFromReference = 25;
@@ -45,8 +52,8 @@ export default class FixedDesk extends Block {
 
         param.allowSlide = false
 
-        param.priority = 10; 
-        param.onePerColumn = true,
+        param.priority = 10
+        param.onePerColumn = true
         param.fillPerColumn = true
 
         return param;

@@ -94,6 +94,7 @@ export default class ObjectCache extends SceneEntity {
             return;
         } 
         if (element.status == 0) {
+            /* first time the object is called. needs to be loaded. */
             element.status = 1;
             element.callbacks.push(callBack);
             element.assignMaterial = assignMaterial;
@@ -140,8 +141,10 @@ export default class ObjectCache extends SceneEntity {
                 }
             );
         } else if (element.status == 1) {
+            /* object is loading. add callback to list */
             element.callbacks.push(callBack); //important because the second load call usually happens before the first one is finished loading. In this case, add new callback to list and they will all execute when the object is loaded
         } else {
+            /* object is loaded. execute callback */
             this.executeCallbacks(objectName, callBack);
         }
     }

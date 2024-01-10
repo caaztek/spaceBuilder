@@ -5,8 +5,8 @@ import ThreeUtilities from '../threeUtilities.js';
 import { CSG } from 'three-csg-ts';
 
 export default class PullRack extends Block {
-    constructor(sceneManager, parent) {
-        super(sceneManager, parent);
+    constructor(sceneManager, parent, variationName) {
+        super(sceneManager, parent, variationName);
     }
 
     setParameters() {
@@ -16,14 +16,20 @@ export default class PullRack extends Block {
     static parameters() {
         let param = super.parameters();
         /* update parameters custom to this block */
-        param.name = "Pull-out rack";
+        param.variations = [
+            {
+                variationName: "Pull-out rack",
+                variationParameters: {
+                }
+            }
+        ],
 
-        param.rightSlotsOccupyAbove = 1 //how many slots above the reference slot it occupies. Including where it is attached
+            param.rightSlotsOccupyAbove = 1 //how many slots above the reference slot it occupies. Including where it is attached
         param.rightSlotsOccupyBelow = 0
         param.leftSlotsOccupyAbove = 1
         param.leftSlotsOccupyBelow = 0
         param.centerSlotsOccupyAbove = 1
-        param.centerSlotsOccupyBelow = 10
+        param.centerSlotsOccupyBelow = 12
 
         param.idealHorizontalLocation = 0;
         param.horizontalWeight = 2;
@@ -36,9 +42,9 @@ export default class PullRack extends Block {
         param.cylinderRadius = 1;
         param.cylinderOffset = 2;
 
-        param.priority = 10,
-            param.onePerColumn = true,
-            param.fillPerColumn = true
+        param.priority = 10;
+        param.onePerColumn = true;
+        param.fillPerColumn = true;
 
         return param;
     }
@@ -60,7 +66,7 @@ export default class PullRack extends Block {
         /* add slider */
         let blockGeometry = new THREE.BoxGeometry(this.width, this.depth, param.sliderThickness);
         this.blockMesh = new THREE.Mesh(blockGeometry, this.blockObjectMaterial);
-        this.blockMesh.position.set(0, -this.depth / 2, 0);
+        this.blockMesh.position.set(0, -this.depth / 2, this.parameters.slideHeight / 2);
         this.blockMesh.add(ThreeUtilities.returnObjectOutline(this.blockMesh));
         this.blockObjectMoving.add(this.blockMesh);
 

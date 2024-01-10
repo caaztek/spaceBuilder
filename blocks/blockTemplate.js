@@ -15,8 +15,8 @@ import { CSG } from 'three-csg-ts';
  */
 
 export default class TemplateName extends Block {
-    constructor(sceneManager, parent, zIndex = 5) {
-        super(sceneManager, parent, zIndex);
+    constructor(sceneManager, parent, variationName) {
+        super(sceneManager, parent, variationName);
     }
 
     setParameters() {
@@ -26,7 +26,15 @@ export default class TemplateName extends Block {
     static parameters() {
         let param = super.parameters();
         /* update parameters custom to this block */
-        param.name = "Template name";
+
+        param.variations = [
+            {
+                variationName: "Template name",
+                variationParameters: {
+                }
+            }
+        ],
+        
 
         param.rightSlotsOccupyAbove = 2 //how many slots above the reference slot it occupies. Including where it is attached
         param.rightSlotsOccupyBelow= 1
@@ -35,8 +43,8 @@ export default class TemplateName extends Block {
         param.centerSlotsOccupyAbove= 2
         param.centerSlotsOccupyBelow= 1
 
-        param.priority = 2, 
-        param.onePerColumn = false,
+        param.priority = 2
+        param.onePerColumn = false
         param.fillPerColumn = false
 
         return param;

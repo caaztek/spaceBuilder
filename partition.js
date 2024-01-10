@@ -25,6 +25,8 @@ export default class Partition extends SceneEntity {
 
         this.rightColumn = undefined;
         this.leftColumn = undefined;
+
+        this.drawSteps = false; //draw horizontal lines at the front of partition to represent steps.
     }
 
     switchModifierVisibility(value) {
@@ -92,7 +94,9 @@ export default class Partition extends SceneEntity {
                     /* need to snap to a multiple of  shelf.columnWidthStep*/
                     let shelf = this.findAncestorWithType("shelf");
                     let widthStep = shelf.columnWidthStep;
-                    let offsetDistance = Math.min(Math.round(modifier.offsetDistance / widthStep) * widthStep, this.maxOffset);
+                    let offsetDistance = modifier.offsetDistance;
+                    if (!this.firstPartitionClicked) offsetDistance = Math.round(offsetDistance / widthStep) * widthStep
+                    offsetDistance = Math.min(offsetDistance, this.maxOffset);
 
                     if (!shelf.pushColumnsRight) {
                         if (this.rightColumn != undefined) this.rightColumn.sizeUpdate();
@@ -143,10 +147,14 @@ export default class Partition extends SceneEntity {
     }
 
     deleteEntity() {
-        super.deleteEntity();
-
+        
+        /* remove partition from parent array */
+        this.parent.partitions.splice(this.parent.partitions.indexOf(this), 1);
+        
         /* delete modifier */
         this.centralModifier.deleteEntity();
+        
+        super.deleteEntity();
     }
 
     update() {
@@ -186,6 +194,7 @@ export default class Partition extends SceneEntity {
         let partitionMesh = ThreeUtilities.returnGroupAtDetailedCoord(partitionGeom, this.material, new THREE.Vector3(-this.thickness / 2, 0, 0), this.sceneManager.yAxis.clone().negate(), this.sceneManager.zAxis, this.sceneManager.xAxis, this.sceneManager.xAxis.clone().negate(), true);
         this.partitionObject.add(partitionMesh);
 
+        /* cross support at the bottom */
         shape = new THREE.Shape();
         shape.moveTo(this.bandWidth, this.crossHeight);
         shape.lineTo(this.depth - this.bandWidth, this.crossHeight);
@@ -194,15 +203,27 @@ export default class Partition extends SceneEntity {
         shape.lineTo(this.bandWidth, this.crossHeight);
 
         const crossGeom = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-        //const partitionMesh = new THREE.Mesh(partitionGeom, this.material);
-
         let crossMesh = ThreeUtilities.returnGroupAtDetailedCoord(crossGeom, this.material, new THREE.Vector3(-this.thickness / 2, 0, 0), this.sceneManager.yAxis.clone().negate(), this.sceneManager.zAxis, this.sceneManager.xAxis, this.sceneManager.xAxis.clone().negate(), true);
         this.partitionObject.add(crossMesh);
 
         /* update modifier position */
         this.centralModifier.updatePosition(new THREE.Vector3(0, -this.depth, this.height / 2))
 
-        //console.log("building partitions")
+        /* optionally draw ticks for steps */
+        if (this.drawSteps) {
+            let stepZ = this.parent.startStep;
+            let stepObject = new THREE.Group();
+            this.partitionObject.add(stepObject);
+            const material = new THREE.LineBasicMaterial({ color: "#000000" });
+            while (stepZ < this.height) {
+                let geometry = new THREE.BufferGeometry().setFromPoints([
+                    new THREE.Vector3(-this.thickness/2, -this.depth - 0.1, stepZ), // Start point
+                    new THREE.Vector3(this.thickness/2, -this.depth - 0.1, stepZ)   // End point
+                ]);
+                stepObject.add(new THREE.Line(geometry, material));
+                stepZ += this.parent.verticalStep;
+            }
+        }
 
     }
 

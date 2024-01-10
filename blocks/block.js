@@ -8,8 +8,10 @@ import Column from '../column.js';
 
 /* class containing all the information for blocks: units that are filling-up shelves. Each block contain information to draw itself and position itself within a column */
 export default class Block extends SceneEntity {
-    constructor(sceneManager, shelf) {
+    constructor(sceneManager, shelf, variationName = "defaultBlock") {
         super(sceneManager, undefined, "block");
+
+        this.variationName = variationName;
 
         this.shelf = shelf; // blocks are attached to shelves when created. They can then assigned themselved to columns and position themselves.
 
@@ -18,8 +20,7 @@ export default class Block extends SceneEntity {
         this.score = 0; //score of the findBestPosition when this block was inserted.
 
         this.setParameters();
-        //this.setDimensions();
-        // this.update();
+        this.applyVariationParameters();
     }
 
     findBestPosition(insert = true) {
@@ -56,13 +57,13 @@ export default class Block extends SceneEntity {
 
         /* check availability of placement */
         for (var i = zIndex - param.rightSlotsOccupyBelow; i < zIndex + param.rightSlotsOccupyAbove; i++) {
-            if (i < 1 || i > column.maxZIndex() || column.rightOccupants[i] != undefined) { return false }
+            if (i < 0 || i > column.maxZIndex() || column.rightOccupants[i] != undefined) { return false }
         }
         for (var i = zIndex - param.leftSlotsOccupyBelow; i < zIndex + param.leftSlotsOccupyAbove; i++) {
-            if (i < 1 || i > column.maxZIndex() || column.leftOccupants[i] != undefined) { return false }
+            if (i < 0 || i > column.maxZIndex() || column.leftOccupants[i] != undefined) { return false }
         }
         for (var i = zIndex - param.centerSlotsOccupyBelow; i < zIndex + param.centerSlotsOccupyAbove; i++) {
-            if (i < 1 || column.centerOccupants[i] != undefined) { return false }
+            if (i < 0 || column.centerOccupants[i] != undefined) { return false }
         }
         return true;
     }
@@ -75,7 +76,7 @@ export default class Block extends SceneEntity {
 
         if (param.onePerColumn) {
             for (var i = 0; i < column.blocks.length; i++) {
-                if (column.blocks[i].parameters.name == param.name) {
+                if (column.blocks[i].variationName == this.variationName) {
                     return 0;
                 }
             }
@@ -154,7 +155,15 @@ export default class Block extends SceneEntity {
 
     static parameters() {
         return {
-            name: "defaultBlock",
+
+            variations: [
+                {
+                    variationName: "defaultBlock",
+                    variationParameters: {
+                    }
+                }
+            ],
+
             slideColor: "#ffffe6",
             objectColor: "#ffffe6",
 
@@ -180,7 +189,7 @@ export default class Block extends SceneEntity {
             idealHeight: 15,
             heighWeight: 1,
 
-            slideHeight: 2,
+            slideHeight: 2.25,
             slideRecess: 0.375, //how much the slide opening is recessed
             slideThickness: 0.75,
             sliderThickness: 0.75,
@@ -201,6 +210,16 @@ export default class Block extends SceneEntity {
             priority: 2, //to decide the order in which the blocks are placed
             onePerColumn: false, //if true, only one block of this type can be placed per column. Maybe always the same as fillPerColumn?
             fillPerColumn: false //if true, the 0-1 number in gui indicates the percentage of columns that should be filled. All fillPercolumn blocks should be placed first. 
+        }
+    }
+
+    applyVariationParameters() {
+        /* update the parameters that are modified by the variation */
+        let variation = this.parameters.variations.find(variation => variation.variationName == this.variationName)
+        let variationParameters = variation.variationParameters;
+
+        for (var key in variationParameters) {
+            this.parameters[key] = variationParameters[key];
         }
     }
 
@@ -227,13 +246,14 @@ export default class Block extends SceneEntity {
     setDimensions() {
         /* Creates important dimensions based on parameters generally should not be overwritten */
         let param = this.parameters;
+
         this.blockSlidesMaterial = new THREE.MeshLambertMaterial({ color: param.slideColor });
         this.blockObjectMaterial = new THREE.MeshLambertMaterial({ color: param.objectColor });
 
         this.height = param.idealHeight;
         this.width = this.parent.width - this.parent.partitionThickness - 2 * param.widthMargin;
         this.depth = this.parent.depth; //has to fit within parent column.
-        this.zPosition = this.zIndex * this.parent.verticalStep;
+        this.zPosition = this.zIndex * this.parent.verticalStep + this.parent.startStep;
         this.pullOutPosition = 0; //will be used for animation
         this.maxPullOut = this.depth - param.maxPullOutOffset;
         this.animationStatus = 0; //0 is stored, 1 is in transition, 2 is pulled out, 3 is transition in
@@ -285,7 +305,7 @@ export default class Block extends SceneEntity {
 
         let slideGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
 
-        let slideMeshRight = ThreeUtilities.returnGroupAtDetailedCoord(slideGeometry, this.blockSlidesMaterial, new THREE.Vector3(this.parent.width / 2 - this.parent.partitionThickness / 2, 0, 0), this.sceneManager.zAxis, this.sceneManager.xAxis.clone().negate(), this.sceneManager.yAxis.clone().negate(), true);
+        let slideMeshRight = ThreeUtilities.returnGroupAtDetailedCoord(slideGeometry, this.blockSlidesMaterial, new THREE.Vector3(this.parent.width / 2 - this.parent.partitionThickness / 2, 0, param.slideHeight / 2), this.sceneManager.zAxis, this.sceneManager.xAxis.clone().negate(), this.sceneManager.yAxis.clone().negate(), true);
 
 
         //let slideGeometry = new THREE.BoxGeometry(this.parameters.slideThickness, this.depth, this.parameters.slideHeight);
@@ -294,7 +314,7 @@ export default class Block extends SceneEntity {
         // slideMeshRight.add(ThreeUtilities.returnObjectOutline(slideMeshRight))
         this.blockObjectFixed.add(slideMeshRight);
 
-        let slideMeshLeft = ThreeUtilities.returnGroupAtDetailedCoord(slideGeometry, this.blockSlidesMaterial, new THREE.Vector3(-this.parent.width / 2 + this.parent.partitionThickness / 2, 0, 0), this.sceneManager.zAxis.clone().negate(), this.sceneManager.xAxis.clone(), this.sceneManager.yAxis.clone().negate(), true);
+        let slideMeshLeft = ThreeUtilities.returnGroupAtDetailedCoord(slideGeometry, this.blockSlidesMaterial, new THREE.Vector3(-this.parent.width / 2 + this.parent.partitionThickness / 2, 0, param.slideHeight / 2), this.sceneManager.zAxis.clone().negate(), this.sceneManager.xAxis.clone(), this.sceneManager.yAxis.clone().negate(), true);
 
         // let slideMeshLeft = new THREE.Mesh(slideGeometry, this.blockSlidesMaterial);
         // slideMeshLeft.position.set(-this.parent.width/2 + this.parent.partitionThickness / 2 + slideThickness/2, -this.depth/2, 0);
@@ -305,7 +325,7 @@ export default class Block extends SceneEntity {
     makeMovingObject() {
         /* create the block. Vertically centered on the attachment index. Shift as needed. */
         let blockGeometry = new THREE.BoxGeometry(this.width, this.depth, this.height);
-        blockGeometry.translate(0, -this.depth / 2, 0);
+        blockGeometry.translate(0, -this.depth / 2, this.parameters.slideHeight / 2);
         this.blockMesh = new THREE.Mesh(blockGeometry, this.blockObjectMaterial);
         this.blockMesh.add(ThreeUtilities.returnObjectOutline(this.blockMesh))
         this.blockObjectMoving.add(this.blockMesh);
@@ -348,7 +368,7 @@ export default class Block extends SceneEntity {
     justClicked() {
         /* called when the block is clicked on */
 
-        console.log("clicked on block: " + this.parameters.name);
+        console.log("clicked on block: " + this.variationName);
         console.log("vertical Index: " + this.zIndex);
 
         if (this.parameters.allowSlide && this.animationStatus == 0) {
@@ -361,7 +381,6 @@ export default class Block extends SceneEntity {
     }
 
 
-
     hoveredIn() {
         this.blockMesh.material.color.set(this.sceneManager.defaults.selection.colorHovered);
     }
@@ -371,13 +390,10 @@ export default class Block extends SceneEntity {
     }
 
     deleteEntity(releaseOccupancy = true, updateShelfFilling = true) {
-        /* need to remove this block from column and lists */
-        if (releaseOccupancy) this.releaseOccupancy();
-
         /* need to update the GUI */
         if (updateShelfFilling) {
             let shelf = this.findAncestorWithType("shelf");
-            shelf.shelfFilling[this.parameters.name]--;
+            shelf.shelfFilling[this.variationName]--;
             shelf.shelfFillingList.forEach(block => {
                 if (block.block.parameters().name == this.parameters.name) {
                     block.installedBlocks.splice(block.installedBlocks.indexOf(this), 1);
@@ -387,22 +403,36 @@ export default class Block extends SceneEntity {
             })
         }
 
-        super.deleteEntity();
+        /* need to remove this block from column and lists */
+        if (releaseOccupancy) this.releaseOccupancy();
 
+        //console.log("deleting block: " + this.parameters.name)
+
+        //ThreeUtilities.disposeHierarchy(this.blockObjectMoving);
+
+        super.deleteEntity();
 
     }
 
 }
 
 export class FixedShelf extends Block {
-    constructor(sceneManager, parent, zIndex = 5) {
-        super(sceneManager, parent, zIndex);
+    constructor(sceneManager, parent, variationName) {
+        super(sceneManager, parent, variationName);
     }
 
     static parameters() {
         let param = super.parameters();
-        param.name = "Fixed shelf";
-        param.slideColor = "#ccddff";
+
+        param.variations = [
+            {
+                variationName: "Fixed shelf",
+                variationParameters: {
+                }
+            }
+        ],
+
+            param.slideColor = "#ccddff";
         param.objectColor = "#ccddff";
 
         param.widthMargin = 0.1;
@@ -422,7 +452,7 @@ export class FixedShelf extends Block {
         param.centerSlotsOccupyAbove = 2;
         param.centerSlotsOccupyBelow = 0;
 
-        param.priority = 1,
+        param.priority = 1
         param.fillPerColumn = false
 
         return param;
@@ -438,14 +468,22 @@ export class FixedShelf extends Block {
 }
 
 export class PullShelf extends Block {
-    constructor(sceneManager, parent, zIndex = 5) {
-        super(sceneManager, parent, zIndex);
+    constructor(sceneManager, parent, variationName) {
+        super(sceneManager, parent, variationName);
     }
 
     static parameters() {
         let param = super.parameters();
-        param.name = "Pull-out Shelf";
-        param.slideColor = "#ccddff";
+
+        param.variations = [
+            {
+                variationName: "Pull-out Shelf",
+                variationParameters: {
+                }
+            }
+        ],
+
+            param.slideColor = "#ccddff";
         param.objectColor = "#ccddff";
 
         param.minHeight = 0.75;
@@ -456,7 +494,7 @@ export class PullShelf extends Block {
         param.maxWidth = 30;
 
         param.referenceIsBottom = true;
-        param.minDistanceFromReference = 3;
+        param.minDistanceFromReference = 0;
         param.maxDistanceFromReference = 1000;
         param.idealDistanceFromReference = 10;
 
@@ -467,8 +505,8 @@ export class PullShelf extends Block {
         param.centerSlotsOccupyAbove = 2;
         param.centerSlotsOccupyBelow = 0;
 
-        param.priority = 2,
-            param.fillPerColumn = false
+        param.priority = 2
+        param.fillPerColumn = false
 
         return param;
     }

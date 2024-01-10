@@ -394,12 +394,12 @@ export default class SceneManager extends SceneEntity {
         }
     }
 
-    addPointLight(intensity, x,y,z, addObject,color = 0xffffff, helper = false) {
+    addPointLight(intensity, x, y, z, addObject, color = 0xffffff, helper = false) {
         let pointLight = new THREE.PointLight(0xffffff, intensity);
         pointLight.position.set(x, y, z);
         const sphereSize = 1;
 
-        if (addObject!= undefined) {
+        if (addObject != undefined) {
             addObject.add(pointLight);
             if (helper) {
                 const pointLightHelper = new THREE.PointLightHelper(pointLight, sphereSize);
@@ -459,6 +459,20 @@ export default class SceneManager extends SceneEntity {
         this.displayFolder = this.gui.addFolder('display');
         this.displayFolder.add(this, 'showAxes').onChange((value) => this.updateAxes());
         this.displayFolder.add(this, "showAllEntities");
+        if (false) {
+            const guiContainer = this.gui.domElement;
+
+            // Function to stop event propagation
+            const stopPropagation = (event) => {
+                console.log("event")
+                event.stopPropagation();
+            };
+
+            // Add event listeners to the GUI container
+            guiContainer.addEventListener('mousedown', stopPropagation);
+            guiContainer.addEventListener('mouseup', stopPropagation);
+            guiContainer.addEventListener('click', stopPropagation);
+        }
         //this.displayFolder.add(this, 'loadBuilding');
 
         /* initialize event listeners for user interaction */

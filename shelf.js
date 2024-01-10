@@ -72,24 +72,27 @@ export default class Shelf extends SceneEntity {
         this.shelfFilling = {};
         this.shelfFillingList = [];
         this.baseBlockList.forEach((block) => {
-            this.shelfFilling[block.parameters().name] = 0;
-            this.shelfFillingList.push({
-                block: block,
-                numberToFill: 0,
-                actualFilled: 0, //should be equal to shelfFilling value
-                priority: block.parameters().priority,
-                fillCoefficient: block.parameters().startBlockListFillingCoefficient,
-                maxFill: 10, //will be used to set GUI,
-                installedBlocks: [] //redundant with actualFilled.
+            block.parameters().variations.forEach((variation) => {
+                this.shelfFilling[variation.variationName] = 0;
+                let param = block.parameters();
+                this.shelfFillingList.push({
+                    block: block,
+                    variationName: variation.variationName,
+                    numberToFill: 0,
+                    actualFilled: 0, //should be equal to shelfFilling value
+                    priority: variation.variationParameters.priority != undefined ? variation.variationParameters.priority : param.priority,
+                    fillCoefficient: variation.variationParameters.startBlockListFillingCoefficient != undefined ? variation.variationParameters.startBlockListFillingCoefficient : param.startBlockListFillingCoefficient,
+                    maxFill: 10, //will be used to set GUI,
+                    installedBlocks: [] //redundant with actualFilled.
+                });
             });
         });
-
     }
 
     resetBlockList() {
 
         this.shelfFillingList.forEach((block) => {
-            this.shelfFilling[block.block.parameters().name] = 0;
+            this.shelfFilling[block.variationName] = 0;
             block.actualFilled = 0;
             block.installedBlocks = [];
         });
@@ -365,7 +368,7 @@ export default class Shelf extends SceneEntity {
         /* update number to fill*/
         this.shelfFillingList.forEach((block) => {
             if (block.block.parameters().fillPerColumn) {
-                block.numberToFill = Math.round(block.fillCoefficient /totalFillPerColumnWeight * block.maxFill) - block.actualFilled;
+                block.numberToFill = Math.round(block.fillCoefficient / totalFillPerColumnWeight * block.maxFill) - block.actualFilled;
             } else {
                 block.numberToFill = Math.round(block.fillCoefficient / totalFillPerAreaWeight * block.maxFill) - block.actualFilled;
             }
@@ -379,7 +382,7 @@ export default class Shelf extends SceneEntity {
         for (var i = 0; i < this.shelfFillingList.length; i++) {
             let block = this.shelfFillingList[i];
             for (var j = 0; j < block.numberToFill; j++) {
-                let newBlock = new block.block(this.sceneManager, this).findBestPosition(true);
+                let newBlock = new block.block(this.sceneManager, this,block.variationName).findBestPosition(true);
                 // let bestScore = insertedBlock.findBestPosition(true);
                 if (newBlock.score == 0) {
                     break; //hopefully insertedBlock gets caught by garbage collector?
@@ -400,7 +403,7 @@ export default class Shelf extends SceneEntity {
 
         /* create GUI for filling preferences */
         this.shelfFillingList.forEach((block) => {
-            block.controller = this.guiFolder.add(this.shelfFilling, block.block.parameters().name, 0, 1, 1).onChange((value) => {
+            block.controller = this.guiFolder.add(this.shelfFilling, block.variationName, 0, 1, 1).onChange((value) => {
                 let diff = block.actualFilled - value;
 
                 if (diff > 0) {
@@ -408,7 +411,8 @@ export default class Shelf extends SceneEntity {
                     block.installedBlocks.sort((a, b) => b.score - a.score);
 
                     /* remove blocks starting from worse score */
-                    for (var i = 0; i < diff; i++) {
+                    //console.log(block.installedBlocks.length)
+                    for (var i = 0; i < diff && block.installedBlocks.length > 0; i++) {
                         let blockToRemove = block.installedBlocks.pop();
                         blockToRemove.deleteEntity(true, false);
                         block.actualFilled--;
@@ -416,7 +420,7 @@ export default class Shelf extends SceneEntity {
                 } else if (diff < 0) {
                     //need to add a few blocks.
                     for (var i = 0; i < -diff; i++) {
-                        let newBlock = new block.block(this.sceneManager, this).findBestPosition(true);
+                        let newBlock = new block.block(this.sceneManager, this,block.variationName).findBestPosition(true);
                         if (newBlock.score == 0) {
                             break; //hopefully insertedBlock gets caught by garbage collector?
                         } else {
@@ -434,7 +438,7 @@ export default class Shelf extends SceneEntity {
 
     updateGUI() {
         this.shelfFillingList.forEach((block) => {
-            this.shelfFilling[block.block.parameters().name] = block.actualFilled;
+            this.shelfFilling[block.variationName] = block.actualFilled;
             block.controller.max(block.maxFill);
             block.controller.updateDisplay();
         });
