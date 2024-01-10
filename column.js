@@ -40,13 +40,10 @@ export default class Column extends SceneEntity {
                     let garage = this.findAncestorWithType("garage");
                     let targetHeight = Math.max(Math.min(this.startHeight + modifier.offsetDistance, garage.height), this.parent.minHeight);
                     let index = this.returnIndex();
-                    console.log(index)
                     if (index > 0 && Math.abs(targetHeight - this.parent.columns[index - 1].height) < this.heightSnapDistance) {
                         targetHeight = this.parent.columns[index - 1].height;
-                        console.log("snap1")
                     } else if (index < this.parent.columns.length - 1 && Math.abs(targetHeight - this.parent.columns[index + 1].height) < this.heightSnapDistance) {
                         targetHeight = this.parent.columns[index + 1].height;
-                        console.log("snap2")
                     }
                     this.height = targetHeight;
                     this.sizeUpdate();
