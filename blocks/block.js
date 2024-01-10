@@ -395,7 +395,7 @@ export default class Block extends SceneEntity {
             let shelf = this.findAncestorWithType("shelf");
             shelf.shelfFilling[this.variationName]--;
             shelf.shelfFillingList.forEach(block => {
-                if (block.variationName == this.name) {
+                if (block.variationName == this.variationName) {
                     block.installedBlocks.splice(block.installedBlocks.indexOf(this), 1);
                     block.actualFilled--;
                     block.controller.updateDisplay();

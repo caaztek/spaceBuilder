@@ -75,7 +75,10 @@ export default class Column extends SceneEntity {
         this.topModifier.deleteEntity();
 
         /* delete all the blocks in this column */
-        this.blocks.forEach(block => block.deleteEntity());
+        for (var i = this.blocks.length - 1; i >= 0; i--) {
+            let block = this.blocks[i];
+            block.deleteEntity(false,true);
+        }
 
         /* delete the left partition and connect the right one*/
         if (deleteLeftPartition) {

@@ -131,7 +131,6 @@ export default class Drawer extends Block {
         this.makeClickable(this.blockMesh);
 
         /* make sides */
-
         let sideGeometry = new THREE.BoxGeometry(p.sideThickness, this.depth - p.faceThickness - p.sideThickness, sliderHeight);
         sideGeometry.translate(-this.width / 2 + p.sideThickness / 2, p.faceThickness / 2 - this.depth / 2 - p.sideThickness / 2, sliderHeight / 2);
         let sideMesh = new THREE.Mesh(sideGeometry, this.blockObjectMaterial);
@@ -139,7 +138,7 @@ export default class Drawer extends Block {
         this.blockObjectMoving.add(sideMesh);
 
         let sideGeometry2 = new THREE.BoxGeometry(p.sideThickness, this.depth - p.faceThickness - p.sideThickness, sliderHeight);
-        sideGeometry2.translate(this.width / 2 - p.sideThickness, p.faceThickness / 2 - this.depth / 2 - p.sideThickness / 2, sliderHeight / 2);
+        sideGeometry2.translate(this.width / 2 - p.sideThickness/2, p.faceThickness / 2 - this.depth / 2 - p.sideThickness / 2, sliderHeight / 2);
         let sideMesh2 = new THREE.Mesh(sideGeometry2, this.blockObjectMaterial);
         sideMesh2.add(ThreeUtilities.returnObjectOutline(sideMesh2));
         this.blockObjectMoving.add(sideMesh2);
@@ -153,7 +152,7 @@ export default class Drawer extends Block {
 
         /* make bottom */
         let bottomGeometry = new THREE.BoxGeometry(this.width - p.sideThickness * 2, this.depth - p.faceThickness - p.sideThickness, p.bottomThickness);
-        bottomGeometry.translate(0, p.faceThickness / 2 - this.depth / 2 - p.sideThickness / 2 - p.sideThickness, p.bottomThickness / 2);
+        bottomGeometry.translate(0, p.faceThickness / 2 - this.depth / 2 - p.sideThickness / 2, p.bottomThickness / 2);
         let bottomMesh = new THREE.Mesh(bottomGeometry, this.blockObjectMaterial);
         //bottomMesh.add(ThreeUtilities.returnObjectOutline(bottomMesh));
         this.blockObjectMoving.add(bottomMesh);
