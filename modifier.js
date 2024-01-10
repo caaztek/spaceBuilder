@@ -117,6 +117,15 @@ export default class Modifier extends SceneEntity {
         return this;
     }
 
+    updateDirection(direction, zAxis = new THREE.Vector3(0, 0, 1)) {
+        this.xAxis = direction.normalize();
+        this.zAxis = zAxis.normalize();
+        this.yAxis = this.zAxis.clone().cross(this.xAxis).normalize();
+        this.zAxis = this.xAxis.clone().cross(this.yAxis).normalize();
+        ThreeUtilities.updateObjectOrientationFromDetailedAxis(this.modifierBody, this.xAxis, this.yAxis, this.zAxis);
+        return this;
+    }
+
     setScale(scale) {
         this.scale = scale;
         this.object.scale.set(scale, scale, scale);
@@ -294,14 +303,6 @@ export class LinearModifier extends Modifier {
             this.modifierBody.add(new THREE.Mesh(cylinderGeom2, modifierMaterial));
         }
     }
-    updateDirection(direction, zAxis = new THREE.Vector3(0, 0, 1)) {
-        this.xAxis = direction.normalize();
-        this.zAxis = zAxis.normalize();
-        this.yAxis = this.zAxis.clone().cross(this.xAxis).normalize();
-        this.zAxis = this.xAxis.clone().cross(this.yAxis).normalize();
-        ThreeUtilities.updateObjectOrientationFromDetailedAxis(this.modifierBody, this.xAxis, this.yAxis, this.zAxis);
-        return this;
-    }
 
     setMax(max) {
         this.max = max; //max from absolute initial position?
@@ -386,21 +387,27 @@ export class buttonModifier extends Modifier {
     justClicked() {
         if (this.needModifierMode && !this.sceneManager.keysDown["m"]) return;
         this.callAllUpdates("clicked");
-        // if (this._onClick !== undefined) {
-        //     this._onClick.call(this,this);//pass the entire modifier to the function.
-        // }
     }
 
     /* need to make different bodies based on different button types */
     makeBody() {
-        let r = 10;
-        let depth = 2;
+        let r = 5;
+        let t = 1;
+        let depth = 1;
         const shape = new THREE.Shape();
-        shape.moveTo(r, r);
-        shape.lineTo(r, - r);
-        shape.lineTo(- r, - r);
-        shape.lineTo(- r, r);
-        shape.lineTo(r, r);
+        shape.moveTo(r, t);
+        shape.lineTo(t,t);
+        shape.lineTo(t, r);
+        shape.lineTo(-t, r);
+        shape.lineTo(-t, t);
+        shape.lineTo(-r, t);
+        shape.lineTo(-r, -t);
+        shape.lineTo(-t, -t);
+        shape.lineTo(-t, -r);
+        shape.lineTo(t, -r);
+        shape.lineTo(t, -t);
+        shape.lineTo(r, -t);
+        shape.lineTo(r, t);
 
         const extrudeSettings = {
             steps: 2,
