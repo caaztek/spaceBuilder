@@ -329,6 +329,16 @@ export default class Shelf extends SceneEntity {
         this.resetBlockList();
     }
 
+    computeTotalArea() {
+        /* find the total # of steps available for area fills */
+        this.totalArea = 0;
+        this.columns.forEach((column) => {
+            this.totalArea += (column.height - column.startStep) / column.verticalStep;
+        });
+
+        this.totalColumns = this.columns.length;
+    }
+
     fillShelf() {
 
         // /* fill vertical space taken by cross supports. */
@@ -342,14 +352,9 @@ export default class Shelf extends SceneEntity {
         //     }
         // });
 
-        /* find to total number of columns */
-        let numberOfColumns = this.columns.length;
+        /* find to total number of columns */;
 
-        /* find the total # of steps available for area fills */
-        let totalArea = 0;
-        this.columns.forEach((column) => {
-            totalArea += column.height / column.verticalStep;
-        });
+        this.computeTotalArea();
 
         /* find the total weight of fill per column blocks */
         let totalFillPerColumnWeight = 0;
@@ -358,10 +363,10 @@ export default class Shelf extends SceneEntity {
         this.shelfFillingList.forEach((block) => {
             if (block.block.parameters().fillPerColumn) {
                 totalFillPerColumnWeight += block.fillCoefficient;
-                block.maxFill = numberOfColumns;
+                block.maxFill = this.totalColumns;
             } else {
                 totalFillPerAreaWeight += block.fillCoefficient;
-                block.maxFill = totalArea / (block.block.parameters().centerSlotsOccupyAbove + block.block.parameters().centerSlotsOccupyBelow);
+                block.maxFill = this.totalArea / (block.block.parameters().centerSlotsOccupyAbove + block.block.parameters().centerSlotsOccupyBelow);
             }
         });
 
@@ -434,11 +439,26 @@ export default class Shelf extends SceneEntity {
                 this.updateGUI();
             });
         });
+
+        // this.resetShelf = () => {
+        //     this.resetShelf();
+        //     this.updateGUI();
+        // }
+
+        /* add a button to empty the shelf */
+        this.guiFolder.add(this, "resetShelf")
     }
 
     updateGUI() {
+        this.computeTotalArea();
         this.shelfFillingList.forEach((block) => {
             this.shelfFilling[block.variationName] = block.actualFilled;
+            /* recompute max fill */
+            if (block.block.parameters().fillPerColumn) {
+                block.maxFill = this.totalColumns;
+            } else {
+                block.maxFill = this.totalArea / (block.block.parameters().centerSlotsOccupyAbove + block.block.parameters().centerSlotsOccupyBelow);
+            }
             block.controller.max(block.maxFill);
             block.controller.updateDisplay();
         });
