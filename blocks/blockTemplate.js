@@ -31,17 +31,15 @@ export default class TemplateName extends Block {
             {
                 variationName: "Template name",
                 variationParameters: {
+                    rightSlotsOccupyAbove : 2,
+                    rightSlotsOccupyBelow :1,
+                    leftSlotsOccupyAbove : 2,
+                    leftSlotsOccupyBelow : 1,
+                    centerSlotsOccupyAbove : 2,
+                    centerSlotsOccupyBelow : 1,
                 }
             }
         ],
-        
-
-        param.rightSlotsOccupyAbove = 2 //how many slots above the reference slot it occupies. Including where it is attached
-        param.rightSlotsOccupyBelow= 1
-        param.leftSlotsOccupyAbove= 2
-        param.leftSlotsOccupyBelow= 1
-        param.centerSlotsOccupyAbove= 2
-        param.centerSlotsOccupyBelow= 1
 
         param.priority = 2
         param.onePerColumn = false

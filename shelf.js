@@ -457,7 +457,10 @@ export default class Shelf extends SceneEntity {
             if (block.block.parameters().fillPerColumn) {
                 block.maxFill = this.totalColumns;
             } else {
-                block.maxFill = this.totalArea / (block.block.parameters().centerSlotsOccupyAbove + block.block.parameters().centerSlotsOccupyBelow);
+                let param = block.block.parameters();
+                let variationParameters = param.variations.find((variation) => variation.variationName == block.variationName).variationParameters;
+                let blockHeight = variationParameters.centerSlotsOccupyAbove != undefined? variationParameters.centerSlotsOccupyAbove : param.centerSlotsOccupyAbove  + (variationParameters.centerSlotsOccupyBelow ? variationParameters.centerSlotsOccupyBelow : param.centerSlotsOccupyBelow);
+                block.maxFill = this.totalArea / (blockHeight);
             }
             block.controller.max(block.maxFill);
             block.controller.updateDisplay();
