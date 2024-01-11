@@ -66,6 +66,15 @@ export default class Modifier extends SceneEntity {
         this.maxPrecision = 4; //offset will snap to 2^max precision inch fraction. 
     }
 
+    getRayCastOnPlane(event) {
+        this.updateVirtualPlane(); //in case height has changed
+        this.sceneManager.updatePointer(event);
+        this.raycaster.setFromCamera(this.sceneManager.pointer, this.sceneManager.camera);
+        let intersectionPosition = new THREE.Vector3();
+        this.raycaster.ray.intersectPlane(this.virtualPlane, intersectionPosition);
+        return intersectionPosition;
+    }
+
     setClickableCube() {
         /* creates an invisible clickable cube a bit larger than the modifier to make it easier to click/tap */
         this.clickRadius = this.sceneManager.defaults.modifier.clickRadius;

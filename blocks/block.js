@@ -17,6 +17,14 @@ export default class Block extends SceneEntity {
 
         this.boundUpdateAnimation = this.updateAnimation.bind(this);
 
+        /* handle move */
+        this.boundPointerMove = this.onPointerMove.bind(this);
+        this.boundPointerUp = this.onPointerUp.bind(this);
+        this.colorMovedGoodPosition = "#03fc1c";
+        this.colorMovedBadPosition = "#fc0303";
+        this.snapColumnXMin = 5;
+        this.snapColumnZMin = 2;
+
         this.score = 0; //score of the findBestPosition when this block was inserted.
 
         this.setParameters();
@@ -113,16 +121,25 @@ export default class Block extends SceneEntity {
         return this;
     }
 
-    setOccupancyAtIndex(zIndex) {
+    setOccupancyAtIndex(zIndex, erase = true) {
         /* occupy the column objects according to block size */
         let param = this.parameters;
         for (var i = zIndex - param.rightSlotsOccupyBelow; i < zIndex + param.rightSlotsOccupyAbove; i++) {
+            if (erase && this.parent.rightOccupants[i] != undefined) {
+                this.parent.rightOccupants[i].deleteEntity(true, true);
+            }
             this.parent.rightOccupants[i] = this;
         }
         for (var i = zIndex - param.leftSlotsOccupyBelow; i < zIndex + param.leftSlotsOccupyAbove; i++) {
+            if (erase && this.parent.leftOccupants[i] != undefined) {
+                this.parent.leftOccupants[i].deleteEntity(true, true);
+            }
             this.parent.leftOccupants[i] = this;
         }
         for (var i = zIndex - param.centerSlotsOccupyBelow; i < zIndex + param.centerSlotsOccupyAbove; i++) {
+            if (erase && this.parent.centerOccupants[i] != undefined) {
+                this.parent.centerOccupants[i].deleteEntity(true, true);
+            }
             this.parent.centerOccupants[i] = this;
         }
     }
@@ -135,20 +152,22 @@ export default class Block extends SceneEntity {
         let param = this.parameters;
         let zIndex = this.zIndex;
         for (var i = zIndex - param.rightSlotsOccupyBelow; i < zIndex + param.rightSlotsOccupyAbove; i++) {
-            this.parent.rightOccupants[i] = undefined;
+            if (this.parent.rightOccupants[i] == this) this.parent.rightOccupants[i] = undefined; //check is necessary because during move another block has already taken the spot before this is deleted
         }
         for (var i = zIndex - param.leftSlotsOccupyBelow; i < zIndex + param.leftSlotsOccupyAbove; i++) {
-            this.parent.leftOccupants[i] = undefined;
+            if (this.parent.leftOccupants[i] == this) this.parent.leftOccupants[i] = undefined;
         }
         for (var i = zIndex - param.centerSlotsOccupyBelow; i < zIndex + param.centerSlotsOccupyAbove; i++) {
-            this.parent.centerOccupants[i] = undefined;
+            if (this.parent.centerOccupants[i] == this) this.parent.centerOccupants[i] = undefined;
         }
     }
 
-    setZIndex(zIndex) {
+
+
+    setZIndex(zIndex, erase = true) {
         this.zIndex = zIndex;
 
-        this.setOccupancyAtIndex(zIndex);
+        this.setOccupancyAtIndex(zIndex, erase);
 
         return this;
     }
@@ -365,28 +384,135 @@ export default class Block extends SceneEntity {
         this.sceneManager.pushTimerCallback(this.boundUpdateAnimation, this.sceneID);
     }
 
+    onPointerMove(event) {
+        let shelf = this.findAncestorWithType("shelf");
+        this.sceneManager.updatePointer(event)
+        let newPointMouse = shelf.getRayCastOnPlane();
+        let delta = newPointMouse.clone().sub(this.startPointClick);
+
+        /* find new worldPosition */
+        let newShelfPosition = this.startBlockInShelfPosition.clone().add(delta);
+
+        /* check if new world Position can snap to a columnworldX */
+        this.foundSnap.found = false;
+        for (var i = 0; i < shelf.columns.length; i++) {
+            let column = shelf.columns[i];
+            if (Math.abs(newShelfPosition.x - column.object.position.x) < this.snapColumnXMin) {
+                let zIndex = Math.round((newShelfPosition.z - column.startStep) / column.verticalStep);
+                if (zIndex >= 0 && (zIndex + this.parameters.rightSlotsOccupyAbove - 1) < column.maxZIndex() && (zIndex - this.parameters.centerSlotsOccupyBelow) >= 0 && this.parameters.maxWidth > column.returnWidth() && this.parameters.minWidth < column.returnWidth()) {
+                    newShelfPosition.x = column.object.position.x;
+                    newShelfPosition.z = column.startStep + zIndex * column.verticalStep;
+                    this.foundSnap = {
+                        found: true,
+                        columnI: i,
+                        zIndex: zIndex,
+                    }
+                    break;
+                }
+            }
+        }
+        this.changeObjectColor(this.foundSnap.found ? this.colorMovedGoodPosition : this.colorMovedBadPosition);
+
+        this.object.position.copy(newShelfPosition);
+    }
+
+    onPointerUp(event) {
+        this.sceneManager.switchControls(true);
+        if (this.foundSnap.found) {
+            /* add this block  to the right column*/
+            let newBlock = new this.constructor(this.sceneManager, this.shelf, this.variationName)
+                .setColumn(this.shelf.columns[this.foundSnap.columnI])
+                .setZIndex(this.foundSnap.zIndex)
+                .addToShelfFilling()
+                .update();
+
+        }
+        this.deleteEntity();
+        window.removeEventListener('pointermove', this.boundPointerMove, false);
+        window.removeEventListener('pointerup', this.boundPointerUp, false);
+    }
+
     justClicked() {
         /* called when the block is clicked on */
 
-        console.log("clicked on block: " + this.variationName);
-        console.log("vertical Index: " + this.zIndex);
+        //console.log("clicked on block: " + this.variationName);
+        //console.log("vertical Index: " + this.zIndex);
 
-        if (this.parameters.allowSlide && this.animationStatus == 0) {
-            this.animateOut();
-        } else if (this.parameters.allowSlide && this.animationStatus == 2) {
-            this.animateIn();
+        let shelf = this.findAncestorWithType("shelf");
+        if (this.sceneManager.keysDown["a"] || this.sceneManager.keysDown["A"]) {
+            //console.log("moving block: ");
+            /* need to move the block when the cursor moves */
+            this.startPointClick = shelf.getRayCastOnPlane();
+            //this.startBlockPosition = this.object.position.clone();
+
+            let startBlockWorldPosition = new THREE.Vector3();
+            this.object.getWorldPosition(startBlockWorldPosition);
+
+            let startShelfWorldPosition = new THREE.Vector3();
+            shelf.object.getWorldPosition(startShelfWorldPosition);
+
+            this.startBlockInShelfPosition = startBlockWorldPosition.clone().sub(startShelfWorldPosition).setComponent(1, -1);
+
+            this.parent.object.remove(this.object); //remove from column
+            this.shelf.object.add(this.object);
+            this.object.position.copy(this.startBlockInShelfPosition);
+
+            if (this.sceneManager.keysDown["Shift"]) {
+                let newBlock = new this.constructor(this.sceneManager, this.shelf, this.variationName)
+                    .setColumn(this.parent)
+                    .setZIndex(this.zIndex,false)
+                    .addToShelfFilling()
+                    .update();
+            }
+
+            this.foundSnap = {
+                found: false,
+                columnI: undefined,
+                zIndex: undefined,
+            }
+
+            this.sceneManager.switchControls(false);
+
+
+            this.changeObjectColor(this.colorMovedGoodPosition);
+
+            window.addEventListener('pointermove', this.boundPointerMove, false);
+            window.addEventListener('pointerup', this.boundPointerUp, false);
+
+
+            //console.log(this.startPointClick);
+
+        } else {
+            if (this.parameters.allowSlide && this.animationStatus == 0) {
+                this.animateOut();
+            } else if (this.parameters.allowSlide && this.animationStatus == 2) {
+                this.animateIn();
+            }
         }
 
         return true; //interrupts the click propagation
     }
 
+    changeObjectColor(color) {
+        this.blockMesh.material.color.set(color);
+    }
 
     hoveredIn() {
-        this.blockMesh.material.color.set(this.sceneManager.defaults.selection.colorHovered);
+        /* maybe we could differentiate with moveMode? */
+        this.changeObjectColor(this.sceneManager.defaults.selection.colorHovered);
     }
 
     hoveredOut() {
-        this.blockMesh.material.color.set(this.selected ? this.sceneManager.defaults.selection.colorSelected : this.parameters.objectColor);
+        this.changeObjectColor(this.selected ? this.sceneManager.defaults.selection.colorSelected : this.parameters.objectColor);
+    }
+
+    addToShelfFilling() {
+        let shelf = this.findAncestorWithType("shelf");
+        let block = shelf.shelfFillingList.find(block => block.variationName == this.variationName)
+        block.actualFilled++;
+        shelf.shelfFilling[this.variationName]++;
+        block.installedBlocks.push(this);
+        return this;
     }
 
     deleteEntity(releaseOccupancy = true, updateShelfFilling = true) {

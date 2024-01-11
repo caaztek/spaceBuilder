@@ -18,8 +18,8 @@ export default class Shelf extends SceneEntity {
 
         /* set defaults based on garage configuration */
         let garageLength = this.parent.length;
-        this.startX = garageLength * 0.3;
-        this.targetLength = garageLength * 0.4; //if using column width from default table, we'll try to get close.
+        this.startX = garageLength * 0.2;
+        this.targetLength = garageLength * 0.6; //if using column width from default table, we'll try to get close.
         this.height = this.parent.height * 0.8;
         this.minHeight = 5;
         this.depth = 30;
@@ -55,13 +55,33 @@ export default class Shelf extends SceneEntity {
         this.object.add(this.partitionObject);
         this.partitions = [];
 
+        /* handle actions to move shelfs when moveMode engaged */
+        this.movePlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0); //maybe need to change this if the shelf is on another wall
+        // this.moveMode = false;
+        this.raycaster = new THREE.Raycaster();
+        // this.sceneManager.onUpdate((updateType, event) => {
+        //     if (updateType == "keyDown" && event == "m") {
+        //         this.moveMode = true;
+        //     }
+        //     if (updateType == "keyUp" && event == "m") {
+        //         this.moveMode = false;
+        //     }
+        // });
+
 
         /* update rendering */
         this.setColumns();
         this.setModifiers();
         this.update();
 
+    }
 
+    getRayCastOnPlane() {
+        //this.sceneManager.updatePointer(event);
+        this.raycaster.setFromCamera(this.sceneManager.pointer, this.sceneManager.camera);
+        let intersectionPosition = new THREE.Vector3();
+        this.raycaster.ray.intersectPlane(this.movePlane, intersectionPosition);
+        return intersectionPosition;
     }
 
     setBlockList() {

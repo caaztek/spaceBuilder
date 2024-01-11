@@ -100,7 +100,7 @@ export default class Drawer extends Block {
         this.blockObjectFixed.add(slideMesh);
 
         let slideGeometry2 = new THREE.BoxGeometry(p.slideThickness, this.depth - p.faceThickness, slideHeight);
-        slideGeometry2.translate(+(this.parent.width - this.parent.partitionThickness) / 2 + p.slideThickness / 2, p.faceThickness / 2 - this.depth / 2, sliderHeight / 2);
+        slideGeometry2.translate(+(this.parent.width - this.parent.partitionThickness) / 2 - p.slideThickness / 2, p.faceThickness / 2 - this.depth / 2, sliderHeight / 2);
         let slideMesh2 = new THREE.Mesh(slideGeometry2, this.blockSlidesMaterial);
         slideMesh2.add(ThreeUtilities.returnObjectOutline(slideMesh2));
         this.blockObjectFixed.add(slideMesh2);

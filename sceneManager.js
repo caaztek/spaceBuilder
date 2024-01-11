@@ -632,11 +632,14 @@ export default class SceneManager extends SceneEntity {
     }
 
     onKeyDown(event) {
-        if (this._onKeyDownCallBack != undefined) {
-            this._onKeyDownCallBack.forEach((callback) => {
-                callback.call(this, event);
-            });
-        }
+        // if (this._onKeyDownCallBack != undefined) {
+        //     this._onKeyDownCallBack.forEach((callback) => {
+        //         callback.call(this, event);
+        //     });
+        // }
+
+        this.callAllUpdates("keyDown", event.key);
+
         //console.log(event.key);
         this.keysDown[event.key] = true;
         if (!this.allowInteractions) return;
@@ -670,14 +673,15 @@ export default class SceneManager extends SceneEntity {
         }
     }
 
-    onKeyDownCallBack(callback) {
-        this._onKeyDownCallBack.push(callback);
-        return this;
-    }
+    // onKeyDownCallBack(callback) {
+    //     this._onKeyDownCallBack.push(callback);
+    //     return this;
+    // }
 
     onKeyUp(event) {
         this.keysDown[event.key] = false;
         this.modifierMode = false;
+        this.callAllUpdates("keyUp", event.key);
     }
 
     switchControls(enabled = true) {

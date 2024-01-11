@@ -69,23 +69,32 @@ export default class PlasticBin extends Block {
 
         },true,true,this.parameters.objectColor);
     }
+
+    changeObjectColor(color) {
+        /* need to override to traverse every children */
+        this.binObject.traverse((child) => {
+            if (child.isMesh) {
+                child.material.color.set(color);
+            }
+        });
+    }
     
 
-    hoveredIn() {
-        this.binObject.traverse((child) => {
-            if (child.isMesh) {
-                child.material.color.set(this.sceneManager.defaults.selection.colorHovered);
-            }
-        });
-    }
+    // hoveredIn() {
+    //     this.binObject.traverse((child) => {
+    //         if (child.isMesh) {
+    //             child.material.color.set(this.sceneManager.defaults.selection.colorHovered);
+    //         }
+    //     });
+    // }
 
-    hoveredOut() {
-        this.binObject.traverse((child) => {
-            if (child.isMesh) {
-                child.material.color.set(this.selected ? this.sceneManager.defaults.selection.colorSelected : this.parameters.objectColor);
-            }
-        });
-    }
+    // hoveredOut() {
+    //     this.binObject.traverse((child) => {
+    //         if (child.isMesh) {
+    //             child.material.color.set(this.selected ? this.sceneManager.defaults.selection.colorSelected : this.parameters.objectColor);
+    //         }
+    //     });
+    // }
     
     deleteEntity(releaseOccupancy,updateShelfFilling) {
         super.deleteEntity(releaseOccupancy,updateShelfFilling);
