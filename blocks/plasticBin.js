@@ -14,7 +14,7 @@ export default class PlasticBin extends Block {
                 variationParameters: {
                 }
             }
-        ],
+        ];
 
         param.slideColor = "#ccddff";
         param.objectColor = "#ccddff";
@@ -29,19 +29,19 @@ export default class PlasticBin extends Block {
 
         param.horizontalWeight = 0; //don't care where it fits horizontally
 
-        param.referenceIsBottom= false;
+        param.referenceIsBottom = false;
         param.minDistanceFromReference = 2;
         param.maxDistanceFromReference = 1000;
         param.idealDistanceFromReference = 2; //want to place the bins as close to the top as possible
 
         param.binHeight = 8;
         let slotsBelow = 2;
-        param.rightSlotsOccupyAbove = 1 ;//how many slots above the reference slot it occupies. Including where it is attached
-        param.rightSlotsOccupyBelow= slotsBelow;
-        param.leftSlotsOccupyAbove= 1;
-        param.leftSlotsOccupyBelow= slotsBelow;
-        param.centerSlotsOccupyAbove= 1;
-        param.centerSlotsOccupyBelow= slotsBelow;
+        param.rightSlotsOccupyAbove = 1;
+        param.rightSlotsOccupyBelow = slotsBelow;
+        param.leftSlotsOccupyAbove = 1;
+        param.leftSlotsOccupyBelow = slotsBelow;
+        param.centerSlotsOccupyAbove = 1;
+        param.centerSlotsOccupyBelow = slotsBelow;
 
         param.startBlockListFillingCoefficient = 0.3;
         param.priority = 3
@@ -53,21 +53,21 @@ export default class PlasticBin extends Block {
     makeMovingObject() {
         this.sceneManager.objectCache.loadObject("plasticBin", (objectName) => {
             this.binObject = objectName;
-     
-            this.binObject.position.set(0,-this.depth/2,this.parameters.slideHeight/2);
+
+            this.binObject.position.set(0, -this.depth / 2, this.parameters.slideHeight / 2);
             let scale = 39 / 10;
-            this.binObject.scale.set(scale * (this.width),scale * this.depth,scale * this.parameters.binHeight);
+            this.binObject.scale.set(scale * (this.width), scale * this.depth, scale * this.parameters.binHeight);
             this.blockObjectMoving.add(this.binObject);
-    
+
             let binGeom = new THREE.BoxGeometry(this.width, this.depth, this.parameters.binHeight);
             let binMesh = new THREE.Mesh(binGeom, this.blockObjectMaterial);
-            binMesh.position.set(0,-this.depth/2,this.parameters.slideHeight / 2 - this.parameters.binHeight/2);
+            binMesh.position.set(0, -this.depth / 2, this.parameters.slideHeight / 2 - this.parameters.binHeight / 2);
             this.blockObjectMoving.add(binMesh);
             binMesh.visible = false;
-    
+
             this.makeClickable(binMesh);
 
-        },true,true,this.parameters.objectColor);
+        }, true, true, this.parameters.objectColor);
     }
 
     changeObjectColor(color) {
@@ -78,30 +78,38 @@ export default class PlasticBin extends Block {
             }
         });
     }
-    
 
-    // hoveredIn() {
-    //     this.binObject.traverse((child) => {
-    //         if (child.isMesh) {
-    //             child.material.color.set(this.sceneManager.defaults.selection.colorHovered);
-    //         }
-    //     });
-    // }
-
-    // hoveredOut() {
-    //     this.binObject.traverse((child) => {
-    //         if (child.isMesh) {
-    //             child.material.color.set(this.selected ? this.sceneManager.defaults.selection.colorSelected : this.parameters.objectColor);
-    //         }
-    //     });
-    // }
-    
-    deleteEntity(releaseOccupancy,updateShelfFilling) {
-        super.deleteEntity(releaseOccupancy,updateShelfFilling);
+    deleteEntity(releaseOccupancy, updateShelfFilling) {
+        super.deleteEntity(releaseOccupancy, updateShelfFilling);
         this.binObject = undefined;
     }
 
     setParameters() {
         this.parameters = PlasticBin.parameters();
+    }
+
+    estimateCost() {
+        let cost = super.estimateCost();
+
+        /* estimate fixed cost and margin for this particulare block */
+        cost.margin = 0;
+        cost.fixedCost = 0; //no assembly required 
+    
+        /* estimate plywood total surface */
+        cost.plywoodUsage += 0
+    
+        /* plywood cuts */
+        cost.plywoodCuts.push({ x: this.depth, y: this.parameters.slideHeight, quantity: 2, thickness: 0.75 });
+    
+        /* additional hardware */
+        cost.hardwareList.push({ 
+            name: "plasticBin", 
+            quantity: 1, 
+            parameters: { width: this.width, depth: this.depth }, 
+            unitCost: 0.05 * this.width * this.depth 
+        });
+    
+        return cost;
+
     }
 }

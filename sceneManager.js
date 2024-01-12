@@ -632,16 +632,10 @@ export default class SceneManager extends SceneEntity {
     }
 
     onKeyDown(event) {
-        // if (this._onKeyDownCallBack != undefined) {
-        //     this._onKeyDownCallBack.forEach((callback) => {
-        //         callback.call(this, event);
-        //     });
-        // }
-
         this.callAllUpdates("keyDown", event.key);
 
         //console.log(event.key);
-        this.keysDown[event.key] = true;
+        this.keysDown[event.key] = true; //doesn't track weirdf key + shift combinations
         if (!this.allowInteractions) return;
         if (event.key === 'n') {
             //console.log("press n")
@@ -673,13 +667,17 @@ export default class SceneManager extends SceneEntity {
         }
     }
 
-    // onKeyDownCallBack(callback) {
-    //     this._onKeyDownCallBack.push(callback);
-    //     return this;
-    // }
-
     onKeyUp(event) {
         this.keysDown[event.key] = false;
+        if (event.key === 'Shift') {
+            for (const key in this.keysDown) {
+                // Check if the key is a capital letter (A-Z)
+                if (key.length === 1 && key >= 'A' && key <= 'Z') {
+                    this.keysDown[key] = false;
+                }
+            }
+        } 
+
         this.modifierMode = false;
         this.callAllUpdates("keyUp", event.key);
     }
@@ -802,7 +800,7 @@ export default class SceneManager extends SceneEntity {
 
         /* add event listener */
         this.costDivExpanded = false;
-        this.updateCostLabel(['Total Cost: $0', 'Total Cost: $0', '2x4x10 : 0']);
+        this.updateCostLabel(['Price as built: $0']);
         this.costDisplayDiv.addEventListener('click', () => {
             // if (this.costDivExpanded) {
             //     this.costLabel.innerHTML = this.costLabelShortText;

@@ -24,6 +24,7 @@ export default class Block extends SceneEntity {
         this.colorMovedBadPosition = "#fc0303";
         this.snapColumnXMin = 5;
         this.snapColumnZMin = 2;
+        this.moving = false;
 
         this.score = 0; //score of the findBestPosition when this block was inserted.
 
@@ -59,19 +60,52 @@ export default class Block extends SceneEntity {
         return this;
     }
 
-    checkOptionAvailability(column, zIndex) {
+    estimateCost() {
+        /* to be overriden by sub classes */
+        return {
+            desiredMargin: 0, //fixed margin we want on this particular block
+            fixedCost: 0, //Consumables or assembly time for this particular module.
+            plywoodUsage: 0, //in equivalent square inches of 0.75 plywood.
+            plywoodCuts: [], //array of rectangular plywood cuts
+            hardwareList: [], //list of hardware used
+        }
+    }
+
+    checkOptionAvailability(column = this.parent, zIndex = this.zIndex, checkFit = true, checkOccupancy = true) {
         /* checks if this option is available. Overwrite by subclass if needs more complex logic */
         let param = this.parameters;
+        if (checkFit) {
+            /* check if column width is within min/max width */
+            if (column.width < param.minWidth || column.width > param.maxWidth) {
+                return false;
+            }
 
-        /* check availability of placement */
-        for (var i = zIndex - param.rightSlotsOccupyBelow; i < zIndex + param.rightSlotsOccupyAbove; i++) {
-            if (i < 0 || i > column.maxZIndex() || column.rightOccupants[i] != undefined) { return false }
+            /* check if the max used height still fits within the column */
+            let zMargin = column.maxZIndex() - zIndex;
+            if (param.rightSlotsOccupyAbove > zMargin || param.leftSlotsOccupyAbove > zMargin) {
+                return false;
+            }
+
+            /* check if it fits below */
+            if (zIndex - this.parameters.centerSlotsOccupyBelow < 0) return false;
+
+            /* check if depth still works */
+            if (column.depth < param.minDepth || column.depth > param.maxDepth) {
+                return false;
+            }
         }
-        for (var i = zIndex - param.leftSlotsOccupyBelow; i < zIndex + param.leftSlotsOccupyAbove; i++) {
-            if (i < 0 || i > column.maxZIndex() || column.leftOccupants[i] != undefined) { return false }
-        }
-        for (var i = zIndex - param.centerSlotsOccupyBelow; i < zIndex + param.centerSlotsOccupyAbove; i++) {
-            if (i < 0 || column.centerOccupants[i] != undefined) { return false }
+
+        if (checkOccupancy) {
+            /* check slot occupancy*/
+            for (var i = zIndex - param.rightSlotsOccupyBelow; i < zIndex + param.rightSlotsOccupyAbove; i++) {
+                if (i < 0 || i > column.maxZIndex() || column.rightOccupants[i] != undefined) { return false }
+            }
+            for (var i = zIndex - param.leftSlotsOccupyBelow; i < zIndex + param.leftSlotsOccupyAbove; i++) {
+                if (i < 0 || i > column.maxZIndex() || column.leftOccupants[i] != undefined) { return false }
+            }
+            for (var i = zIndex - param.centerSlotsOccupyBelow; i < zIndex + param.centerSlotsOccupyAbove; i++) {
+                if (i < 0 || column.centerOccupants[i] != undefined) { return false }
+            }
         }
         return true;
     }
@@ -80,7 +114,7 @@ export default class Block extends SceneEntity {
         /* score the option of placing the block in the given column at the given zIndex */
         let param = this.parameters;
 
-        if (!this.checkOptionAvailability(column, zIndex)) { return 0 }
+        if (!this.checkOptionAvailability(column, zIndex, true, true)) { return 0 }
 
         if (param.onePerColumn) {
             for (var i = 0; i < column.blocks.length; i++) {
@@ -213,6 +247,11 @@ export default class Block extends SceneEntity {
             slideThickness: 0.75,
             sliderThickness: 0.75,
 
+            minDepth: 10,
+            maxDepth: 100,
+            idealDepth: 20,
+            depthWeight: 0,
+
             depthOffset: 0, //relative to front of column. Positive would be proud (stick out)
 
             allowSlide: true, //slides when clicked on
@@ -246,21 +285,13 @@ export default class Block extends SceneEntity {
         this.parameters = Block.parameters();
     }
 
-    keepAfterColumnResize() {
-        /* check if the width of the block is within the column */
-        let param = this.parameters;
-        if (this.parent.width < param.minWidth || this.parent.width > param.maxWidth) {
-            return false;
-        }
+    // checkFitInColumn(column = this.parent, zIndex = this.zIndex) {
 
-        /* check if the max used height still fits within the column */
-        let zMargin = this.parent.maxZIndex() - this.zIndex;
-        if (param.rightSlotsOccupyAbove > zMargin || param.leftSlotsOccupyAbove > zMargin) {
-            return false;
-        }
+    //     let param = this.parameters;
 
-        return true;
-    }
+
+    //     return true;
+    // }
 
     setDimensions() {
         /* Creates important dimensions based on parameters generally should not be overwritten */
@@ -399,7 +430,8 @@ export default class Block extends SceneEntity {
             let column = shelf.columns[i];
             if (Math.abs(newShelfPosition.x - column.object.position.x) < this.snapColumnXMin) {
                 let zIndex = Math.round((newShelfPosition.z - column.startStep) / column.verticalStep);
-                if (zIndex >= 0 && (zIndex + this.parameters.rightSlotsOccupyAbove - 1) < column.maxZIndex() && (zIndex - this.parameters.centerSlotsOccupyBelow) >= 0 && this.parameters.maxWidth > column.returnWidth() && this.parameters.minWidth < column.returnWidth()) {
+                //this.zIndex = zIndex;
+                if (this.checkOptionAvailability(column, zIndex, true, false)) {
                     newShelfPosition.x = column.object.position.x;
                     newShelfPosition.z = column.startStep + zIndex * column.verticalStep;
                     this.foundSnap = {
@@ -434,16 +466,20 @@ export default class Block extends SceneEntity {
 
     justClicked() {
         /* called when the block is clicked on */
-
         //console.log("clicked on block: " + this.variationName);
         //console.log("vertical Index: " + this.zIndex);
-
         let shelf = this.findAncestorWithType("shelf");
-        if (this.sceneManager.keysDown["a"] || this.sceneManager.keysDown["A"]) {
-            //console.log("moving block: ");
+
+        let cost = this.estimateCost();
+        console.log(cost)
+        shelf.calculatePlywoodCost(cost);
+
+        if (!this.moving && (this.sceneManager.keysDown["a"] || this.sceneManager.keysDown["A"])) {
             /* need to move the block when the cursor moves */
             this.startPointClick = shelf.getRayCastOnPlane();
             //this.startBlockPosition = this.object.position.clone();
+
+            this.moving = true;
 
             let startBlockWorldPosition = new THREE.Vector3();
             this.object.getWorldPosition(startBlockWorldPosition);
@@ -460,7 +496,7 @@ export default class Block extends SceneEntity {
             if (this.sceneManager.keysDown["Shift"]) {
                 let newBlock = new this.constructor(this.sceneManager, this.shelf, this.variationName)
                     .setColumn(this.parent)
-                    .setZIndex(this.zIndex,false)
+                    .setZIndex(this.zIndex, false)
                     .addToShelfFilling()
                     .update();
             }
@@ -482,7 +518,7 @@ export default class Block extends SceneEntity {
 
             //console.log(this.startPointClick);
 
-        } else {
+        } else if (!this.moving) {
             if (this.parameters.allowSlide && this.animationStatus == 0) {
                 this.animateOut();
             } else if (this.parameters.allowSlide && this.animationStatus == 2) {
@@ -588,6 +624,30 @@ export class FixedShelf extends Block {
         this.parameters = FixedShelf.parameters();
     }
 
+    estimateCost() {
+        let cost = super.estimateCost();
+
+        /* estimate fixed cost and margin for this particulare block */
+        cost.desiredMargin = 0;
+        cost.fixedCost = 0; //no assembly required 
+
+        /* estimate plywood total surface */
+        cost.plywoodUsage += 0 // anything not counted in cuts to reflect nesting for example.
+
+        /* plywood cuts */
+        cost.plywoodCuts.push({ x: this.depth, y: this.width, quantity: 1 ,thickness: 0.75});
+
+        /* additional hardware */
+        cost.hardwareList.push({
+            name: "pins",
+            unitCost: 0.05,
+            parameters: {},
+            quantity: 4
+        });
+
+        return cost;
+    }
+
     makeSlides() {
         /* no slides */
     }
@@ -607,9 +667,9 @@ export class PullShelf extends Block {
                 variationParameters: {
                 }
             }
-        ],
+        ]
 
-            param.slideColor = "#ccddff";
+        param.slideColor = "#ccddff";
         param.objectColor = "#ccddff";
 
         param.minHeight = 0.75;
@@ -640,5 +700,32 @@ export class PullShelf extends Block {
     setParameters() {
         this.parameters = PullShelf.parameters();
     }
+
+    estimateCost() {
+        let cost = super.estimateCost();
+
+        /* estimate fixed cost and margin for this particulare block */
+        cost.desiredMargin = 0;
+        cost.fixedCost = 0; //no assembly required 
+
+        /* estimate plywood total surface */
+        cost.plywoodUsage += this.depth * this.width; //the main sheet of plywood
+        cost.plywoodUsage += this.parameters.slideHeight * this.depth * 2; //the slides
+
+        /* plywood cuts */
+        cost.plywoodCuts.push({ x: this.depth, y: this.width, quantity: 1 });
+        cost.plywoodCuts.push({ x: this.depth, y: this.parameters.slideHeight, quantity: 2 });
+
+        /* additional hardware */
+        cost.hardwareList.push({ 
+            name: "pins", 
+            unitCost: 0.05,
+            parameters:{},
+            quantity: 4 
+        });
+
+        return cost;
+    }
+
 }
 

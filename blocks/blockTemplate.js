@@ -31,17 +31,17 @@ export default class TemplateName extends Block {
             {
                 variationName: "Template name",
                 variationParameters: {
-                    rightSlotsOccupyAbove : 2,
-                    rightSlotsOccupyBelow :1,
-                    leftSlotsOccupyAbove : 2,
-                    leftSlotsOccupyBelow : 1,
-                    centerSlotsOccupyAbove : 2,
-                    centerSlotsOccupyBelow : 1,
+                    rightSlotsOccupyAbove: 2,
+                    rightSlotsOccupyBelow: 1,
+                    leftSlotsOccupyAbove: 2,
+                    leftSlotsOccupyBelow: 1,
+                    centerSlotsOccupyAbove: 2,
+                    centerSlotsOccupyBelow: 1,
                 }
             }
         ],
 
-        param.priority = 2
+            param.priority = 2
         param.onePerColumn = false
         param.fillPerColumn = false
 
@@ -57,9 +57,39 @@ export default class TemplateName extends Block {
         super.makeSlides();
     }
 
+    changeObjectColor(color) {
+        /* overwrite for unique objects like gltf imports that need to be traversed */
+        super.changeObjectColor(color);
+    }
+
     makeMovingObject() {
         /* if customized, make sure to add this.makeClickable(object to click) */
         super.makeMovingObject();
+    }
+
+    estimateCost() {
+        let cost = super.estimateCost();
+
+        /* estimate fixed cost and margin for this particulare block */
+        cost.desiredMargin = 0;
+        cost.fixedCost = 0; //no assembly required 
+
+        /* estimate plywood total surface */
+        cost.plywoodUsage += 0
+
+        /* plywood cuts */
+        cost.plywoodCuts.push({ x: this.depth, y: this.width, quantity: 1, thickness: 0.75 });
+        cost.plywoodCuts.push({ x: this.depth, y: this.parameters.slideHeight, quantity: 2, thickness: 0.75 });
+
+        /* additional hardware */
+        cost.hardwareList.push({ 
+            name: "pins", 
+            unitCost: 0.05,
+            parameters:{},
+            quantity: 4 
+        });
+
+        return cost;
     }
 
     /* once done, also update shelf.js blockList and imports */

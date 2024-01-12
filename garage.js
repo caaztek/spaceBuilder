@@ -44,11 +44,11 @@ export default class Garage extends SceneEntity {
 
         /* set-up object cache. Need to import .glb or .gltf file at the top of this document to include them in vite compilation */
         this.sceneManager.objectCache = new ObjectCache(this.sceneManager, this);
-        this.sceneManager.objectCache.addObject("plasticBin", bin10In, 39,0,0,0,[18,27,40]);
-        this.sceneManager.objectCache.addObject("officeMug", officeMug, 39,Math.PI/2);
+        this.sceneManager.objectCache.addObject("plasticBin", bin10In, 39, 0, 0, 0, [18, 27, 40]);
+        this.sceneManager.objectCache.addObject("officeMug", officeMug, 39, Math.PI / 2);
         this.sceneManager.objectCache.addObject("officeChair", officeChair, 39);
-        this.sceneManager.objectCache.addObject("coatHanger", coatHanger, 0.15,Math.PI/2,Math.PI/2,0);
-        this.sceneManager.objectCache.addObject("shirt", shirt, 85,0,0,0);
+        this.sceneManager.objectCache.addObject("coatHanger", coatHanger, 0.15, Math.PI / 2, Math.PI / 2, 0);
+        this.sceneManager.objectCache.addObject("shirt", shirt, 85, 0, 0, 0);
 
         //this.sceneManager.objectCache.testObjectOutline("officeMug", 100);
 
@@ -67,11 +67,19 @@ export default class Garage extends SceneEntity {
         /* set shelves */
         this.shelves = [new Shelf(this.sceneManager, this)];
 
+        this.sceneManager.onUpdate((updateType, event) => {
+            if (updateType == "keyDown" && event == "m") {
+                this.showGarageModifier = !this.showGarageModifier;
+                this.switchModifierVisibility(this.showGarageModifier);
+                this.showModifierController.updateDisplay();
+            }
+        })
+
     }
 
     addGUI() {
         super.addGUI();
-        this.guiFolder.add(this, "showGarageModifier").onChange((value) => {
+        this.showModifierController = this.guiFolder.add(this, "showGarageModifier").onChange((value) => {
             this.switchModifierVisibility(value);
         });
     }
@@ -86,6 +94,30 @@ export default class Garage extends SceneEntity {
         this.sceneManager.camera.position.set(this.length / 2, -this.cameraStartDepth, this.cameraStartHeight);
         this.sceneManager.camera.lookAt(this.length / 2, 0, this.cameraStartTargetHeight);
         this.sceneManager.controls.target.set(this.length / 2, 0, this.cameraStartTargetHeight);
+        this.sceneManager.controls.minAzimuthAngle = -Math.PI / 2;
+        this.sceneManager.controls.maxAzimuthAngle = Math.PI / 2;
+        this.sceneManager.controls.minPolarAngle = 0;
+        this.sceneManager.controls.maxPolarAngle = Math.PI / 2;
+        this.sceneManager.controls.enablePan = false
+        this.sceneManager.controls.enableDamping = false
+
+        // const originalPan = this.sceneManager.controls.pan;
+
+        // // Override the pan function
+        // this.sceneManager.controls.pan = function () {
+        //     // Get the original arguments
+        //     const args = Array.from(arguments);
+
+        //     // Modify the x component to be 0 (disables horizontal panning)
+        //     if (args.length === 1 && args[0].isVector2) {
+        //         args[0].x = 0;
+        //     } else if (args.length >= 2) {
+        //         args[0] = 0; // args[0] represents the x component in this case
+        //     }
+
+        //     // Call the original pan function with modified arguments
+        //     return originalPan.apply(this, args);
+        // };
     }
 
     updateLights() {
@@ -102,8 +134,8 @@ export default class Garage extends SceneEntity {
         let startX = this.length * percentLengthOccupied / 2 - numberOfLights * lightSpacing / 2;
 
         for (let i = 0; i < numberOfLights; i++) {
-            let light = new THREE.PointLight(0xffffff,totalLight / numberOfLights);
-            light.position.set(startX + i * lightSpacing, -100, this.height + 50 );
+            let light = new THREE.PointLight(0xffffff, totalLight / numberOfLights);
+            light.position.set(startX + i * lightSpacing, -100, this.height + 50);
             this.lights.add(light);
         }
 
@@ -112,12 +144,12 @@ export default class Garage extends SceneEntity {
 
     addModifiers() {
 
-        let startPoint1 = this.sceneManager.origin.clone().addScaledVector(this.sceneManager.xAxis,this.wallThickness).addScaledVector(this.sceneManager.zAxis, 0)
+        let startPoint1 = this.sceneManager.origin.clone().addScaledVector(this.sceneManager.xAxis, this.wallThickness).addScaledVector(this.sceneManager.zAxis, 0)
         this.rightModifier = new LinearModifier(this.sceneManager, this, "line")
             .setScale(2)
             .updatePrecision(3)
             .updateDirection(this.sceneManager.xAxis, this.sceneManager.yAxis)
-            .updateDimension(startPoint1, startPoint1.clone().addScaledVector(this.sceneManager.xAxis,this.length - this.wallThickness * 2), this.sceneManager.yAxis.clone().negate(), 100, 0,0)
+            .updateDimension(startPoint1, startPoint1.clone().addScaledVector(this.sceneManager.xAxis, this.length - this.wallThickness * 2), this.sceneManager.yAxis.clone().negate(), 100, 0, 0)
             .onUpdate((modifierType, modifier) => {
                 if (modifierType == "clicked") {
                     this.startLength = this.length;
@@ -125,18 +157,18 @@ export default class Garage extends SceneEntity {
                     let minLength = this.minLength;
                     if (this.shelves.length > 0) { minLength = this.shelves[0].lastX() + this.shelves[0].startX + this.wallThickness + this.shelves[0].partitionThickness / 2 }
                     this.length = Math.max(this.startLength + modifier.offsetDistance, minLength);
-                    modifier.dimension.updateEndPoint(startPoint1.clone().addScaledVector(this.sceneManager.xAxis,this.length-this.wallThickness * 2));
+                    modifier.dimension.updateEndPoint(startPoint1.clone().addScaledVector(this.sceneManager.xAxis, this.length - this.wallThickness * 2));
                     this.update();
                 }
             })
 
-        let startPoint = this.sceneManager.origin.clone().addScaledVector(this.sceneManager.yAxis,-this.shortWallLength).addScaledVector(this.sceneManager.xAxis,this.wallThickness / 2)
+        let startPoint = this.sceneManager.origin.clone().addScaledVector(this.sceneManager.yAxis, -this.shortWallLength).addScaledVector(this.sceneManager.xAxis, this.wallThickness / 2)
 
         this.topModifier = new LinearModifier(this.sceneManager, this, "line")
             .setScale(2)
             .updatePrecision(3)
             .updateDirection(this.sceneManager.zAxis, this.sceneManager.yAxis)
-            .updateDimension(startPoint, startPoint.clone().addScaledVector(this.sceneManager.zAxis,this.height), this.sceneManager.yAxis.clone().negate(), 20,Math.PI/2,0)
+            .updateDimension(startPoint, startPoint.clone().addScaledVector(this.sceneManager.zAxis, this.height), this.sceneManager.yAxis.clone().negate(), 20, Math.PI / 2, 0)
             .onUpdate((modifierType, modifier) => {
                 if (modifierType == "clicked") {
                     console.log("clicked");
@@ -145,7 +177,7 @@ export default class Garage extends SceneEntity {
                     let minHeight = this.minHeight;
                     if (this.shelves.length > 0) { minHeight = this.shelves[0].maxHeight() }
                     this.height = Math.max(this.startHeight + modifier.offsetDistance, minHeight)
-                    modifier.dimension.updateEndPoint(startPoint.clone().addScaledVector(this.sceneManager.zAxis,this.height));
+                    modifier.dimension.updateEndPoint(startPoint.clone().addScaledVector(this.sceneManager.zAxis, this.height));
                     this.update();
                 }
             })

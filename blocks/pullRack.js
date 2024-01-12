@@ -22,14 +22,17 @@ export default class PullRack extends Block {
                 variationParameters: {
                 }
             }
-        ],
+        ];
 
-            param.rightSlotsOccupyAbove = 1 //how many slots above the reference slot it occupies. Including where it is attached
+        param.rightSlotsOccupyAbove = 1 //how many slots above the reference slot it occupies. Including where it is attached
         param.rightSlotsOccupyBelow = 0
         param.leftSlotsOccupyAbove = 1
         param.leftSlotsOccupyBelow = 0
         param.centerSlotsOccupyAbove = 1
-        param.centerSlotsOccupyBelow = 12
+        param.centerSlotsOccupyBelow = 10
+
+        param.referenceIsBottom = true;
+        param.idealDistanceFromReference = 50;
 
         param.idealHorizontalLocation = 0;
         param.horizontalWeight = 2;
@@ -101,7 +104,36 @@ export default class PullRack extends Block {
 
     }
 
+    estimateCost() {
+        let cost = super.estimateCost();
 
-    /* once done, also update shelf.js blockList and imports */
+        /* estimate fixed cost and margin for this particulare block */
+        cost.desiredMargin = 0;
+        cost.fixedCost = 0; //no assembly required 
+
+        /* estimate plywood total surface */
+        cost.plywoodUsage += 0
+
+        /* plywood cuts */
+        cost.plywoodCuts.push({ x: this.depth, y: this.width, quantity: 1, thickness: 0.75 });
+        cost.plywoodCuts.push({ x: this.depth, y: this.parameters.slideHeight, quantity: 2, thickness: 0.75 });
+
+        /* additional hardware */
+        cost.hardwareList.push({ 
+            name: "pins", 
+            unitCost: 0.05,
+            parameters:{},
+            quantity: 4 
+        });
+
+        cost.hardwareList.push({ 
+            name: "tube", 
+            unitCost: 5,
+            parameters:{},
+            quantity: 1 
+        });
+
+        return cost;
+    }
 
 }

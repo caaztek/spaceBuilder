@@ -77,6 +77,7 @@ export default class Partition extends SceneEntity {
 
                     let garage = this.findAncestorWithType("garage");
                     let shelf = this.findAncestorWithType("shelf");
+                    this.minOffset = undefined;
 
                     this.maxOffset = garage.length - garage.wallThickness - this.partitionStartX[this.partitionStartX.length - 1] - this.thickness / 2 - shelf.startX;
 
@@ -87,8 +88,10 @@ export default class Partition extends SceneEntity {
                         this.minOffset = garage.wallThickness + this.thickness / 2 - shelf.startX;
                     } else {
                         this.maxOffset = Math.min(this.maxOffset, shelf.maxColumnWidth * shelf.columnWidthStep - this.leftColumn.returnWidth());
-                    }
 
+                        /* don't allow deleting the last column */
+                        this.minOffset = shelf.partitions[0].xPosition - this.xPosition + shelf.columnWidthStep;
+                    }
 
                 } else if (modifierType == "moved") {
                     /* need to snap to a multiple of  shelf.columnWidthStep*/
@@ -97,6 +100,7 @@ export default class Partition extends SceneEntity {
                     let offsetDistance = modifier.offsetDistance;
                     if (!this.firstPartitionClicked) offsetDistance = Math.round(offsetDistance / widthStep) * widthStep
                     offsetDistance = Math.min(offsetDistance, this.maxOffset);
+                    if (this.minOffset != undefined) offsetDistance = Math.max(offsetDistance, this.minOffset);
 
                     if (!shelf.pushColumnsRight) {
                         if (this.rightColumn != undefined) this.rightColumn.sizeUpdate();
@@ -108,7 +112,7 @@ export default class Partition extends SceneEntity {
                             offsetDistance = Math.max(offsetDistance, this.minOffset)
                             shelf.startX = this.shelfStartX + offsetDistance;
                             shelf.updateObjectPosition();
-
+                            shelf.updateCameraAndControls();
                         } else {
                             /* shift all the partitions to the right */
                             let partition = this;
@@ -119,7 +123,11 @@ export default class Partition extends SceneEntity {
                                 partition.object.position.set(partition.xPosition, 0, 0);
                                 if (index == 0) {
                                     if (this.leftColumn != undefined) {
-                                        if (this.leftColumn.sizeUpdate()) break;
+                                        if (this.leftColumn.sizeUpdate())  {
+                                            this.maxOffset = Math.min(this.maxOffset,offsetDistance + shelf.maxColumnWidth * widthStep - this.leftColumn.returnWidth()); //need to update to prevent column from being too big
+
+                                            break;
+                                        }
                                     }
                                 }
                                 if (partition.rightColumn == undefined) {
@@ -136,6 +144,7 @@ export default class Partition extends SceneEntity {
 
                     shelf.updateModifierPosition();
                     shelf.updateCrossSupports()
+                    this.parent.estimateCost();
 
                 }
             })
@@ -146,14 +155,19 @@ export default class Partition extends SceneEntity {
         this.height = Math.max(this.leftColumn == undefined ? -Infinity : this.leftColumn.height, this.rightColumn == undefined ? -Infinity : this.rightColumn.height);
     }
 
+    setDepth() {
+        /* set depth as max of neighboring columns */
+        this.depth = Math.max(this.leftColumn == undefined ? -Infinity : this.leftColumn.depth, this.rightColumn == undefined ? -Infinity : this.rightColumn.depth);
+    }
+
     deleteEntity() {
-        
+
         /* remove partition from parent array */
         this.parent.partitions.splice(this.parent.partitions.indexOf(this), 1);
-        
+
         /* delete modifier */
         this.centralModifier.deleteEntity();
-        
+
         super.deleteEntity();
     }
 
@@ -166,8 +180,11 @@ export default class Partition extends SceneEntity {
         this.object.position.set(this.xPosition, 0, 0);
         this.object.add(this.partitionObject);
 
+        /* update depth */
+
         /* compute height based on neighboring column height*/
         this.setHeight();
+        this.setDepth();
 
         let shape = new THREE.Shape();
         shape.moveTo(0, 0);
@@ -217,13 +234,45 @@ export default class Partition extends SceneEntity {
             const material = new THREE.LineBasicMaterial({ color: "#000000" });
             while (stepZ < this.height) {
                 let geometry = new THREE.BufferGeometry().setFromPoints([
-                    new THREE.Vector3(-this.thickness/2, -this.depth - 0.1, stepZ), // Start point
-                    new THREE.Vector3(this.thickness/2, -this.depth - 0.1, stepZ)   // End point
+                    new THREE.Vector3(-this.thickness / 2, -this.depth - 0.1, stepZ), // Start point
+                    new THREE.Vector3(this.thickness / 2, -this.depth - 0.1, stepZ)   // End point
                 ]);
                 stepObject.add(new THREE.Line(geometry, material));
                 stepZ += this.parent.verticalStep;
             }
         }
+
+    }
+
+    estimateCost() {
+        let cost = {
+            desiredMargin: 0,
+            fixedCost: 0,
+            plywoodUsage: 0,
+            plywoodCuts: [],
+            hardwareList: [],
+        };
+
+        /* estimate fixed cost and margin for this particulare block */
+        cost.margin = 0;
+        cost.fixedCost = 0; //no assembly required 
+    
+        /* estimate plywood total surface */
+        cost.plywoodUsage += 0
+    
+        /* plywood cuts */
+        cost.plywoodCuts.push({ x: this.height, y: this.bandWidth, quantity: 4, thickness: 0.75}); //vertical members, accounting for 2 plies
+        cost.plywoodCuts.push({ x: this.depth - 2 * this.bandWidth, y: this.bandWidth, quantity: 4, thickness: 0.75 }); //horizontal members
+    
+        /* additional hardware */
+        cost.hardwareList.push({ 
+            name: "bolts", 
+            unitCost: 0.2,
+            parameters:{},
+            quantity: 8
+        });
+    
+        return cost;
 
     }
 

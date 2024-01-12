@@ -23,8 +23,8 @@ export default class Drawer extends Block {
                     "rightSlotsOccupyAbove": 1,
                     "leftSlotsOccupyAbove": 1,
                     "centerSlotsOccupyAbove": 1,
-                    "startBlockListFillingCoefficient" : 0,
-                    "priority" : 2
+                    "startBlockListFillingCoefficient" : 0.1,
+                    "priority" : 1
                 }
             },
             {
@@ -89,18 +89,18 @@ export default class Drawer extends Block {
     makeSlides() {
         let p = this.parameters;
         let step = this.findAncestorWithType("shelf").verticalStep;
-        let sliderHeight = step * p.rightSlotsOccupyAbove - p.sliderMargin;
-        let slideHeight = sliderHeight - p.slideMargin;
+        this.sliderHeight = step * p.rightSlotsOccupyAbove - p.sliderMargin;
+        this.slideHeight = this.sliderHeight - p.slideMargin;
 
 
-        let slideGeometry = new THREE.BoxGeometry(p.slideThickness, this.depth - p.faceThickness, slideHeight);
-        slideGeometry.translate(-(this.parent.width - this.parent.partitionThickness) / 2 + p.slideThickness / 2, p.faceThickness / 2 - this.depth / 2, sliderHeight / 2);
+        let slideGeometry = new THREE.BoxGeometry(p.slideThickness, this.depth - p.faceThickness, this.slideHeight);
+        slideGeometry.translate(-(this.parent.width - this.parent.partitionThickness) / 2 + p.slideThickness / 2, p.faceThickness / 2 - this.depth / 2, this.sliderHeight / 2);
         let slideMesh = new THREE.Mesh(slideGeometry, this.blockSlidesMaterial);
         slideMesh.add(ThreeUtilities.returnObjectOutline(slideMesh));
         this.blockObjectFixed.add(slideMesh);
 
-        let slideGeometry2 = new THREE.BoxGeometry(p.slideThickness, this.depth - p.faceThickness, slideHeight);
-        slideGeometry2.translate(+(this.parent.width - this.parent.partitionThickness) / 2 - p.slideThickness / 2, p.faceThickness / 2 - this.depth / 2, sliderHeight / 2);
+        let slideGeometry2 = new THREE.BoxGeometry(p.slideThickness, this.depth - p.faceThickness, this.slideHeight);
+        slideGeometry2.translate(+(this.parent.width - this.parent.partitionThickness) / 2 - p.slideThickness / 2, p.faceThickness / 2 - this.depth / 2, this.sliderHeight / 2);
         let slideMesh2 = new THREE.Mesh(slideGeometry2, this.blockSlidesMaterial);
         slideMesh2.add(ThreeUtilities.returnObjectOutline(slideMesh2));
         this.blockObjectFixed.add(slideMesh2);
@@ -118,11 +118,11 @@ export default class Drawer extends Block {
         let step = this.findAncestorWithType("shelf").verticalStep;
         let sliderHeight = step * p.rightSlotsOccupyAbove - p.sliderMargin;
         let slideHeight = sliderHeight - p.slideMargin;
-        let faceHeight = step * p.rightSlotsOccupyAbove - p.faceMargin;
+        this.faceHeight = step * p.rightSlotsOccupyAbove - p.faceMargin;
 
         /* make face of drawer */
-        let faceGeometry = new THREE.BoxGeometry(this.width, p.faceThickness, faceHeight);
-        faceGeometry.translate(0, p.faceThickness / 2 - this.depth, faceHeight / 2);
+        let faceGeometry = new THREE.BoxGeometry(this.width, p.faceThickness, this.faceHeight);
+        faceGeometry.translate(0, p.faceThickness / 2 - this.depth, this.faceHeight / 2);
 
         this.blockMesh = new THREE.Mesh(faceGeometry, this.blockObjectMaterial);
         this.blockMesh.add(ThreeUtilities.returnObjectOutline(this.blockMesh));
@@ -159,6 +159,34 @@ export default class Drawer extends Block {
 
     }
 
-    /* once done, also update shelf.js blockList and imports */
+
+    estimateCost() {
+        let cost = super.estimateCost();
+
+        /* estimate fixed cost and margin for this particulare block */
+        cost.desiredMargin = 0;
+        cost.fixedCost = 5; //potentially difficult assembly
+
+        /* estimate plywood total surface */
+        cost.plywoodUsage += 0 // anything not counted in cuts to reflect nesting for example.
+
+        let p = this.parameters;
+        /* plywood cuts */
+        cost.plywoodCuts.push({ x: this.depth - p.faceThickness, y: this.slideHeight, quantity: 2, thickness: 0.75 }); //slides
+        cost.plywoodCuts.push({ x: this.faceHeight, y: this.width, quantity: 1, thickness: 0.75 }); //face
+        cost.plywoodCuts.push({ x: this.depth - p.faceThickness - p.sideThickness, y: this.sliderHeight, quantity: 2, thickness: 0.75 }); //side
+        cost.plywoodCuts.push({ x: this.sliderHeight, y: this.width, quantity: 1, thickness: 0.75 }); //back
+        cost.plywoodCuts.push({ x: this.depth - p.faceThickness - p.sideThickness, y: this.width - p.sideThickness * 2, quantity: 1, thickness: p.bottomThickness }); //bottom
+
+        /* additional hardware */
+        cost.hardwareList.push({
+            name: "pins",
+            unitCost: 0.05,
+            parameters: {},
+            quantity: 4
+        });
+
+        return cost;
+    }
 
 }

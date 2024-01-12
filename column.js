@@ -49,6 +49,7 @@ export default class Column extends SceneEntity {
                     this.sizeUpdate();
                     this.parent.updateModifierPosition(); //when the rightmost column update, should shift +
                     //this.parent.update();
+                    this.parent.estimateCost();
                 }
             })
     }
@@ -69,7 +70,7 @@ export default class Column extends SceneEntity {
         this.topModifier.switchVisibility(value);
     }
 
-    deleteEntity(deleteLeftPartition = true) { 
+    deleteEntity(deleteLeftPartition = true) {
 
         /* delete modifier */
         this.topModifier.deleteEntity();
@@ -77,7 +78,7 @@ export default class Column extends SceneEntity {
         /* delete all the blocks in this column */
         for (var i = this.blocks.length - 1; i >= 0; i--) {
             let block = this.blocks[i];
-            block.deleteEntity(false,true);
+            block.deleteEntity(false, true);
         }
 
         /* delete the left partition and connect the right one*/
@@ -118,6 +119,13 @@ export default class Column extends SceneEntity {
         }
         this.object.position.set(this.startX + this.width / 2, 0, 0); //column object is centered on column
 
+        /* update depth */
+        let depthChange = false;
+        if (this.parent.depth != this.depth) {
+            depthChange = true;
+            this.depth = this.parent.depth;
+        }
+
         /* called when column height or size changes */
         this.updateModifierPosition();
 
@@ -125,14 +133,13 @@ export default class Column extends SceneEntity {
         this.rightPartition.update();
         this.leftPartition.update();
 
-
         /* update blocks */
         for (var i = this.blocks.length - 1; i >= 0; i--) {
             let block = this.blocks[i];
-            if (!block.keepAfterColumnResize()) {
+            if (!block.checkOptionAvailability(undefined, undefined, true, false)) {
                 block.deleteEntity();
             }
-            if (widthChange) block.update();
+            if (widthChange || depthChange) block.update();
         }
     }
 

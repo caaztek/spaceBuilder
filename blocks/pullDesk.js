@@ -50,6 +50,9 @@ export default class PullDesk extends Block {
         param.centerSlotsOccupyAbove= 1
         param.centerSlotsOccupyBelow= 1
 
+        param.minDepth  = 20;
+        param.idealDepth = 40;
+
         param.chamferFront = 2;
         param.chamferBottom = 2;
 
@@ -169,6 +172,35 @@ export default class PullDesk extends Block {
 
         this.blockObjectMoving.add(this.blockMesh);
         this.makeClickable(this.blockMesh);
+    }
+
+    estimateCost() {
+        let cost = super.estimateCost();
+
+        /* estimate fixed cost and margin for this particulare block */
+        cost.desiredMargin = 0;
+        cost.fixedCost = 0; //possible pre-assembly
+
+        /* estimate plywood total surface */
+        cost.plywoodUsage += 0 //nothing outside the cuts
+        let p = this.parameters;
+
+        /* plywood cuts */
+        cost.plywoodCuts.push({ x: this.depth + p.deskStickOut, y: this.width, quantity: 1, thickness: 0.75  }); //top
+        cost.plywoodCuts.push({ x: this.depth , y: this.width, quantity: 1 , thickness: 0.75 }); //bottom shelf
+        cost.plywoodCuts.push({ x: this.depth, y: this.parameters.slideAboveTick + this.parameters.slideBelowTick, quantity: 2 , thickness: 0.75 }); //the slides
+        cost.plywoodCuts.push({ x: this.depth + p.deskStickOut, y: this.parameters.deskSideAboveTick + this.parameters.deskSideAboveTick, quantity: 2, thickness: 0.75 }); //the sides
+
+
+        /* additional hardware */
+        cost.hardwareList.push({ 
+            name: "pins", 
+            unitCost: 0.05,
+            parameters:{},
+            quantity: 4 
+        });
+
+        return cost;
     }
 
 }

@@ -22,7 +22,14 @@ export default class Shelf extends SceneEntity {
         this.targetLength = garageLength * 0.6; //if using column width from default table, we'll try to get close.
         this.height = this.parent.height * 0.8;
         this.minHeight = 5;
+
+        /* depth */
         this.depth = 30;
+        this.minDepth = 10;
+        this.maxDepth = 50;
+        this.depthModifierOffset = 2;
+
+        /* partition */
         this.partitionThickness = 1.5;
         this.crossSupportThickness = 1.5;
         this.crossSupportHeight = 1.5;
@@ -76,6 +83,16 @@ export default class Shelf extends SceneEntity {
 
     }
 
+    updateCameraAndControls() {
+        let xPosition = this.startX + this.partitions[this.partitions.length - 1].xPosition * 0.7;
+        let yPosition = 0;
+        let zPosition = this.parent.cameraStartTargetHeight;
+        this.sceneManager.camera.lookAt(xPosition, yPosition, zPosition);
+        this.sceneManager.controls.target.set(xPosition, yPosition, zPosition);
+
+        //this.sceneManager.camera.position.set(xPosition, -this.parent.cameraStartDepth, this.parent.cameraStartHeight);
+    }
+
     getRayCastOnPlane() {
         //this.sceneManager.updatePointer(event);
         this.raycaster.setFromCamera(this.sceneManager.pointer, this.sceneManager.camera);
@@ -123,6 +140,7 @@ export default class Shelf extends SceneEntity {
         //this.leftModifier.switchVisibility(value);
         this.rightModifier.switchVisibility(value);
         this.rightAddColumnModifier.switchVisibility(value);
+        this.depthModifier.switchVisibility(value);
         //this.moveModifier.switchVisibility(value);
 
         this.columns.forEach((column) => {
@@ -236,6 +254,8 @@ export default class Shelf extends SceneEntity {
 
         if (fillShelf) this.fillShelf();
 
+        //this.updateCameraAndControls(); //too jittery
+
     }
 
     setModifiers() {
@@ -254,14 +274,20 @@ export default class Shelf extends SceneEntity {
         //         }
         //     })
 
+        let depthDimensionStartPoint = new THREE.Vector3(0, 0, 0);
+
+
         this.rightModifier = new LinearModifier(this.sceneManager, this, "line")
             .setScale(1)
+            .updatePrecision(0)
             .updateDirection(this.sceneManager.xAxis, this.sceneManager.yAxis)
+            .updateDimension(depthDimensionStartPoint, new THREE.Vector3(this.lastX(),0,0), this.sceneManager.yAxis.clone().negate(),100)
             .onUpdate((modifierType, modifier) => {
                 if (modifierType == "clicked") {
                     this.startLength = this.lastX();
                 } else if (modifierType == "moved") {
                     this.targetLength = Math.max(Math.min(this.startLength + modifier.offsetDistance, this.parent.length - this.parent.wallThickness - this.startX - this.partitionThickness / 2), this.defaultWidthStep);
+                    modifier.dimension.updateEndPoint(new THREE.Vector3(this.lastX(),0,0));
                     this.setColumns();
                     this.update();
                 }
@@ -269,13 +295,33 @@ export default class Shelf extends SceneEntity {
 
         this.rightAddColumnModifier = new buttonModifier(this.sceneManager, this, "plus")
             .setScale(0.5)
-            .updatePosition(new THREE.Vector3(this.lastX() + this.modifierOffset * 2, - this.depth, 40))
             .updateDirection(this.sceneManager.xAxis, this.sceneManager.yAxis)
             .onUpdate((modifierType, modifier) => {
                 if (modifierType == "clicked") {
                     this.addColumn(false);
                     this.updateModifierPosition();
                     this.updateCrossSupports();
+                    this.estimateCost();
+                }
+            });
+
+
+        this.depthModifier = new LinearModifier(this.sceneManager, this, "line")
+            .setScale(1)
+            .updatePrecision(0)
+            .updateDirection(this.sceneManager.zAxis, this.sceneManager.yAxis)
+            .updateDimension(depthDimensionStartPoint, depthDimensionStartPoint.clone().addScaledVector(this.sceneManager.yAxis,-this.depth), this.sceneManager.xAxis.clone().negate())
+            .onUpdate((modifierType, modifier) => {
+                if (modifierType == "clicked") {
+                    this.startDepth = this.depth;
+                } else if (modifierType == "moved") {
+                    this.depth = Math.max(Math.min(this.startDepth - modifier.offsetDistance, this.maxDepth), this.minDepth);
+                    this.updateModifierPosition();
+                    modifier.dimension.updateEndPoint(depthDimensionStartPoint.clone().addScaledVector(this.sceneManager.yAxis,-this.depth));
+                    this.columns.forEach((column) => {
+                        column.sizeUpdate();
+                    });
+                    this.estimateCost();
                 }
             });
     }
@@ -283,7 +329,8 @@ export default class Shelf extends SceneEntity {
     updateModifierPosition() {
         //this.leftModifier.updatePosition(new THREE.Vector3(- this.modifierOffset, - this.depth, 10));
         this.rightModifier.updatePosition(new THREE.Vector3(this.lastX() + this.modifierOffset, - this.depth, 10));
-        this.rightAddColumnModifier.updatePosition(new THREE.Vector3(this.lastX() + this.modifierOffset * 2, - this.depth, this.partitions[this.partitions.length - 1].height / 2));
+        this.rightAddColumnModifier.updatePosition(new THREE.Vector3(this.lastX() + this.modifierOffset * 3, - this.depth, this.partitions[this.partitions.length - 1].height / 2));
+        this.depthModifier.updatePosition(new THREE.Vector3(this.lastX() / 2, - this.depth - this.depthModifierOffset, 0));
     }
 
     maxHeight() {
@@ -321,6 +368,8 @@ export default class Shelf extends SceneEntity {
     update() {
         /* called everytime the entire shelf is changed (partition size and position) and everything needs to be redrawn. */
 
+        this.updateCameraAndControls();
+
         this.updateCrossSupports();
 
         /* update object position everything in the shelf will be in reference to that*/
@@ -335,6 +384,9 @@ export default class Shelf extends SceneEntity {
         /* fill shelf with interesting blocks */
         this.resetShelf();
         this.fillShelf();
+
+        /* estimate price */
+        this.estimateCost();
     }
 
     lastX() {
@@ -407,7 +459,7 @@ export default class Shelf extends SceneEntity {
         for (var i = 0; i < this.shelfFillingList.length; i++) {
             let block = this.shelfFillingList[i];
             for (var j = 0; j < block.numberToFill; j++) {
-                let newBlock = new block.block(this.sceneManager, this,block.variationName).findBestPosition(true);
+                let newBlock = new block.block(this.sceneManager, this, block.variationName).findBestPosition(true);
                 // let bestScore = insertedBlock.findBestPosition(true);
                 if (newBlock.score == 0) {
                     break; //hopefully insertedBlock gets caught by garbage collector?
@@ -445,7 +497,7 @@ export default class Shelf extends SceneEntity {
                 } else if (diff < 0) {
                     //need to add a few blocks.
                     for (var i = 0; i < -diff; i++) {
-                        let newBlock = new block.block(this.sceneManager, this,block.variationName).findBestPosition(true);
+                        let newBlock = new block.block(this.sceneManager, this, block.variationName).findBestPosition(true);
                         if (newBlock.score == 0) {
                             break; //hopefully insertedBlock gets caught by garbage collector?
                         } else {
@@ -457,6 +509,7 @@ export default class Shelf extends SceneEntity {
                 }
 
                 this.updateGUI();
+                this.estimateCost();
             });
         });
 
@@ -479,12 +532,79 @@ export default class Shelf extends SceneEntity {
             } else {
                 let param = block.block.parameters();
                 let variationParameters = param.variations.find((variation) => variation.variationName == block.variationName).variationParameters;
-                let blockHeight = variationParameters.centerSlotsOccupyAbove != undefined? variationParameters.centerSlotsOccupyAbove : param.centerSlotsOccupyAbove  + (variationParameters.centerSlotsOccupyBelow ? variationParameters.centerSlotsOccupyBelow : param.centerSlotsOccupyBelow);
+                let blockHeight = variationParameters.centerSlotsOccupyAbove != undefined ? variationParameters.centerSlotsOccupyAbove : param.centerSlotsOccupyAbove + (variationParameters.centerSlotsOccupyBelow ? variationParameters.centerSlotsOccupyBelow : param.centerSlotsOccupyBelow);
                 block.maxFill = this.totalArea / (blockHeight);
             }
             block.controller.max(block.maxFill);
             block.controller.updateDisplay();
         });
+    }
+
+    calculatePlywoodCost(cost) {
+        /* estimate plywood surface area */
+        let surfaceArea = 0
+        cost.plywoodCuts.forEach((cut) => {
+            if (cut.quantity == undefined) cut.quantity = 1;
+            if (cut.thickness == undefined) cut.thickness = 0.75;
+            surfaceArea += cut.x * cut.y * cut.quantity * cut.thickness / 0.75;
+        });
+        let fourByEightPrice = 100;
+        let fourByEightSurface = 48 * 96;
+        let plywoodCost =  surfaceArea / fourByEightSurface * fourByEightPrice;
+        //console.log("plywoodCost: ", plywoodCost);
+        return plywoodCost;
+    }
+
+    calculateHardwareCost(cost) {
+        let hardwareCost = 0;
+        cost.hardwareList.forEach((hardware) => {
+            if (hardware.quantity == undefined) hardware.quantity = 1;
+            if (hardware.unitCost == undefined) hardware.unitCost = 0;
+            hardwareCost += hardware.unitCost * hardware.quantity;
+        });
+        //console.log("hardwareCost: ", hardwareCost);
+        return hardwareCost;
+    }
+
+    estimateCost() {
+        let cost = {
+            desiredMargin: 0,
+            fixedCost: 0,
+            plywoodUsage: 0,
+            plywoodCuts: [],
+            hardwareList: [],
+        };
+
+        /* add all the partitions */
+        this.partitions.forEach((partition) => {
+            let partitionCost = partition.estimateCost(cost);
+            cost.desiredMargin += partitionCost.desiredMargin;
+            cost.fixedCost += partitionCost.fixedCost;
+            cost.plywoodUsage += partitionCost.plywoodUsage;
+            cost.plywoodCuts = cost.plywoodCuts.concat(partitionCost.plywoodCuts);
+            cost.hardwareList = cost.hardwareList.concat(partitionCost.hardwareList);
+        });
+
+        /* add all the objects in all the columns */
+        let objectCount = 0;
+        this.columns.forEach((column) => {
+            column.blocks.forEach((block) => {
+                objectCount++;
+                let blockCost = block.estimateCost(cost);
+                cost.desiredMargin += blockCost.desiredMargin;
+                cost.fixedCost += blockCost.fixedCost;
+                cost.plywoodUsage += blockCost.plywoodUsage;
+                cost.plywoodCuts = cost.plywoodCuts.concat(blockCost.plywoodCuts);
+                cost.hardwareList = cost.hardwareList.concat(blockCost.hardwareList);
+            });
+        });
+
+        let plywoodCost = this.calculatePlywoodCost(cost);
+        let hardwareCost = this.calculateHardwareCost(cost);
+
+        this.sceneManager.updateCostLabel(["Price as built : $" + Math.round((plywoodCost + hardwareCost) * 2) ])
+
+        //console.log("plywoodPrice: ", plywoodPrice);
     }
 
 }

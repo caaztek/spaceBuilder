@@ -41,6 +41,9 @@ export default class FixedDesk extends Block {
         param.idealWidth = 60;
         param.widthMargin = 0;
 
+        param.minDepth  = 20;
+        param.idealDepth = 40;
+
         param.idealHorizontalLocation = 1;
 
         param.rightSlotsOccupyAbove = 1 //how many slots above the reference slot it occupies. Including where it is attached
@@ -86,6 +89,30 @@ export default class FixedDesk extends Block {
             this.blockObjectMoving.add(objectName);
         }, false, false, undefined, true);
 
+    }
+
+    estimatecost() {
+        let cost = super.estimateCost();
+
+        /* estimate fixed cost and margin for this particulare block */
+        cost.desiredMargin = 0;
+        cost.fixedCost = 0; //no assembly required 
+
+        /* estimate plywood total surface */
+        cost.plywoodUsage += 0
+
+        /* plywood cuts */
+        cost.plywoodCuts.push({ x: this.depth, y: this.width, quantity: 2, thickness : 0.75 });
+
+        /* additional hardware */
+        cost.hardwareList.push({ 
+            name: "pins", 
+            unitCost: 0.05,
+            parameters:{},
+            quantity: 4 
+        });
+
+        return cost;
     }
 
     /* once done, also update shelf.js blockList and imports */
