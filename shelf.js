@@ -347,14 +347,17 @@ export default class Shelf extends SceneEntity {
 
     updateCrossSupports() {
         /* make cross support in the back*/
-        ThreeUtilities.disposeHierarchy(this.crossSupportBack);
+        /* column now own their cross supports */
+       
+
+        if (false) {
+             ThreeUtilities.disposeHierarchy(this.crossSupportBack);
         let crossSupportGeomBack = new THREE.BoxGeometry(this.lastX() + this.partitionThickness, this.crossSupportHeight, this.crossSupportThickness);
         crossSupportGeomBack.translate(this.lastX() / 2, -this.crossSupportHeight / 2, this.crossSupportStartZ);
         this.crossSupportBack = new THREE.Mesh(crossSupportGeomBack, this.crossSupportMaterial);
         this.crossSupportBack.add(ThreeUtilities.returnObjectOutline(this.crossSupportBack));
         this.object.add(this.crossSupportBack);
-
-        if (false) {
+        
             ThreeUtilities.disposeHierarchy(this.crossSupport);
             let crossSupportGeom = new THREE.BoxGeometry(this.lastX() + this.partitionThickness, this.crossSupportHeight, this.crossSupportThickness);
             crossSupportGeom.translate(this.lastX() / 2, -this.depth + this.crossSupportHeight / 2, this.crossSupportStartZ);

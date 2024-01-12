@@ -82,20 +82,25 @@ export default class Partition extends SceneEntity {
                     this.maxOffset = garage.length - garage.wallThickness - this.partitionStartX[this.partitionStartX.length - 1] - this.thickness / 2 - shelf.startX;
 
                     this.firstPartitionClicked = false
+                    this.shelfStartX = shelf.startX;
                     if (this.parent.partitions.indexOf(this) == 0) {
+                        /* we will be moving the entire shelf */
                         this.firstPartitionClicked = true;
-                        this.shelfStartX = shelf.startX;
                         this.minOffset = garage.wallThickness + this.thickness / 2 - shelf.startX;
                     } else {
-                        this.maxOffset = Math.min(this.maxOffset, shelf.maxColumnWidth * shelf.columnWidthStep - this.leftColumn.returnWidth());
+                        this.maxOffsetColumnSize = shelf.maxColumnWidth * shelf.columnWidthStep - this.leftColumn.returnWidth()
+                        this.maxOffset = Math.min(this.maxOffset, this.maxOffsetColumnSize);
 
                         /* don't allow deleting the last column */
-                        this.minOffset = shelf.partitions[0].xPosition - this.xPosition + shelf.columnWidthStep;
+                        /* check if this partition is the last */
+                        if (this.rightColumn == undefined) {
+                            this.minOffset = shelf.partitions[0].xPosition - this.xPosition + shelf.columnWidthStep;
+                        }
                     }
-
                 } else if (modifierType == "moved") {
                     /* need to snap to a multiple of  shelf.columnWidthStep*/
                     let shelf = this.findAncestorWithType("shelf");
+                    let garage = this.findAncestorWithType("garage");
                     let widthStep = shelf.columnWidthStep;
                     let offsetDistance = modifier.offsetDistance;
                     if (!this.firstPartitionClicked) offsetDistance = Math.round(offsetDistance / widthStep) * widthStep
@@ -123,17 +128,34 @@ export default class Partition extends SceneEntity {
                                 partition.object.position.set(partition.xPosition, 0, 0);
                                 if (index == 0) {
                                     if (this.leftColumn != undefined) {
-                                        if (this.leftColumn.sizeUpdate())  {
-                                            this.maxOffset = Math.min(this.maxOffset,offsetDistance + shelf.maxColumnWidth * widthStep - this.leftColumn.returnWidth()); //need to update to prevent column from being too big
+                                        if (this.leftColumn.sizeUpdate()) {
+                                            /* left column just got deleted */
+                                            if (this.leftColumn != undefined) {
+                                                /* current partition still in the middle */
+                                                this.maxOffset = Math.min(this.maxOffset, offsetDistance + shelf.maxColumnWidth * widthStep - this.leftColumn.returnWidth()); //need to update to prevent column from being too big
+                                                //break;
+                                            } else {
+                                                /* Current partition is now the first. Need to update maxoffset. No worries about column too big */
+                                                this.firstPartitionClicked = true;
+                                                this.minOffset = garage.wallThickness + this.thickness / 2 - shelf.startX - this.partitionStartX[0];
 
-                                            break;
+                                                this.shelfStartX += this.partitionStartX[0];
+                                                // shelf.startX = this.xPosition;
+                                                // shelf.updateObjectPosition();
+                                                // shelf.updateCameraAndControls();
+                                                
+                                                this.maxOffset = garage.length - garage.wallThickness - this.partitionStartX[this.partitionStartX.length - 1] - this.thickness / 2 - shelf.startX;
+                                            }
+                                            
                                         }
                                     }
+                                } else {
+                                    partition.leftColumn.object.position.set((partition.xPosition + partition.leftColumn.leftPartition.xPosition) / 2, 0, 0);
                                 }
                                 if (partition.rightColumn == undefined) {
                                     repeat = false;
                                 } else {
-                                    partition.rightColumn.object.position.set((partition.xPosition + partition.rightColumn.rightPartition.xPosition) / 2, 0, 0);
+                                    // partition.rightColumn.object.position.set((partition.xPosition + partition.rightColumn.rightPartition.xPosition) / 2, 0, 0);
                                     partition = partition.rightColumn.rightPartition;
                                     index++;
                                 }
@@ -256,22 +278,22 @@ export default class Partition extends SceneEntity {
         /* estimate fixed cost and margin for this particulare block */
         cost.margin = 0;
         cost.fixedCost = 0; //no assembly required 
-    
+
         /* estimate plywood total surface */
         cost.plywoodUsage += 0
-    
+
         /* plywood cuts */
-        cost.plywoodCuts.push({ x: this.height, y: this.bandWidth, quantity: 4, thickness: 0.75}); //vertical members, accounting for 2 plies
+        cost.plywoodCuts.push({ x: this.height, y: this.bandWidth, quantity: 4, thickness: 0.75 }); //vertical members, accounting for 2 plies
         cost.plywoodCuts.push({ x: this.depth - 2 * this.bandWidth, y: this.bandWidth, quantity: 4, thickness: 0.75 }); //horizontal members
-    
+
         /* additional hardware */
-        cost.hardwareList.push({ 
-            name: "bolts", 
+        cost.hardwareList.push({
+            name: "bolts",
             unitCost: 0.2,
-            parameters:{},
+            parameters: {},
             quantity: 8
         });
-    
+
         return cost;
 
     }
