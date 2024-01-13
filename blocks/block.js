@@ -470,9 +470,8 @@ export default class Block extends SceneEntity {
         //console.log("vertical Index: " + this.zIndex);
         let shelf = this.findAncestorWithType("shelf");
 
-        let cost = this.estimateCost();
-        console.log(cost)
-        shelf.calculatePlywoodCost(cost);
+        // let cost = this.estimateCost();
+        // shelf.calculatePlywoodCost(cost);
 
         if (!this.moving && (this.sceneManager.keysDown["a"] || this.sceneManager.keysDown["A"])) {
             /* need to move the block when the cursor moves */
@@ -529,7 +528,7 @@ export default class Block extends SceneEntity {
         return true; //interrupts the click propagation
     }
 
-    changeObjectColor(color) {
+    changeObjectColor(color = this.parameters.objectColor) {
         this.blockMesh.material.color.set(color);
     }
 
@@ -539,7 +538,7 @@ export default class Block extends SceneEntity {
     }
 
     hoveredOut() {
-        this.changeObjectColor(this.selected ? this.sceneManager.defaults.selection.colorSelected : this.parameters.objectColor);
+        this.changeObjectColor();
     }
 
     addToShelfFilling() {

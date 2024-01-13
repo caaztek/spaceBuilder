@@ -12,7 +12,7 @@ export default class ThreeUtilities {
         return body;
     }
 
-    static returnGroupAtDetailedCoord(geom, material, origin, xAxis, yAxis, zAxis, outline = true) {
+    static returnGroupAtDetailedCoord(geom, material, origin, xAxis = new THREE.Vector3(1,0,0), yAxis = new THREE.Vector3(0,1,0), zAxis = new THREE.Vector3(0,0,1), outline = true) {
         //console.log(yAxis);
         let coord = {
             "origin": origin.clone(),

@@ -14,13 +14,13 @@ import { CSG } from 'three-csg-ts';
 7. In Shelf.js, import /block/templateName.js and update setBlockList to include the new block type
  */
 
-export default class TemplateName extends Block {
+export default class SurfRack extends Block {
     constructor(sceneManager, parent, variationName) {
         super(sceneManager, parent, variationName);
     }
 
     setParameters() {
-        this.parameters = TemplateName.parameters();
+        this.parameters = SurfRack.parameters();
     }
 
     static parameters() {
@@ -29,13 +29,13 @@ export default class TemplateName extends Block {
 
         param.variations = [
             {
-                variationName: "Template name",
+                variationName: "Surf Rack",
                 variationParameters: {
-                    rightSlotsOccupyAbove: 2,
+                    rightSlotsOccupyAbove: 5,
                     rightSlotsOccupyBelow: 1,
-                    leftSlotsOccupyAbove: 2,
+                    leftSlotsOccupyAbove: 5,
                     leftSlotsOccupyBelow: 1,
-                    centerSlotsOccupyAbove: 2,
+                    centerSlotsOccupyAbove: 10,
                     centerSlotsOccupyBelow: 1,
                 }
             }

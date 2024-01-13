@@ -10,6 +10,9 @@ import FixedDesk from './blocks/fixedDesk.js';
 import PullRack from './blocks/pullRack.js';
 import Partition from './partition.js';
 import Drawer from './blocks/drawer.js';
+import DisplayRack from './blocks/displayRack.js';
+import ShippingStation from './blocks/shippingStation.js';
+import SurfRack from './blocks/surfRack.js';
 
 /* class containing all the information for a given shelf unit, made of many columns */
 export default class Shelf extends SceneEntity {
@@ -47,15 +50,16 @@ export default class Shelf extends SceneEntity {
 
         /* add GUI */
         this.showShelfModifier = true;
+        this.showPartitionSteps = true;
         this.addGUI();
 
         /* set columns */
         this.matchExactWidth = true; //if match then we can't use exact column width. Maybe just use them as guides.
-        this.defaultWidthStep = 10; //all width will be a multiple of this. This is also the minimum width.
-        this.defaultColumnWidths = [2, 5]; //as multiples of defaultWidthStep
+        this.defaultWidthStep = 4; //all width will be a multiple of this. This is also the minimum width.
+        this.defaultColumnWidths = [5, 10]; //as multiples of defaultWidthStep
         this.targetWidthMargin = 0;
         this.targetWidthMarginPerColumnTotal = 0.2;
-        this.maxColumnWidth = 6;  //in multiple of defaultWidthStep
+        this.maxColumnWidth = 14;  //in multiple of defaultWidthStep
 
         /* vertical partitions will be managed by the shelf */
         this.partitionObject = new THREE.Group();
@@ -84,7 +88,7 @@ export default class Shelf extends SceneEntity {
     }
 
     updateCameraAndControls() {
-        let xPosition = this.startX + this.partitions[this.partitions.length - 1].xPosition * 0.7;
+        let xPosition = this.startX + this.partitions[this.partitions.length - 1].xPosition * 0.8;
         let yPosition = 0;
         let zPosition = this.parent.cameraStartTargetHeight;
         this.sceneManager.camera.lookAt(xPosition, yPosition, zPosition);
@@ -102,8 +106,8 @@ export default class Shelf extends SceneEntity {
     }
 
     setBlockList() {
-        this.baseBlockListColumn = [PullDesk, FixedDesk, PullRack]
-        this.baseBlockListArea = [FixedShelf, PullShelf, PlasticBin, Drawer];
+        this.baseBlockListColumn = [PullDesk, FixedDesk, PullRack,ShippingStation,SurfRack]
+        this.baseBlockListArea = [FixedShelf, PullShelf, PlasticBin, Drawer, DisplayRack];
         this.baseBlockList = this.baseBlockListColumn.concat(this.baseBlockListArea);
 
         this.shelfFilling = {};
@@ -357,7 +361,7 @@ export default class Shelf extends SceneEntity {
         this.crossSupportBack = new THREE.Mesh(crossSupportGeomBack, this.crossSupportMaterial);
         this.crossSupportBack.add(ThreeUtilities.returnObjectOutline(this.crossSupportBack));
         this.object.add(this.crossSupportBack);
-        
+
             ThreeUtilities.disposeHierarchy(this.crossSupport);
             let crossSupportGeom = new THREE.BoxGeometry(this.lastX() + this.partitionThickness, this.crossSupportHeight, this.crossSupportThickness);
             crossSupportGeom.translate(this.lastX() / 2, -this.depth + this.crossSupportHeight / 2, this.crossSupportStartZ);
@@ -402,6 +406,7 @@ export default class Shelf extends SceneEntity {
 
         /* initialize block list, in case it was filling before*/
         this.resetBlockList();
+        this.estimateCost();
     }
 
     computeTotalArea() {
@@ -523,6 +528,13 @@ export default class Shelf extends SceneEntity {
 
         /* add a button to empty the shelf */
         this.guiFolder.add(this, "resetShelf")
+        /* add gui to show partition steps */
+        this.guiFolder.add(this, "showPartitionSteps").onChange((value) => {
+            this.partitions.forEach((partition) => {
+                partition.drawSteps = value;
+                partition.update();
+            });
+        });
     }
 
     updateGUI() {
@@ -538,7 +550,7 @@ export default class Shelf extends SceneEntity {
                 let blockHeight = variationParameters.centerSlotsOccupyAbove != undefined ? variationParameters.centerSlotsOccupyAbove : param.centerSlotsOccupyAbove + (variationParameters.centerSlotsOccupyBelow ? variationParameters.centerSlotsOccupyBelow : param.centerSlotsOccupyBelow);
                 block.maxFill = this.totalArea / (blockHeight);
             }
-            block.controller.max(block.maxFill);
+            block.controller.max(block.maxFill * 1.1);
             block.controller.updateDisplay();
         });
     }

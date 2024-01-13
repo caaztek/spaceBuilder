@@ -722,7 +722,7 @@ export default class SceneManager extends SceneEntity {
             let totalViewWidth = 1000;
             this.controls.target.set(0, 0, 0);
             this.camera.position.x = this.controls.target.x;
-            this.camera.position.y = this.controls.target.y + defaults.orthographicCameraDistance;
+            this.camera.position.y = this.controls.target.y - defaults.orthographicCameraDistance;
             this.camera.position.z = this.controls.target.z;
             this.updateCamera(defaults.orthographicCameraViewWidth);
         }

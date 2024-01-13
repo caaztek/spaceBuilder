@@ -112,7 +112,8 @@ export default class Column extends SceneEntity {
         if (newWidth != this.width) {
             widthChange = true;
             this.width = newWidth;
-            if (this.width <= 0) {
+            //console.log(this.width)
+            if (this.width < this.parent.columnWidthStep) {
                 this.deleteEntity();
                 return true;
             }
