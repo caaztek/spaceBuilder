@@ -70,7 +70,7 @@ export default class PlasticBin extends Block {
         }, true, true, this.parameters.objectColor);
     }
 
-    changeObjectColor(color) {
+    changeObjectColor(color = this.parameters.objectColor) {
         /* need to override to traverse every children */
         this.binObject.traverse((child) => {
             if (child.isMesh) {
