@@ -18,12 +18,13 @@ export default class PullDesk extends Block {
             {
                 variationName: "Pull-out desk",
                 variationParameters: {
+                    startBlockListFillingCoefficient : 1,
                 }
             }
         ],
 
-        param.slideColor = "#ffffe6";
-        param.objectColor = "#ffffe6";
+        // param.slideColor = "#ffffe6";
+        // param.objectColor = "#ffffe6";
 
         param.deskTopThickness = 0.75;
         param.deskSideAboveTick = 1.5;
@@ -73,7 +74,8 @@ export default class PullDesk extends Block {
 
     scoreOption(column, zIndex) {
         /* if no desk have been found, use standard scoring. */
-        return super.scoreOption(column, zIndex);
+        super.scoreOption(column, zIndex);
+        //let baseScore = super.scoreOption(column, zIndex); //considering rewarding proximity to a miter saw
     }
 
     makeSlides() {

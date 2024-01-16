@@ -14,6 +14,7 @@ import DisplayRack from './blocks/displayRack.js';
 import ShippingStation from './blocks/shippingStation.js';
 import SurfRack from './blocks/surfRack.js';
 import Dimension from './dimension.js';
+import MiterStation from './blocks/miterStation.js';
 
 /* class containing all the information for a given shelf unit, made of many columns */
 export default class Shelf extends SceneEntity {
@@ -120,7 +121,7 @@ export default class Shelf extends SceneEntity {
     }
 
     setBlockList() {
-        this.baseBlockListColumn = [PullDesk, FixedDesk, PullRack,ShippingStation,SurfRack]
+        this.baseBlockListColumn = [PullDesk, FixedDesk, PullRack,ShippingStation,SurfRack, MiterStation]
         this.baseBlockListArea = [FixedShelf, PullShelf, PlasticBin, Drawer, DisplayRack];
         this.baseBlockList = this.baseBlockListColumn.concat(this.baseBlockListArea);
 
@@ -541,10 +542,6 @@ export default class Shelf extends SceneEntity {
             });
         });
 
-        // this.resetShelf = () => {
-        //     this.resetShelf();
-        //     this.updateGUI();
-        // }
 
         /* add a button to empty the shelf */
         this.guiFolder.add(this, "resetShelf")

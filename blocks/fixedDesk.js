@@ -76,7 +76,11 @@ export default class FixedDesk extends Block {
 
     makeMovingObject() {
         /* if customized, make sure to add this.makeClickable(object to click) */
-        super.makeMovingObject();
+        //super.makeMovingObject();
+        let deskGeom = new THREE.BoxGeometry(this.width, this.depth, this.parameters.desktopThickness);
+        let deskMesh = ThreeUtilities.returnGroupAtDetailedCoord(deskGeom, this.blockObjectMaterial, new THREE.Vector3(0,-this.depth/2,this.parameters.desktopThickness/2));
+        this.blockObjectMoving.add(deskMesh);
+
 
         this.sceneManager.objectCache.loadObject("officeMug", (objectName) => {
             objectName.traverse((child) => {
