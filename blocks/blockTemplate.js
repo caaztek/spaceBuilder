@@ -31,12 +31,14 @@ export default class TemplateName extends Block {
             {
                 variationName: "Template name",
                 variationParameters: {
-                    rightSlotsOccupyAbove: 2,
-                    rightSlotsOccupyBelow: 1,
-                    leftSlotsOccupyAbove: 2,
-                    leftSlotsOccupyBelow: 1,
-                    centerSlotsOccupyAbove: 2,
-                    centerSlotsOccupyBelow: 1,
+                    rightSlotsOccupyAbove: 1,
+                    rightSlotsOccupyBelow: 0,
+                    leftSlotsOccupyAbove: 1,
+                    leftSlotsOccupyBelow: 0,
+                    centerSlotsOccupyAbove: 1,
+                    centerSlotsOccupyBelow: 0,
+                    centerSlotsOccupyAboveForced: 1,
+                    centerSlotsOccupyBelowForced: 0,
                 }
             }
         ]

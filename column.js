@@ -33,6 +33,7 @@ export default class Column extends SceneEntity {
         this.topModifier = new LinearModifier(this.sceneManager, this, "line")
             .setScale(1)
             .updateDirection(this.sceneManager.zAxis, this.sceneManager.yAxis)
+            .updateDimension(new THREE.Vector3(-this.width / 2, -this.depth, 0), new THREE.Vector3(-this.width / 2, -this.depth, this.height), this.sceneManager.yAxis.clone().negate(), 20, Math.PI / 2, 0,undefined,true)
             .onUpdate((modifierType, modifier) => {
                 if (modifierType == "clicked") {
                     this.startHeight = this.height;
@@ -48,7 +49,9 @@ export default class Column extends SceneEntity {
                     this.height = targetHeight;
                     this.sizeUpdate();
                     this.parent.updateModifierPosition(); //when the rightmost column update, should shift +
-                    //this.parent.update();
+                    
+                    modifier.dimension.updateEndPoint(new THREE.Vector3(-this.width / 2, -this.depth, this.height));
+                    
                     this.parent.estimateCost();
                 }
             })
@@ -164,6 +167,8 @@ export default class Column extends SceneEntity {
         /* position modifier */
         let topPosition = new THREE.Vector3(0, - this.depth, this.height);
         this.topModifier.updatePosition(topPosition);
+        this.topModifier.dimension.updateStartPoint(new THREE.Vector3(-this.width / 2, -this.depth, 0), false)
+        .updateEndPoint(new THREE.Vector3(-this.width / 2, -this.depth, this.height),false);
     }
 
     setWidth(width) {

@@ -54,7 +54,9 @@ export default class Block extends SceneEntity {
         if (insert && bestOption.score != 0) {
             /* we found one valid solution. */
             this.score = bestOption.score;
-            this.setColumn(bestOption.column).setZIndex(bestOption.zIndex).update();
+            this.setColumn(bestOption.column)
+            .setZIndex(bestOption.zIndex,true,false)
+            .update();
         }
 
         return this;
@@ -71,7 +73,7 @@ export default class Block extends SceneEntity {
         }
     }
 
-    checkOptionAvailability(column = this.parent, zIndex = this.zIndex, checkFit = true, checkOccupancy = true) {
+    checkOptionAvailability(column = this.parent, zIndex = this.zIndex, checkFit = true, checkOccupancy = true, usedForced = true) {
         /* checks if this option is available. Overwrite by subclass if needs more complex logic */
         let param = this.parameters;
         if (checkFit) {
@@ -103,8 +105,15 @@ export default class Block extends SceneEntity {
             for (var i = zIndex - param.leftSlotsOccupyBelow; i < zIndex + param.leftSlotsOccupyAbove; i++) {
                 if (i < 0 || i > column.maxZIndex() || column.leftOccupants[i] != undefined) { return false }
             }
-            for (var i = zIndex - param.centerSlotsOccupyBelow; i < zIndex + param.centerSlotsOccupyAbove; i++) {
-                if (i < 0 || column.centerOccupants[i] != undefined) { return false }
+            for (var i = zIndex - (usedForced? param.centerSlotsOccupyBelowForced : param.centerSlotsOccupyBelow); i < zIndex + (usedForced? param.centerSlotsOccupyAboveForced : param.centerSlotsOccupyAbove); i++) {
+                /* potential problem: we override on the non-forced coefficient, so potentially the area above a fixed shelf could be occupied by a fixed desk. Shouldn't happen but not sure if it is a problem */
+                if (i < 0) return false;
+                else if (column.centerOccupants[i] != undefined) {
+                    if (!usedForced) return false;
+                    //check if that block would still interfere if we used forced parameter.
+                    let occupant = column.centerOccupants[i];
+                    if (i < occupant.zIndex + occupant.parameters.centerSlotsOccupyAboveForced && i >= occupant.zIndex - occupant.parameters.centerSlotsOccupyBelowForced) return false;
+                }
             }
         }
         return true;
@@ -114,7 +123,7 @@ export default class Block extends SceneEntity {
         /* score the option of placing the block in the given column at the given zIndex */
         let param = this.parameters;
 
-        if (!this.checkOptionAvailability(column, zIndex, true, true)) { return 0 }
+        if (!this.checkOptionAvailability(column, zIndex, true, true, false)) { return 0 }
 
         if (param.onePerColumn) {
             for (var i = 0; i < column.blocks.length; i++) {
@@ -155,7 +164,7 @@ export default class Block extends SceneEntity {
         return this;
     }
 
-    setOccupancyAtIndex(zIndex, erase = true) {
+    setOccupancyAtIndex(zIndex, erase = true, usedForced = false) {
         /* occupy the column objects according to block size */
         let param = this.parameters;
         for (var i = zIndex - param.rightSlotsOccupyBelow; i < zIndex + param.rightSlotsOccupyAbove; i++) {
@@ -170,9 +179,15 @@ export default class Block extends SceneEntity {
             }
             this.parent.leftOccupants[i] = this;
         }
-        for (var i = zIndex - param.centerSlotsOccupyBelow; i < zIndex + param.centerSlotsOccupyAbove; i++) {
+
+        for (var i = zIndex - (usedForced ? param.centerSlotsOccupyBelowForced : param.centerSlotsOccupyBelow); i < zIndex + (usedForced ? param.centerSlotsOccupyAboveForced : param.centerSlotsOccupyAbove); i++) {
             if (erase && this.parent.centerOccupants[i] != undefined) {
-                this.parent.centerOccupants[i].deleteEntity(true, true);
+                if (!usedForced) this.parent.centerOccupants[i].deleteEntity(true, true);
+                else {
+                    let occupant = this.parent.centerOccupants[i];
+                    if (i < occupant.zIndex + occupant.parameters.centerSlotsOccupyAboveForced && i >= occupant.zIndex - occupant.parameters.centerSlotsOccupyBelowForced)
+                        this.parent.centerOccupants[i].deleteEntity(true, true);
+                }
             }
             this.parent.centerOccupants[i] = this;
         }
@@ -186,22 +201,22 @@ export default class Block extends SceneEntity {
         let param = this.parameters;
         let zIndex = this.zIndex;
         for (var i = zIndex - param.rightSlotsOccupyBelow; i < zIndex + param.rightSlotsOccupyAbove; i++) {
-            if (this.parent.rightOccupants[i] == this) this.parent.rightOccupants[i] = undefined; //check is necessary because during move another block has already taken the spot before this is deleted
+            if (this.parent.rightOccupants[i] === this) this.parent.rightOccupants[i] = undefined; //check is necessary because during move another block has already taken the spot before this is deleted
         }
         for (var i = zIndex - param.leftSlotsOccupyBelow; i < zIndex + param.leftSlotsOccupyAbove; i++) {
-            if (this.parent.leftOccupants[i] == this) this.parent.leftOccupants[i] = undefined;
+            if (this.parent.leftOccupants[i] === this) this.parent.leftOccupants[i] = undefined;
         }
         for (var i = zIndex - param.centerSlotsOccupyBelow; i < zIndex + param.centerSlotsOccupyAbove; i++) {
-            if (this.parent.centerOccupants[i] == this) this.parent.centerOccupants[i] = undefined;
+            if (this.parent.centerOccupants[i] === this) this.parent.centerOccupants[i] = undefined;
         }
     }
 
 
 
-    setZIndex(zIndex, erase = true) {
+    setZIndex(zIndex, erase = true, useForce = false) {
         this.zIndex = zIndex;
 
-        this.setOccupancyAtIndex(zIndex, erase);
+        this.setOccupancyAtIndex(zIndex, erase,useForce);
 
         return this;
     }
@@ -264,6 +279,8 @@ export default class Block extends SceneEntity {
             leftSlotsOccupyBelow: 0,
             centerSlotsOccupyAbove: 1,
             centerSlotsOccupyBelow: 0,
+            centerSlotsOccupyAboveForced: 1, //when dragging a block above will only check forced
+            centerSlotsOccupyBelowForced: 0,
 
             priority: 2, //to decide the order in which the blocks are placed
             onePerColumn: false, //if true, only one block of this type can be placed per column. Maybe always the same as fillPerColumn?
@@ -285,22 +302,20 @@ export default class Block extends SceneEntity {
         this.parameters = Block.parameters();
     }
 
-    // checkFitInColumn(column = this.parent, zIndex = this.zIndex) {
-
-    //     let param = this.parameters;
-
-
-    //     return true;
-    // }
-
     setDimensions() {
         /* Creates important dimensions based on parameters generally should not be overwritten */
+        if (this.parameters.centerSlotsOccupyAboveForced == undefined) this.parameters.centerSlotsOccupyAboveForced = this.parameters.centerSlotsOccupyAbove;
+        if (this.parameters.centerSlotsOccupyBelowForced == undefined) this.parameters.centerSlotsOccupyBelowForced = this.parameters.centerSlotsOccupyBelow;
+
         let param = this.parameters;
 
         this.blockSlidesMaterial = new THREE.MeshLambertMaterial({ color: param.slideColor });
         this.blockObjectMaterial = new THREE.MeshLambertMaterial({ color: param.objectColor });
 
-        this.height = param.idealHeight;
+        this.heightAbove = param.centerSlotsOccupyAboveForced * this.parent.verticalStep;
+        this.heightBelow = param.centerSlotsOccupyBelowForced * this.parent.verticalStep;
+        this.totalHeight = this.heightAbove + this.heightBelow;
+        
         this.width = this.parent.width - this.parent.partitionThickness - 2 * param.widthMargin;
         this.depth = this.parent.depth; //has to fit within parent column.
         this.zPosition = this.zIndex * this.parent.verticalStep + this.parent.startStep;
@@ -330,7 +345,8 @@ export default class Block extends SceneEntity {
         this.object.add(this.blockObjectMoving);
 
         this.makeSlides();
-        this.makeMovingObject()
+        this.makeMovingObject();
+        this.makeClickableBox();
     }
 
     makeSlides() {
@@ -380,7 +396,16 @@ export default class Block extends SceneEntity {
         this.blockMesh.add(ThreeUtilities.returnObjectOutline(this.blockMesh))
         this.blockObjectMoving.add(this.blockMesh);
 
-        this.makeClickable(this.blockMesh);
+    }
+
+    makeClickableBox() {
+        /* create a clickable box that is the size of the block */
+        let boxGeom = new THREE.BoxGeometry(this.width, this.depth, this.totalHeight);
+        boxGeom.translate(0, -this.depth / 2, this.heightAbove - this.totalHeight / 2);
+        this.clickBox = new THREE.Mesh(boxGeom, this.blockObjectMaterial);
+        this.clickBox.visible = false;
+        this.blockObjectMoving.add(this.clickBox);
+        this.makeClickable(this.clickBox);
     }
 
     updateAnimation(timeOffset) {
@@ -454,12 +479,11 @@ export default class Block extends SceneEntity {
             /* add this block  to the right column*/
             let newBlock = new this.constructor(this.sceneManager, this.shelf, this.variationName)
                 .setColumn(this.shelf.columns[this.foundSnap.columnI])
-                .setZIndex(this.foundSnap.zIndex)
+                .setZIndex(this.foundSnap.zIndex, true, true)
                 .addToShelfFilling()
                 .update();
-
         }
-        this.deleteEntity();
+        this.deleteEntity(false,true);
         window.removeEventListener('pointermove', this.boundPointerMove, false);
         window.removeEventListener('pointerup', this.boundPointerUp, false);
     }
@@ -491,6 +515,7 @@ export default class Block extends SceneEntity {
             this.parent.object.remove(this.object); //remove from column
             this.shelf.object.add(this.object);
             this.object.position.copy(this.startBlockInShelfPosition);
+            this.releaseOccupancy();
 
             if (this.sceneManager.keysDown["Shift"]) {
                 let newBlock = new this.constructor(this.sceneManager, this.shelf, this.variationName)
@@ -529,7 +554,7 @@ export default class Block extends SceneEntity {
     }
 
     changeObjectColor(color = this.parameters.objectColor) {
-        this.blockMesh.material.color.set(color);
+        this.blockObjectMaterial.color.set(color);
     }
 
     hoveredIn() {
@@ -606,12 +631,14 @@ export class FixedShelf extends Block {
         param.idealHeight = 0.75;
         param.allowSlide = false;
 
-        param.rightSlotsOccupyAbove = 2; //how many slots above the reference slot it occupies. Including where it is attached
+        param.rightSlotsOccupyAbove = 1; //how many slots above the reference slot it occupies. Including where it is attached
         param.rightSlotsOccupyBelow = 0;
-        param.leftSlotsOccupyAbove = 2;
+        param.leftSlotsOccupyAbove = 1;
         param.leftSlotsOccupyBelow = 0;
         param.centerSlotsOccupyAbove = 2;
         param.centerSlotsOccupyBelow = 0;
+        param.centerSlotsOccupyAboveForced = 1;
+        param.centerSlotsOccupyBelowForced = 0;
 
         param.priority = 1
         param.fillPerColumn = false
@@ -634,7 +661,7 @@ export class FixedShelf extends Block {
         cost.plywoodUsage += 0 // anything not counted in cuts to reflect nesting for example.
 
         /* plywood cuts */
-        cost.plywoodCuts.push({ x: this.depth, y: this.width, quantity: 1 ,thickness: 0.75});
+        cost.plywoodCuts.push({ x: this.depth, y: this.width, quantity: 1, thickness: 0.75 });
 
         /* additional hardware */
         cost.hardwareList.push({
@@ -683,12 +710,15 @@ export class PullShelf extends Block {
         param.maxDistanceFromReference = 1000;
         param.idealDistanceFromReference = 10;
 
-        param.rightSlotsOccupyAbove = 2; //how many slots above the reference slot it occupies. Including where it is attached
+        param.rightSlotsOccupyAbove = 1; //how many slots above the reference slot it occupies. Including where it is attached
         param.rightSlotsOccupyBelow = 0;
-        param.leftSlotsOccupyAbove = 2;
+        param.leftSlotsOccupyAbove = 1;
         param.leftSlotsOccupyBelow = 0;
         param.centerSlotsOccupyAbove = 2;
         param.centerSlotsOccupyBelow = 0;
+        param.centerSlotsOccupyAboveForced = 1;
+        param.centerSlotsOccupyBelowForced = 0;
+
 
         param.priority = 2
         param.fillPerColumn = false
@@ -716,11 +746,11 @@ export class PullShelf extends Block {
         cost.plywoodCuts.push({ x: this.depth, y: this.parameters.slideHeight, quantity: 2 });
 
         /* additional hardware */
-        cost.hardwareList.push({ 
-            name: "pins", 
+        cost.hardwareList.push({
+            name: "pins",
             unitCost: 0.05,
-            parameters:{},
-            quantity: 4 
+            parameters: {},
+            quantity: 4
         });
 
         return cost;

@@ -42,12 +42,19 @@ export default class PlasticBin extends Block {
         param.leftSlotsOccupyBelow = slotsBelow;
         param.centerSlotsOccupyAbove = 1;
         param.centerSlotsOccupyBelow = slotsBelow;
+        param.centerSlotsOccupyAboveForced = 1;
+        param.centerSlotsOccupyBelowForced = slotsBelow;
 
         param.startBlockListFillingCoefficient = 0.3;
         param.priority = 3
         param.fillPerColumn = false
 
         return param;
+    }
+
+    setDimensions() {
+        super.setDimensions();
+        this.binMaterial = new THREE.MeshLambertMaterial({ color: this.parameters.objectColor });
     }
 
     makeMovingObject() {
@@ -59,24 +66,14 @@ export default class PlasticBin extends Block {
             this.binObject.scale.set(scale * (this.width), scale * this.depth, scale * this.parameters.binHeight);
             this.blockObjectMoving.add(this.binObject);
 
-            let binGeom = new THREE.BoxGeometry(this.width, this.depth, this.parameters.binHeight);
-            let binMesh = new THREE.Mesh(binGeom, this.blockObjectMaterial);
-            binMesh.position.set(0, -this.depth / 2, this.parameters.slideHeight / 2 - this.parameters.binHeight / 2);
-            this.blockObjectMoving.add(binMesh);
-            binMesh.visible = false;
+            // let binGeom = new THREE.BoxGeometry(this.width, this.depth, this.parameters.binHeight)
 
-            this.makeClickable(binMesh);
-
-        }, true, true, this.parameters.objectColor);
+        }, true, this.binMaterial);
     }
 
     changeObjectColor(color = this.parameters.objectColor) {
         /* need to override to traverse every children */
-        this.binObject.traverse((child) => {
-            if (child.isMesh) {
-                child.material.color.set(color);
-            }
-        });
+       this.binMaterial.color.set(color);
     }
 
     deleteEntity(releaseOccupancy, updateShelfFilling) {

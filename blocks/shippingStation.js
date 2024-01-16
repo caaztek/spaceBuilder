@@ -37,6 +37,8 @@ export default class ShippingStation extends Block {
                     leftSlotsOccupyBelow: 0,
                     centerSlotsOccupyAbove: 8,
                     centerSlotsOccupyBelow: 0,
+                    centerSlotsOccupyAboveForced: 8,
+                    centerSlotsOccupyBelowForced: 0,
                 }
             }
         ]
@@ -90,7 +92,7 @@ export default class ShippingStation extends Block {
         this.blockObjectFixed.add(cylinder);
 
         /* figure out max paper radius */
-        let maxRadius = Math.min(this.depth / 2, slideHeight) * 0.9;
+        let maxRadius = Math.min(this.depth / 2, slideHeight) * 0.95;
         this.maxRadius = maxRadius;
         this.paperWidthStart = 6;
         let radiusDown = 0.8;
@@ -112,8 +114,6 @@ export default class ShippingStation extends Block {
         }
         this.rollHeight = slideHeight
 
-
-
     }
 
     changeObjectColor(color) {
@@ -125,6 +125,9 @@ export default class ShippingStation extends Block {
         /* overwrite for unique objects like gltf imports that need to be traversed */
         super.changeObjectColor(color);
         
+    }
+
+    makeMovingObject() {
     }
 
     updateAnimation(timeOffset) {
@@ -157,21 +160,6 @@ export default class ShippingStation extends Block {
         this.blockObjectMoving.add(this.pullBlock);
     }
 
-    makeMovingObject() {
-        /* if customized, make sure to add this.makeClickable(object to click) */
-        /* make main shelf */
-        let p = this.parameters;
-        let shelf = this.findAncestorWithType("shelf");
-        let step = shelf.verticalStep;
-        let slideHeight = p.centerSlotsOccupyAbove * step / 2;
-        let boxGeom = new THREE.BoxGeometry(this.width, this.depth, slideHeight * 2);
-        boxGeom.translate(0, -this.depth / 2, slideHeight);
-        this.blockMesh = new THREE.Mesh(boxGeom, this.blockObjectMaterial);
-        this.blockMesh.visible = false;
-        this.blockObjectMoving.add(this.blockMesh);
-        this.makeClickable(this.blockMesh);
-
-    }
 
     estimateCost() {
         let cost = super.estimateCost();

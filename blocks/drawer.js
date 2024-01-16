@@ -20,31 +20,37 @@ export default class Drawer extends Block {
             {
                 variationName: "Thin Drawer",
                 variationParameters: {
-                    "rightSlotsOccupyAbove": 1,
-                    "leftSlotsOccupyAbove": 1,
-                    "centerSlotsOccupyAbove": 1,
-                    "startBlockListFillingCoefficient" : 0.1,
-                    "priority" : 1
+                    rightSlotsOccupyAbove: 1,
+                    leftSlotsOccupyAbove: 1,
+                    centerSlotsOccupyAbove: 1,
+                    centerSlotsOccupyAboveForced: 1,
+                    centerSlotsOccupyBelowForced: 0,
+                    startBlockListFillingCoefficient : 0.1,
+                    priority : 1
                 }
             },
             {
                 variationName: "Regular Drawer",
                 variationParameters: {
-                    "rightSlotsOccupyAbove": 2,
-                    "leftSlotsOccupyAbove": 2,
-                    "centerSlotsOccupyAbove": 2,
-                    "startBlockListFillingCoefficient" : 0.2,
-                    "priority" : 3
+                    rightSlotsOccupyAbove: 2,
+                    leftSlotsOccupyAbove: 2,
+                    centerSlotsOccupyAbove: 2,
+                    centerSlotsOccupyAboveForced: 2,
+                    centerSlotsOccupyBelowForced: 0,
+                    startBlockListFillingCoefficient : 0.2,
+                    priority : 3
                 }
             },
             {
                 variationName: "Tall Drawer",
                 variationParameters: {
-                    "rightSlotsOccupyAbove": 3,
-                    "leftSlotsOccupyAbove": 3,
-                    "centerSlotsOccupyAbove": 3,
-                    "startBlockListFillingCoefficient" : 0.2,
-                    "priority" : 4
+                    rightSlotsOccupyAbove: 3,
+                    leftSlotsOccupyAbove: 3,
+                    centerSlotsOccupyAbove: 3,
+                    centerSlotsOccupyAboveForced: 3,
+                    centerSlotsOccupyBelowForced: 0,
+                    startBlockListFillingCoefficient : 0.2,
+                    priority : 4
                 }
             },
         ]
@@ -56,12 +62,12 @@ export default class Drawer extends Block {
 
         param.horizontalWeight = 0;
 
-        // param.rightSlotsOccupyAbove = 2 //how many slots above the reference slot it occupies. Including where it is attached
-        param.rightSlotsOccupyBelow = 0
-        // param.leftSlotsOccupyAbove = 2
-        param.leftSlotsOccupyBelow = 0
-        // param.centerSlotsOccupyAbove = 2
-        param.centerSlotsOccupyBelow = 0
+        // // param.rightSlotsOccupyAbove = 2 //how many slots above the reference slot it occupies. Including where it is attached
+        // param.rightSlotsOccupyBelow = 0
+        // // param.leftSlotsOccupyAbove = 2
+        // param.leftSlotsOccupyBelow = 0
+        // // param.centerSlotsOccupyAbove = 2
+        // param.centerSlotsOccupyBelow = 0
 
         param.faceMargin = 0.25; //gap between top of drawer and next
         param.sliderMargin = 2; //gap between top of slider and next

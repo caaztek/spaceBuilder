@@ -52,6 +52,8 @@ export default class FixedDesk extends Block {
         param.leftSlotsOccupyBelow= 0
         param.centerSlotsOccupyAbove= 8
         param.centerSlotsOccupyBelow= 0
+        param.centerSlotsOccupyAboveForced= 1
+        param.centerSlotsOccupyBelowForced= 0
 
         param.allowSlide = false
 
@@ -87,7 +89,7 @@ export default class FixedDesk extends Block {
             objectName.position.set(this.width / 2 - 4,-5,0.8);
             //let scale = 1;
             this.blockObjectMoving.add(objectName);
-        }, false, false, undefined, true);
+        }, false, undefined, true);
 
     }
 

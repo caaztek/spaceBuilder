@@ -24,12 +24,16 @@ export default class PullRack extends Block {
             }
         ];
 
+        param.shirtColor = "#a3d9d4";
+
         param.rightSlotsOccupyAbove = 1 //how many slots above the reference slot it occupies. Including where it is attached
         param.rightSlotsOccupyBelow = 0
         param.leftSlotsOccupyAbove = 1
         param.leftSlotsOccupyBelow = 0
         param.centerSlotsOccupyAbove = 1
         param.centerSlotsOccupyBelow = 10
+        param.centerSlotsOccupyAboveForced = 1
+        param.centerSlotsOccupyBelowForced = 10
 
         param.referenceIsBottom = true;
         param.idealDistanceFromReference = 50;
@@ -57,8 +61,18 @@ export default class PullRack extends Block {
         return super.scoreOption(column, zIndex);
     }
 
+    setDimensions() {
+        super.setDimensions();
+        this.blockShirtMaterial = new THREE.MeshLambertMaterial({ color: this.parameters.shirtColor });
+    }
+
     makeSlides() {
         super.makeSlides();
+    }
+
+    changeObjectColor(color) {
+        this.blockObjectMaterial.color.set(color == undefined ? this.parameters.objectColor : color);
+        this.blockShirtMaterial.color.set(color == undefined ? this.parameters.shirtColor : color);
     }
 
     makeMovingObject() {
@@ -68,16 +82,14 @@ export default class PullRack extends Block {
 
         /* add slider */
         let blockGeometry = new THREE.BoxGeometry(this.width, this.depth, param.sliderThickness);
-        this.blockMesh = new THREE.Mesh(blockGeometry, this.blockObjectMaterial);
-        this.blockMesh.position.set(0, -this.depth / 2, this.parameters.slideHeight / 2);
-        this.blockMesh.add(ThreeUtilities.returnObjectOutline(this.blockMesh));
-        this.blockObjectMoving.add(this.blockMesh);
+        let sliderMesh = new THREE.Mesh(blockGeometry, this.blockObjectMaterial);
+        sliderMesh.position.set(0, -this.depth / 2, this.parameters.slideHeight / 2);
+        sliderMesh.add(ThreeUtilities.returnObjectOutline(sliderMesh));
+        this.blockObjectMoving.add(sliderMesh);
 
         /* add a cylinder */
         let cylinder = ThreeUtilities.returnCylinder(new THREE.Vector3(0, 0, -param.cylinderOffset), new THREE.Vector3(0, -this.depth, -param.cylinderOffset), param.cylinderRadius, this.blockObjectMaterial, 10)
         this.blockObjectMoving.add(cylinder);
-
-        this.makeClickable(this.blockMesh);
 
         /* add clothing */
         let clothOffset = -param.cylinderOffset - 5.8;
@@ -90,13 +102,13 @@ export default class PullRack extends Block {
                 this.sceneManager.objectCache.loadObject("coatHanger", (objectName) => {
                     objectName.position.set(0, y, clothOffset);
                     this.blockObjectMoving.add(objectName);
-                }, false, false, undefined, true);
+                }, false, undefined, true);
 
-                if (Math.random() < chance) {
+                if ( y == -5 || Math.random() < chance) {
                     this.sceneManager.objectCache.loadObject("shirt", (objectName) => {
                         objectName.position.set(0, y + 0.3, shirtOffset);
                         this.blockObjectMoving.add(objectName);
-                    }, false, true, "#a3d9d4", true);
+                    }, false, this.blockShirtMaterial, false);
                 }
 
             }).call(this, y);

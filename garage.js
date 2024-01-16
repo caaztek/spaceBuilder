@@ -11,6 +11,7 @@ import officeMug from './models/officeMug.glb';
 import officeChair from './models/officeChair.glb';
 import coatHanger from './models/coatHanger.glb';
 import shirt from './models/shirt.gltf';
+import surfboard from './models/surfboard.gltf';
 
 export default class Garage extends SceneEntity {
     constructor(sceneManager, parent) {
@@ -49,6 +50,7 @@ export default class Garage extends SceneEntity {
         this.sceneManager.objectCache.addObject("officeChair", officeChair, 39);
         this.sceneManager.objectCache.addObject("coatHanger", coatHanger, 0.15, Math.PI / 2, Math.PI / 2, 0);
         this.sceneManager.objectCache.addObject("shirt", shirt, 85, 0, 0, 0);
+        this.sceneManager.objectCache.addObject("surfboard", surfboard, 50, Math.PI/2, Math.PI/2, 0);
 
         //this.sceneManager.objectCache.testObjectOutline("officeMug", 100);
 
@@ -67,21 +69,13 @@ export default class Garage extends SceneEntity {
         /* set shelves */
         this.shelves = [new Shelf(this.sceneManager, this)];
 
-        this.sceneManager.onUpdate((updateType, event) => {
-            if (updateType == "keyDown" && event == "m") {
-                this.showGarageModifier = !this.showGarageModifier;
-                this.switchModifierVisibility(this.showGarageModifier);
-                this.showModifierController.updateDisplay();
-            }
-        })
-
     }
 
     addGUI() {
-        super.addGUI();
-        this.showModifierController = this.guiFolder.add(this, "showGarageModifier").onChange((value) => {
-            this.switchModifierVisibility(value);
-        });
+        // super.addGUI();
+        // this.showModifierController = this.guiFolder.add(this, "showGarageModifier").onChange((value) => {
+        //     this.switchModifierVisibility(value);
+        // });
     }
 
     switchModifierVisibility(value) {
@@ -101,23 +95,7 @@ export default class Garage extends SceneEntity {
         this.sceneManager.controls.enablePan = false
         this.sceneManager.controls.enableDamping = false
 
-        // const originalPan = this.sceneManager.controls.pan;
 
-        // // Override the pan function
-        // this.sceneManager.controls.pan = function () {
-        //     // Get the original arguments
-        //     const args = Array.from(arguments);
-
-        //     // Modify the x component to be 0 (disables horizontal panning)
-        //     if (args.length === 1 && args[0].isVector2) {
-        //         args[0].x = 0;
-        //     } else if (args.length >= 2) {
-        //         args[0] = 0; // args[0] represents the x component in this case
-        //     }
-
-        //     // Call the original pan function with modified arguments
-        //     return originalPan.apply(this, args);
-        // };
     }
 
     updateLights() {
@@ -171,7 +149,6 @@ export default class Garage extends SceneEntity {
             .updateDimension(startPoint, startPoint.clone().addScaledVector(this.sceneManager.zAxis, this.height), this.sceneManager.yAxis.clone().negate(), 20, Math.PI / 2, 0)
             .onUpdate((modifierType, modifier) => {
                 if (modifierType == "clicked") {
-                    console.log("clicked");
                     this.startHeight = this.height;
                 } else if (modifierType == "moved") {
                     let minHeight = this.minHeight;

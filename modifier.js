@@ -252,8 +252,9 @@ export default class Modifier extends SceneEntity {
         return this.offsetDistance;
     }
 
-    updateDimension(startPoint, endPoint,pullDirection, pullOffset,rotateTextX,rotateTextY, precision = this.maxPrecision) {
+    updateDimension(startPoint, endPoint,pullDirection, pullOffset,rotateTextX,rotateTextY, precision = this.maxPrecision, whiteBox = false) {
         this.dimension = new Dimension(this.sceneManager, this.parent, startPoint,endPoint, pullDirection, pullOffset,rotateTextX,rotateTextY, precision);
+        if (whiteBox) this.dimension.changeWhiteBox();
         this.showDimensionWhenMoved = true;
         return this;
     }

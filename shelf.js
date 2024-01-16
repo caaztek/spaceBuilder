@@ -13,6 +13,7 @@ import Drawer from './blocks/drawer.js';
 import DisplayRack from './blocks/displayRack.js';
 import ShippingStation from './blocks/shippingStation.js';
 import SurfRack from './blocks/surfRack.js';
+import Dimension from './dimension.js';
 
 /* class containing all the information for a given shelf unit, made of many columns */
 export default class Shelf extends SceneEntity {
@@ -50,7 +51,8 @@ export default class Shelf extends SceneEntity {
 
         /* add GUI */
         this.showShelfModifier = true;
-        this.showPartitionSteps = true;
+        this.showPartitionSteps = false;
+        this.showModifiers = true;
         this.addGUI();
 
         /* set columns */
@@ -84,6 +86,7 @@ export default class Shelf extends SceneEntity {
         this.setColumns();
         this.setModifiers();
         this.update();
+        this.setDimension();
 
     }
 
@@ -95,6 +98,17 @@ export default class Shelf extends SceneEntity {
         this.sceneManager.controls.target.set(xPosition, yPosition, zPosition);
 
         //this.sceneManager.camera.position.set(xPosition, -this.parent.cameraStartDepth, this.parent.cameraStartHeight);
+    }
+
+    setDimension() {
+        this.dimension = new Dimension(this.sceneManager, this, new THREE.Vector3(0,-this.depth,0), new THREE.Vector3(this.lastX(),-this.depth,0), this.sceneManager.yAxis.clone().negate(), 40).update();
+        this.dimension.switchVisibility(false);
+        //.update()
+    }
+
+    updateDimension() {
+        this.dimension.updateEndPoint(new THREE.Vector3(this.lastX(),-this.depth,0))
+        this.dimension.updateStartPoint(new THREE.Vector3(0,-this.depth,0)).update();
     }
 
     getRayCastOnPlane() {
@@ -171,9 +185,10 @@ export default class Shelf extends SceneEntity {
         for (var i = 0; i <= this.columns.length; i++) {
             column = this.columns[i];
             let newPartition = new Partition(this.sceneManager, this, this.partitionThickness, this.depth)
-                .setColumns(i == 0 ? undefined : this.columns[i - 1], i == this.columns.length ? undefined : this.columns[i]);
-
             this.partitions.push(newPartition);
+
+            newPartition.setColumns(i == 0 ? undefined : this.columns[i - 1], i == this.columns.length ? undefined : this.columns[i]);
+
         }
 
     }
@@ -245,9 +260,10 @@ export default class Shelf extends SceneEntity {
         /* add a column at the end of the shelf */
         let newHeight = this.columns.length > 0 ? this.columns[this.columns.length - 1].height : this.height;
         let newColumn = new Column(this.sceneManager, this, this.lastX(), newColumnWidth, this.depth, newHeight);
-        let newPartition = new Partition(this.sceneManager, this, this.partitionThickness, this.depth).setColumns(newColumn, undefined);
+        let newPartition = new Partition(this.sceneManager, this, this.partitionThickness, this.depth)
         newColumn.rightPartition = newPartition;
         newColumn.leftPartition = this.columns[this.columns.length - 1].rightPartition;
+        newPartition.setColumns(newColumn, undefined);
 
         this.columns[this.columns.length - 1].rightPartition.rightColumn = newColumn;
 
@@ -285,15 +301,19 @@ export default class Shelf extends SceneEntity {
             .setScale(1)
             .updatePrecision(0)
             .updateDirection(this.sceneManager.xAxis, this.sceneManager.yAxis)
-            .updateDimension(depthDimensionStartPoint, new THREE.Vector3(this.lastX(),0,0), this.sceneManager.yAxis.clone().negate(),100)
+            //.updateDimension(depthDimensionStartPoint, new THREE.Vector3(this.lastX(),0,0), this.sceneManager.yAxis.clone().negate(),100)
             .onUpdate((modifierType, modifier) => {
                 if (modifierType == "clicked") {
                     this.startLength = this.lastX();
+                    this.dimension.switchVisibility(true);
                 } else if (modifierType == "moved") {
                     this.targetLength = Math.max(Math.min(this.startLength + modifier.offsetDistance, this.parent.length - this.parent.wallThickness - this.startX - this.partitionThickness / 2), this.defaultWidthStep);
-                    modifier.dimension.updateEndPoint(new THREE.Vector3(this.lastX(),0,0));
+                    //modifier.dimension.updateEndPoint(new THREE.Vector3(this.lastX(),0,0));
+                    this.updateDimension();
                     this.setColumns();
                     this.update();
+                } else if (modifierType = "released") {
+                    this.dimension.switchVisibility(false);
                 }
             })
 
@@ -313,7 +333,7 @@ export default class Shelf extends SceneEntity {
         this.depthModifier = new LinearModifier(this.sceneManager, this, "line")
             .setScale(1)
             .updatePrecision(0)
-            .updateDirection(this.sceneManager.zAxis, this.sceneManager.yAxis)
+            .updateDirection(this.sceneManager.yAxis, this.sceneManager.zAxis)
             .updateDimension(depthDimensionStartPoint, depthDimensionStartPoint.clone().addScaledVector(this.sceneManager.yAxis,-this.depth), this.sceneManager.xAxis.clone().negate())
             .onUpdate((modifierType, modifier) => {
                 if (modifierType == "clicked") {
@@ -535,6 +555,20 @@ export default class Shelf extends SceneEntity {
                 partition.update();
             });
         });
+
+        this.guiFolder.add(this, "showModifiers").onChange((value) => {
+            this.parent.switchModifierVisibility(value);
+        });
+
+        this.sceneManager.onUpdate((updateType, event) => {
+            if (updateType == "keyDown" && event == "m") {
+                this.showModifiers = !this.showModifiers;
+                this.parent.switchModifierVisibility(this.showModifiers);
+                //this.showModifierController.updateDisplay();
+            }
+        })
+
+
     }
 
     updateGUI() {

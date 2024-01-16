@@ -87,27 +87,28 @@ export default class ObjectCache extends SceneEntity {
         );
     }
 
-    loadObject(objectName, callBack, addOutline = true, assignMaterial = true, color = "#ccddff", changeMetalness = false) {
+    loadObject(objectName, callBack, addOutline = true, material = undefined, changeMetalness = false) {
         let element = this.objectLibrary[objectName];
         if (element == undefined) {
             console.log("object not found. add to object cache library before calling load object");
             return;
         } 
+        element.callbacks.push({
+            call: callBack,
+            material: material
+        });
         if (element.status == 0) {
             /* first time the object is called. needs to be loaded. */
             element.status = 1;
-            element.callbacks.push(callBack);
-            element.assignMaterial = assignMaterial;
-            element.color = color;
+            //element.color = color;
             const loader = new GLTFLoader();
-
 
             loader.load(
                 // resource URL
                 element.path,
                 // called when the resource is loaded
                 gltf => {
-                    let material = new THREE.MeshLambertMaterial({ color: color });
+                    //let material = new THREE.MeshLambertMaterial({ color: color });
                     let traverseCounter = 0;
                     let useModulo = false;
                     let traverseModulo = 3;
@@ -118,7 +119,7 @@ export default class ObjectCache extends SceneEntity {
                     gltf.scene.traverse((child) => {
                         if (child.isMesh) {
                             traverseCounter++;
-                            if (assignMaterial) child.material = material;
+                            //if (assignMaterial) child.material = material;
                             if (addOutline && (!useModulo || traverseCounter % traverseModulo == 0) && (!useMax || (traverseCounter < traverseMax && traverseCounter > traverseMin)) && (!useOutlineArray || (element.outlineArray.includes(traverseCounter) || element.outlineArray.length == 0))) {
                                 child.add(ThreeUtilities.returnObjectOutline(child))
                             }
@@ -142,32 +143,30 @@ export default class ObjectCache extends SceneEntity {
             );
         } else if (element.status == 1) {
             /* object is loading. add callback to list */
-            element.callbacks.push(callBack); //important because the second load call usually happens before the first one is finished loading. In this case, add new callback to list and they will all execute when the object is loaded
+            //element.callbacks.push(callBack); //important because the second load call usually happens before the first one is finished loading. In this case, add new callback to list and they will all execute when the object is loaded
         } else {
             /* object is loaded. execute callback */
-            this.executeCallbacks(objectName, callBack);
+            this.executeCallbacks(objectName);
         }
     }
 
-    executeCallbacks(objectName, callback) {
+    executeCallbacks(objectName) {
         let element = this.objectLibrary[objectName];
         if (element == undefined) return;
         if (this.objectLibrary[objectName].status == 2) {
             /* execute callbacks */
-            if (callback != undefined) element.callbacks.push(callback);
+            //if (callback != undefined) element.callbacks.push(callback);
             element.callbacks.forEach(callback => {
                 /* clone the object */
                 let clonedVersion = element.object.clone();
-                if (element.assignMaterial) {
-                    let cloneMaterial = new THREE.MeshLambertMaterial({ color: element.color });
+                if (callback.material != undefined) {
                     clonedVersion.traverse((child) => {
                         if (child.isMesh) {
-                            child.material = cloneMaterial;
+                            child.material = callback.material;
                         }
                     });
                 }
-                //clonedVersion.scale.set(element.scale, element.scale, element.scale);
-                callback(clonedVersion);
+                callback.call(clonedVersion);
             });
             element.callbacks = [];
         }

@@ -60,6 +60,7 @@ export default class Partition extends SceneEntity {
         this.centralModifier = new LinearModifier(this.sceneManager, this, "line")
             .setScale(1)
             .updateDirection(this.sceneManager.xAxis, this.sceneManager.yAxis)
+            .updateDimension(new THREE.Vector3(this.leftColumn? -this.leftColumn.returnWidth() : 0, -this.depth, 0), new THREE.Vector3(this.leftColumn? 0 : this.parent.lastX() - this.xPosition, -this.depth, 0), this.sceneManager.yAxis.clone().negate(), 20, 0, 0)
             .onUpdate((modifierType, modifier) => {
                 if (modifierType == "clicked") {
                     /* need to store start position of all partitions to the right so we can push them */
@@ -81,6 +82,7 @@ export default class Partition extends SceneEntity {
 
                     this.maxOffset = garage.length - garage.wallThickness - this.partitionStartX[this.partitionStartX.length - 1] - this.thickness / 2 - shelf.startX;
 
+
                     this.firstPartitionClicked = false
                     this.shelfStartX = shelf.startX;
                     if (this.parent.partitions.indexOf(this) == 0) {
@@ -94,9 +96,13 @@ export default class Partition extends SceneEntity {
                         /* don't allow deleting the last column */
                         /* check if this partition is the last */
                         if (this.rightColumn == undefined) {
-                            this.minOffset = shelf.partitions[0].xPosition - this.xPosition + shelf.columnWidthStep;
+                            this.minOffset = - this.xPosition + shelf.columnWidthStep;
                         }
                     }
+
+                    this.parent.updateDimension();
+                    this.parent.dimension.switchVisibility(true);
+
                 } else if (modifierType == "moved") {
                     /* need to snap to a multiple of  shelf.columnWidthStep*/
                     let shelf = this.findAncestorWithType("shelf");
@@ -167,8 +173,15 @@ export default class Partition extends SceneEntity {
                     shelf.updateModifierPosition();
                     shelf.updateCrossSupports()
                     this.parent.estimateCost();
+                    this.parent.updateDimension();
 
+                } else if (modifierType == "released") {
+                    this.parent.dimension.switchVisibility(false);
                 }
+                
+                 /* handle dimension update */
+                modifier.dimension.updateStartPoint(new THREE.Vector3(this.leftColumn ? - this.leftColumn.returnWidth() : 0, -this.depth, 0));
+            
             })
     }
 

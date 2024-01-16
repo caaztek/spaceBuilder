@@ -23,8 +23,12 @@ export default class Dimension extends SceneEntity {
             textSize: 5,
             textHeight: 0.2,
             textCurveSegments: 2,
+            whiteBoxMargin: 2,
+            whiteBoxHeight: 0.2,
             color: "#000000",
         }
+
+        this.addWhiteBox = false;
 
         this.rotateTextX = rotateTextX;
         this.rotateTextY = rotateTextY;
@@ -41,6 +45,11 @@ export default class Dimension extends SceneEntity {
 
     }
 
+    changeWhiteBox(add = true) {
+        this.addWhiteBox = add;
+        return this;
+    }
+
     updateParameters(parameters) {
         this.parameters = Object.assign(this.parameters, parameters);
         return this;
@@ -48,6 +57,12 @@ export default class Dimension extends SceneEntity {
 
     updateEndPoint(endPoint, update = true) {
         this.endPoint = endPoint;
+        if (update) this.update();
+        return this;
+    }
+
+    updateStartPoint(startPoint, update = true) {
+        this.startPoint = startPoint;
         if (update) this.update();
         return this;
     }
@@ -75,7 +90,7 @@ export default class Dimension extends SceneEntity {
         } else {
             this.addTextAndArrow();
         }
-
+        return this;
     }
 
     addCanvasText() {
@@ -132,6 +147,13 @@ export default class Dimension extends SceneEntity {
         let textShifY = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
         let textShifZ = geometry.boundingBox.max.z - geometry.boundingBox.min.z;
 
+        let textOffset = 0;
+        let arrowEndShift = textShifX / 2;
+        if (textShifX > length - 2 * (p.arrowHeadLength - p.arrowHeadOffset) - 4) {
+            textOffset = textShifY/2 + 1
+            arrowEndShift = 0;
+        }
+
         geometry.translate(-textShifX / 2, -textShifY / 2, -textShifZ / 2);
         geometry.rotateX(this.rotateTextX);
         geometry.rotateY(this.rotateTextY);
@@ -145,20 +167,33 @@ export default class Dimension extends SceneEntity {
         let textOrigin;
         let textMesh;
 
-        textOrigin = this.startPoint.clone().addScaledVector(this.pullDirection, this.pullOffset).addScaledVector(xVector, projectedXDistance / 2);
+        textOrigin = this.startPoint.clone().addScaledVector(this.pullDirection, this.pullOffset + textOffset).addScaledVector(xVector, projectedXDistance / 2);
         textMesh = ThreeUtilities.returnGroupAtDetailedCoord(geometry, this.material, textOrigin, xVector, yVector, zVector, false);
 
 
         /* position the text mesh centered */
         this.dimensionObject.add(textMesh);
 
+        /* add white box */
+        if (this.addWhiteBox) {
+            let whiteBoxGeom = new THREE.BoxGeometry(textShifX + p.whiteBoxMargin, textShifY + p.whiteBoxMargin, p.whiteBoxHeight);
+            whiteBoxGeom.translate(0, 0, -p.whiteBoxHeight / 2 - p.textHeight / 2);
+            whiteBoxGeom.rotateX(this.rotateTextX);
+            whiteBoxGeom.rotateY(this.rotateTextY);
+
+            //let whiteBoxMesh = new THREE.Mesh(whiteBoxGeom, new THREE.MeshBasicMaterial({ color: "#030200" }));
+
+            let whiteBoxMesh = ThreeUtilities.returnGroupAtDetailedCoord(whiteBoxGeom, new THREE.MeshBasicMaterial({ color: "#ffffff" }), textOrigin, xVector, yVector, zVector, false);
+            this.dimensionObject.add(whiteBoxMesh);
+        }
+
         /* draw arrows */
         let shape = new THREE.Shape();
         shape.moveTo(p.arrowHeadOffset, 0);
         shape.lineTo(p.arrowHeadOffset + p.arrowHeadLength, p.arrowHeadWidth / 2);
         shape.lineTo(p.arrowHeadOffset + p.arrowHeadLength, p.arrowLineWidth / 2);
-        shape.lineTo(projectedXDistance / 2 - textShifX / 2 - p.arrowHeadOffset, p.arrowLineWidth / 2);
-        shape.lineTo(projectedXDistance / 2 - textShifX / 2 - p.arrowHeadOffset, -p.arrowLineWidth / 2);
+        shape.lineTo(projectedXDistance / 2 - arrowEndShift - p.arrowHeadOffset, p.arrowLineWidth / 2);
+        shape.lineTo(projectedXDistance / 2 - arrowEndShift - p.arrowHeadOffset, -p.arrowLineWidth / 2);
         shape.lineTo(p.arrowHeadOffset + p.arrowHeadLength, -p.arrowLineWidth / 2);
         shape.lineTo(p.arrowHeadOffset + p.arrowHeadLength, -p.arrowHeadWidth / 2);
         shape.lineTo(p.arrowHeadOffset, 0);
@@ -170,6 +205,7 @@ export default class Dimension extends SceneEntity {
         };
 
         let arrowGeom = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+        arrowGeom.rotateX(this.rotateTextX);
         let arrowMesh = ThreeUtilities.returnGroupAtDetailedCoord(arrowGeom, this.material, this.startPoint.clone().addScaledVector(this.pullDirection, this.pullOffset), xVector, yVector, zVector, false);
         this.dimensionObject.add(arrowMesh);
 

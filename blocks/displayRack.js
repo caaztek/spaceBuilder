@@ -37,6 +37,9 @@ export default class DisplayRack extends Block {
                     leftSlotsOccupyAbove: 1,
                     leftSlotsOccupyBelow: 0,
                     centerSlotsOccupyAbove: 4,
+                    centerSlotsOccupyAboveForced: 1,
+                    centerSlotsOccupyBelow: 0,
+                    centerSlotsOccupyBelowForced: 0,
                     startBlockListFillingCoefficient : 0,
                     centerSlotsOccupyBelow: 0,
 

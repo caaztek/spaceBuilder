@@ -456,9 +456,9 @@ export default class SceneManager extends SceneEntity {
 
         /* initialize GUI */
         this.gui = new GUI();
-        this.displayFolder = this.gui.addFolder('display');
-        this.displayFolder.add(this, 'showAxes').onChange((value) => this.updateAxes());
-        this.displayFolder.add(this, "showAllEntities");
+        //this.displayFolder = this.gui.addFolder('display');
+        //this.displayFolder.add(this, 'showAxes').onChange((value) => this.updateAxes());
+        //this.displayFolder.add(this, "showAllEntities");
         if (false) {
             const guiContainer = this.gui.domElement;
 
