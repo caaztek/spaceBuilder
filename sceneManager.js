@@ -484,6 +484,32 @@ export default class SceneManager extends SceneEntity {
 
     }
 
+    setUpModal() {
+        this.modal = document.getElementById("myModal");
+        
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+        
+        // When the page loads, open the modal 
+        window.onload = () => {
+          this.modal.style.display = "block";
+        }
+        
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = () => {
+          this.modal.style.display = "none";
+        }
+        
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = (event) => {
+          if (event.target == this.modal) {
+            this.modal.style.display = "none";
+          }
+        }
+
+        return this;
+    }
+
     findBestId() {
         /* new scene entities need to be assigned the first available id */
         let i = 0;  // Start from 1 as we are looking for positive integer keys

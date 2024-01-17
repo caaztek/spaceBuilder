@@ -139,6 +139,10 @@ export default class Shelf extends SceneEntity {
         });
     }
 
+    showInstructions() {
+        this.sceneManager.modal.style.display = "block";
+    }
+
     resetBlockList() {
 
         this.shelfFillingList.forEach((block) => {
@@ -539,6 +543,7 @@ export default class Shelf extends SceneEntity {
 
 
         /* add a button to empty the shelf */
+        this.guiFolder.add(this, "showInstructions")
         this.guiFolder.add(this, "resetShelf")
         /* add gui to show partition steps */
         this.guiFolder.add(this, "showPartitionSteps").onChange((value) => {
