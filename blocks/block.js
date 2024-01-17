@@ -100,10 +100,14 @@ export default class Block extends SceneEntity {
         if (checkOccupancy) {
             /* check slot occupancy*/
             for (var i = zIndex - param.rightSlotsOccupyBelow; i < zIndex + param.rightSlotsOccupyAbove; i++) {
-                if (i < 0 || i > column.maxZIndex() || column.rightOccupants[i] != undefined) { return false }
+                if (i < 0 || i > column.maxZIndex() || column.rightOccupants[i] != undefined) { 
+                    return false 
+                }
             }
             for (var i = zIndex - param.leftSlotsOccupyBelow; i < zIndex + param.leftSlotsOccupyAbove; i++) {
-                if (i < 0 || i > column.maxZIndex() || column.leftOccupants[i] != undefined) { return false }
+                if (i < 0 || i > column.maxZIndex() || column.leftOccupants[i] != undefined) { 
+                    return false 
+                }
             }
             for (var i = zIndex - (usedForced? param.centerSlotsOccupyBelowForced : param.centerSlotsOccupyBelow); i < zIndex + (usedForced? param.centerSlotsOccupyAboveForced : param.centerSlotsOccupyAbove); i++) {
                 /* potential problem: we override on the non-forced coefficient, so potentially the area above a fixed shelf could be occupied by a fixed desk. Shouldn't happen but not sure if it is a problem */
@@ -123,7 +127,9 @@ export default class Block extends SceneEntity {
         /* score the option of placing the block in the given column at the given zIndex */
         let param = this.parameters;
 
-        if (!this.checkOptionAvailability(column, zIndex, true, true, false)) { return 0 }
+        if (!this.checkOptionAvailability(column, zIndex, true, true, false)) { 
+            return 0 
+        }
 
         if (param.onePerColumn) {
             for (var i = 0; i < column.blocks.length; i++) {

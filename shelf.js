@@ -56,6 +56,7 @@ export default class Shelf extends SceneEntity {
         this.showShelfModifier = true;
         this.showPartitionSteps = false;
         this.showModifiers = true;
+        this.hideAllBackgrounds = false;
         this.addGUI();
 
         /* set columns */
@@ -521,6 +522,7 @@ export default class Shelf extends SceneEntity {
                     for (var i = 0; i < -diff; i++) {
                         let newBlock = new block.block(this.sceneManager, this, block.variationName).findBestPosition(true);
                         if (newBlock.score == 0) {
+                            console.log ("no more space for this block")
                             break; //hopefully insertedBlock gets caught by garbage collector?
                         } else {
                             block.actualFilled++;
@@ -548,6 +550,20 @@ export default class Shelf extends SceneEntity {
 
         this.guiFolder.add(this, "showModifiers").onChange((value) => {
             this.parent.switchModifierVisibility(value);
+        });
+
+        this.guiFolder.add(this, "hideAllBackgrounds").onChange((value) => {
+            let garage = this.parent;
+            if (value) {
+                garage.objects.backWall.visible = false;
+                garage.objects.floor.visible = false;
+                this.sceneManager.renderer.setClearColor("#ffffff");
+            
+            } else {
+                garage.objects.backWall.visible = true;
+                garage.objects.floor.visible = true;
+                this.sceneManager.renderer.setClearColor("#87CEEB");
+            }
         });
 
         this.sceneManager.onUpdate((updateType, event) => {
@@ -641,7 +657,7 @@ export default class Shelf extends SceneEntity {
         let plywoodCost = this.calculatePlywoodCost(cost);
         let hardwareCost = this.calculateHardwareCost(cost);
 
-        this.sceneManager.updateCostLabel(["Price as built : $" + Math.round((plywoodCost + hardwareCost) * 2) ])
+        this.sceneManager.updateCostLabel(["Price as built : $" + Math.round((plywoodCost + hardwareCost) * 2.2) ])
 
         //console.log("plywoodPrice: ", plywoodPrice);
     }

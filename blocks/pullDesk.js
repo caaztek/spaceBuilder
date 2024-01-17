@@ -74,7 +74,7 @@ export default class PullDesk extends Block {
 
     scoreOption(column, zIndex) {
         /* if no desk have been found, use standard scoring. */
-        super.scoreOption(column, zIndex);
+        return super.scoreOption(column, zIndex);
         //let baseScore = super.scoreOption(column, zIndex); //considering rewarding proximity to a miter saw
     }
 

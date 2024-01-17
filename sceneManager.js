@@ -448,7 +448,7 @@ export default class SceneManager extends SceneEntity {
         this.scene.add(this.ambientLight);
 
         /* display utilities */
-        this.showAxes = true;
+        this.showAxes = false;
         this.showTestCube = false;
         this.updateAxes();
         //this.updateTestCube = this.updateTestCube.bind(this);
