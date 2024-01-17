@@ -55,8 +55,8 @@ export default class Garage extends SceneEntity {
         this.sceneManager.objectCache.addObject("shirt", shirt, 85, 0, 0, 0);
         this.sceneManager.objectCache.addObject("surfboard", surfboard, 50, Math.PI/2, Math.PI/2, 0);
         this.sceneManager.objectCache.addObject("miterSaw", miterSaw, 39, 0, 0, 0);
-        this.sceneManager.objectCache.addObject("shoePair", shoePair, 39, 0, 0, 0);
-        this.sceneManager.objectCache.addObject("sneakers", sneakers, 39, 0, 0, 0);
+        this.sceneManager.objectCache.addObject("shoePair", shoePair, 4, Math.PI/2, Math.PI/2, 0);
+        this.sceneManager.objectCache.addObject("sneakers", sneakers, 0.04, Math.PI/2, Math.PI/4, 0);
 
         //this.sceneManager.objectCache.testObjectOutline("officeMug", 100);
 

@@ -32,9 +32,9 @@ export default class MiterStation extends Block {
             {
                 variationName: "Miter Station",
                 variationParameters: {
-                    rightSlotsOccupyAbove: 5,
+                    rightSlotsOccupyAbove: 1,
                     rightSlotsOccupyBelow: 1,
-                    leftSlotsOccupyAbove: 5,
+                    leftSlotsOccupyAbove: 1,
                     leftSlotsOccupyBelow: 1,
                     centerSlotsOccupyAbove: 5,
                     centerSlotsOccupyBelow: 1,

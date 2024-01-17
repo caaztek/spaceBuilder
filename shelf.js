@@ -15,6 +15,8 @@ import ShippingStation from './blocks/shippingStation.js';
 import SurfRack from './blocks/surfRack.js';
 import Dimension from './dimension.js';
 import MiterStation from './blocks/miterStation.js';
+import PullUpBar from './blocks/pullUpBar.js';
+import ShoeRack from './blocks/shoeRack.js';
 
 /* class containing all the information for a given shelf unit, made of many columns */
 export default class Shelf extends SceneEntity {
@@ -24,8 +26,8 @@ export default class Shelf extends SceneEntity {
         /* set defaults based on garage configuration */
         let garageLength = this.parent.length;
         this.startX = garageLength * 0.2;
-        this.targetLength = garageLength * 0.6; //if using column width from default table, we'll try to get close.
-        this.height = this.parent.height * 0.8;
+        this.targetLength = garageLength * 0.7; //if using column width from default table, we'll try to get close.
+        this.height = this.parent.height * 0.9;
         this.minHeight = 5;
 
         /* depth */
@@ -57,9 +59,9 @@ export default class Shelf extends SceneEntity {
         this.addGUI();
 
         /* set columns */
-        this.matchExactWidth = true; //if match then we can't use exact column width. Maybe just use them as guides.
+        this.matchExactWidth = false; //if match then we can't use exact column width. Maybe just use them as guides.
         this.defaultWidthStep = 4; //all width will be a multiple of this. This is also the minimum width.
-        this.defaultColumnWidths = [5, 10]; //as multiples of defaultWidthStep
+        this.defaultColumnWidths = [4, 6, 10]; //as multiples of defaultWidthStep
         this.targetWidthMargin = 0;
         this.targetWidthMarginPerColumnTotal = 0.2;
         this.maxColumnWidth = 14;  //in multiple of defaultWidthStep
@@ -73,15 +75,6 @@ export default class Shelf extends SceneEntity {
         this.movePlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0); //maybe need to change this if the shelf is on another wall
         // this.moveMode = false;
         this.raycaster = new THREE.Raycaster();
-        // this.sceneManager.onUpdate((updateType, event) => {
-        //     if (updateType == "keyDown" && event == "m") {
-        //         this.moveMode = true;
-        //     }
-        //     if (updateType == "keyUp" && event == "m") {
-        //         this.moveMode = false;
-        //     }
-        // });
-
 
         /* update rendering */
         this.setColumns();
@@ -121,8 +114,8 @@ export default class Shelf extends SceneEntity {
     }
 
     setBlockList() {
-        this.baseBlockListColumn = [PullDesk, FixedDesk, PullRack,ShippingStation,SurfRack, MiterStation]
-        this.baseBlockListArea = [FixedShelf, PullShelf, PlasticBin, Drawer, DisplayRack];
+        this.baseBlockListColumn = [PullDesk, FixedDesk, PullRack,ShippingStation,SurfRack, MiterStation,PullUpBar]
+        this.baseBlockListArea = [FixedShelf, PullShelf, PlasticBin, Drawer, DisplayRack, ShoeRack];
         this.baseBlockList = this.baseBlockListColumn.concat(this.baseBlockListArea);
 
         this.shelfFilling = {};
@@ -215,7 +208,7 @@ export default class Shelf extends SceneEntity {
 
         /* create an array of columns width using step and defaults. Many approachs possible. */
         this.defaultColumnWidths.sort((a, b) => a - b); //start with the thinnest.
-        let targetStepsPerWidth = numberOfSteps / this.defaultColumnWidths.length;
+        let targetStepsPerWidth = Math.floor(numberOfSteps / this.defaultColumnWidths.length);
         let currentWidthIndex = 0;
         let currentStep = 0;
         let stepsLeft = numberOfSteps;

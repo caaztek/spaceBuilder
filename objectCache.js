@@ -87,7 +87,7 @@ export default class ObjectCache extends SceneEntity {
         );
     }
 
-    loadObject(objectName, callBack, addOutline = true, material = undefined, changeMetalness = false) {
+    loadObject(objectName, callBack, addOutline = true, material = undefined, changeMetalness = false, position = new THREE.Vector3(0, 0, 0)) {
         let element = this.objectLibrary[objectName];
         if (element == undefined) {
             console.log("object not found. add to object cache library before calling load object");
@@ -95,7 +95,8 @@ export default class ObjectCache extends SceneEntity {
         } 
         element.callbacks.push({
             call: callBack,
-            material: material
+            material: material,
+            position: position
         });
         if (element.status == 0) {
             /* first time the object is called. needs to be loaded. */
@@ -166,6 +167,7 @@ export default class ObjectCache extends SceneEntity {
                         }
                     });
                 }
+                clonedVersion.position.copy(callback.position);
                 callback.call(clonedVersion);
             });
             element.callbacks = [];

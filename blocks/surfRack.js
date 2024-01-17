@@ -51,7 +51,8 @@ export default class SurfRack extends Block {
         param.verticalWeight = 10;
 
         param.minWidth = 10;
-        
+        param.idealWidth = 24;
+
         param.slideHeight = 3;
         param.widthMargin = 0;
         param.rollRadius = 2;
@@ -61,7 +62,7 @@ export default class SurfRack extends Block {
         param.comeWidth = 2;
         param.backWidth = 4;
         param.comeHeight = 40;
-        param.comeThickness = 0.75;
+        param.comeThickness = 1.5;
 
         param.priority = 20;
         param.onePerColumn = true
@@ -196,15 +197,15 @@ export default class SurfRack extends Block {
         cost.plywoodUsage += 0
 
         /* plywood cuts */
-        cost.plywoodCuts.push({ x: this.depth, y: this.width, quantity: 1, thickness: 0.75 });
+        cost.plywoodCuts.push({ x: this.depth, y: this.width, quantity: 1, thickness: 1.5 });
         cost.plywoodCuts.push({ x: this.depth, y: this.parameters.slideHeight, quantity: 2, thickness: 0.75 });
 
         /* additional hardware */
         cost.hardwareList.push({
-            name: "pins",
-            unitCost: 0.05,
+            name: "rolls",
+            unitCost: this.width * 1,
             parameters: {},
-            quantity: 4
+            quantity: 2
         });
 
         return cost;
