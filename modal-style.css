@@ -15,10 +15,10 @@
   /* Modal Content */
   .modal-content {
     background-color: #fefefe;
-    margin: 15% 50% 15% 15%; /* Adjust the right margin */
+    margin: 15% 50% 50% 15%; /* Adjust the right margin */
     padding: 20px;
     border: 1px solid #888;
-    width: 60%; /* Adjust width to account for margin and avoid 100px on the right */
+    width: 40%; /* Adjust width to account for margin and avoid 100px on the right */
   }
   
   /* The Close Button */
