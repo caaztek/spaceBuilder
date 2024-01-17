@@ -18,7 +18,14 @@
     margin: 15% 50% 50% 15%; /* Adjust the right margin */
     padding: 20px;
     border: 1px solid #888;
-    width: 40%; /* Adjust width to account for margin and avoid 100px on the right */
+    width: 50%; /* Adjust width to account for margin and avoid 100px on the right */
+  }
+
+  .modal-content img {
+    max-width: 100%;   /* ensures the image is no wider than the modal */
+    max-height: 2000px; /* you can adjust this value */
+    display: block;    /* optional, for removing extra space below the image */
+    margin: auto;      /* optional, for centering the image within the modal */
   }
   
   /* The Close Button */

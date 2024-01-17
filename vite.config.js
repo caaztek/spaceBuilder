@@ -3,5 +3,5 @@ export default {
     // config options
     base: '/garageBuilder/',
 
-    assetsInclude: ['**/*.glb','**/*.gltf']
+    assetsInclude: ['**/*.glb','**/*.gltf','**/*.jpeg']
   }

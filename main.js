@@ -1,12 +1,15 @@
 import Garage from './garage.js';
 import SceneManager from './sceneManager.js';
 import * as THREE from 'three';
+import garageExampleImage from './images/example2.jpeg';
 
 // Get the modal
 var modal = document.getElementById("myModal");
 
 // Get the <span> element that closes the modal
 var span = document.getElementsByClassName("close")[0];
+
+document.getElementById('garageExample').src = garageExampleImage;
 
 // When the page loads, open the modal 
 window.onload = function() {
