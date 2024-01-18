@@ -39,6 +39,7 @@ export default class TemplateName extends Block {
                     centerSlotsOccupyBelow: 0,
                     centerSlotsOccupyAboveForced: 1,
                     centerSlotsOccupyBelowForced: 0,
+                    startBlockListFillingCoefficient: 0.8,
                 }
             }
         ]

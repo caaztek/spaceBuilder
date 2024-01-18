@@ -26,6 +26,7 @@ export default class ObjectCache extends SceneEntity {
             "rotateY": rotateY,
             "rotateZ": rotateZ,
             "outlineArray": outlineArray,
+            "colorArray": [],
         }
 
         return this;
@@ -53,6 +54,7 @@ export default class ObjectCache extends SceneEntity {
         });
     }
 
+    /* quick debug function to figure out what outline we want to draw on complex parts */
     drawSingleOutline(objectName, testScale = 500) {
         let element = this.objectLibrary[objectName];
 
@@ -87,7 +89,7 @@ export default class ObjectCache extends SceneEntity {
         );
     }
 
-    loadObject(objectName, callBack, addOutline = true, material = undefined, changeMetalness = false, position = new THREE.Vector3(0, 0, 0)) {
+    loadObject(objectName, callBack, addOutline = true, material = undefined, changeMetalness = false, position = new THREE.Vector3(0, 0, 0), storeMaterial = false) {
         let element = this.objectLibrary[objectName];
         if (element == undefined) {
             console.log("object not found. add to object cache library before calling load object");
@@ -117,6 +119,18 @@ export default class ObjectCache extends SceneEntity {
                     let traverseMax = 100;
                     let traverseMin = 10;
                     let useOutlineArray = true;
+                    
+                    if (storeMaterial) {
+                        element.colorArray = [];
+                        gltf.scene.traverse((child) => {
+                            if (child.isMesh) {
+                                element.colorArray.push(child.material.color);
+                            }
+                        });
+                        console.log(element.colorArray);
+                    }
+
+
                     gltf.scene.traverse((child) => {
                         if (child.isMesh) {
                             traverseCounter++;
@@ -125,6 +139,7 @@ export default class ObjectCache extends SceneEntity {
                                 child.add(ThreeUtilities.returnObjectOutline(child))
                             }
                             if (changeMetalness) child.material.metalness = 0;
+                            
                         }
                     });
                     gltf.scene.scale.set(element.scale, element.scale, element.scale);

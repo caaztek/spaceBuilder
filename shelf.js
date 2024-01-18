@@ -18,6 +18,7 @@ import MiterStation from './blocks/miterStation.js';
 import PullUpBar from './blocks/pullUpBar.js';
 import ShoeRack from './blocks/shoeRack.js';
 import CubeShelf from './blocks/cubeShelf.js';
+import VerticalBike from './blocks/verticalBike.js';
 
 /* class containing all the information for a given shelf unit, made of many columns */
 export default class Shelf extends SceneEntity {
@@ -116,7 +117,7 @@ export default class Shelf extends SceneEntity {
     }
 
     setBlockList() {
-        this.baseBlockListColumn = [PullDesk, FixedDesk, PullRack,ShippingStation,SurfRack, MiterStation,PullUpBar]
+        this.baseBlockListColumn = [PullDesk, FixedDesk, PullRack,ShippingStation,SurfRack, MiterStation,PullUpBar, VerticalBike]
         this.baseBlockListArea = [FixedShelf, PullShelf, PlasticBin, Drawer, DisplayRack, ShoeRack, CubeShelf];
         this.baseBlockList = this.baseBlockListColumn.concat(this.baseBlockListArea);
 

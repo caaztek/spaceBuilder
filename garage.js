@@ -15,6 +15,7 @@ import surfboard from './models/surfboard.gltf';
 import miterSaw from './models/miterSaw.gltf';
 import shoePair from './models/shoePair.glb';
 import sneakers from './models/sneakers.glb';
+import bicycle from './models/bicycle.glb';
 
 export default class Garage extends SceneEntity {
     constructor(sceneManager, parent) {
@@ -57,6 +58,8 @@ export default class Garage extends SceneEntity {
         this.sceneManager.objectCache.addObject("miterSaw", miterSaw, 39, 0, 0, 0);
         this.sceneManager.objectCache.addObject("shoePair", shoePair, 4, Math.PI/2, Math.PI/2, 0);
         this.sceneManager.objectCache.addObject("sneakers", sneakers, 0.04, Math.PI/2, Math.PI/4, 0);
+        this.sceneManager.objectCache.addObject("bicycle", bicycle, 19, Math.PI/2, Math.PI/2, Math.PI/2);
+
 
         //this.sceneManager.objectCache.testObjectOutline("officeMug", 100);
 
