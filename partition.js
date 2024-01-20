@@ -195,7 +195,7 @@ export default class Partition extends SceneEntity {
         this.depth = Math.max(this.leftColumn == undefined ? -Infinity : this.leftColumn.depth, this.rightColumn == undefined ? -Infinity : this.rightColumn.depth);
     }
 
-    deleteEntity() {
+    deleteEntity(removeFromParentArray = true) {
 
         /* remove partition from parent array */
         this.parent.partitions.splice(this.parent.partitions.indexOf(this), 1);
@@ -309,6 +309,30 @@ export default class Partition extends SceneEntity {
 
         return cost;
 
+    }
+
+    toJSON() {
+        return {
+            thickness : this.thickness,
+            depth : this.depth,
+            bandWidth : this.bandWidth,
+            footWidth : this.footWidth,
+            footHeight : this.footHeight,
+            crossHeight : this.crossHeight,
+            xPosition : this.xPosition,
+            height : this.height,
+        }
+    }
+
+    static fromJSON(sceneManager, parent, data) {
+        let partition = new Partition(sceneManager, parent, data.thickness, data.depth);
+        partition.bandWidth = data.bandWidth;
+        partition.footWidth = data.footWidth;
+        partition.footHeight = data.footHeight;
+        partition.crossHeight = data.crossHeight;
+        partition.xPosition = data.xPosition;
+        partition.height = data.height;
+        return partition;
     }
 
 }

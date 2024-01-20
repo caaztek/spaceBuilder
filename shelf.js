@@ -3,32 +3,33 @@ import ThreeUtilities from './threeUtilities';
 import { LinearModifier, PlanarModifier, buttonModifier } from './modifier.js';
 import * as THREE from 'three';
 import Column from './column.js';
-import Block, { FixedShelf, PullShelf } from './blocks/block.js';
-import PullDesk from './blocks/pullDesk.js';
-import PlasticBin from './blocks/plasticBin.js';
-import FixedDesk from './blocks/fixedDesk.js';
-import PullRack from './blocks/pullRack.js';
+import Block from './blocks/block.js';
+// import PullDesk from './blocks/pullDesk.js';
+// import PlasticBin from './blocks/plasticBin.js';
+// import FixedDesk from './blocks/fixedDesk.js';
+// import PullRack from './blocks/pullRack.js';
 import Partition from './partition.js';
-import Drawer from './blocks/drawer.js';
-import DisplayRack from './blocks/displayRack.js';
-import ShippingStation from './blocks/shippingStation.js';
-import SurfRack from './blocks/surfRack.js';
+// import Drawer from './blocks/drawer.js';
+// import DisplayRack from './blocks/displayRack.js';
+// import ShippingStation from './blocks/shippingStation.js';
+// import SurfRack from './blocks/surfRack.js';
 import Dimension from './dimension.js';
-import MiterStation from './blocks/miterStation.js';
-import PullUpBar from './blocks/pullUpBar.js';
-import ShoeRack from './blocks/shoeRack.js';
-import CubeShelf from './blocks/cubeShelf.js';
-import VerticalBike from './blocks/verticalBike.js';
+// import MiterStation from './blocks/miterStation.js';
+// import PullUpBar from './blocks/pullUpBar.js';
+// import ShoeRack from './blocks/shoeRack.js';
+// import CubeShelf from './blocks/cubeShelf.js';
+// import VerticalBike from './blocks/verticalBike.js';
+import BlockList from './blockList.js';
 
 /* class containing all the information for a given shelf unit, made of many columns */
 export default class Shelf extends SceneEntity {
     constructor(sceneManager, parent) {
         super(sceneManager, parent, "shelf");
 
-        /* set defaults based on garage configuration */
-        let garageLength = this.parent.length;
-        this.startX = garageLength * 0.2;
-        this.targetLength = garageLength * 0.7; //if using column width from default table, we'll try to get close.
+        /* set defaults based on room configuration */
+        let roomLength = this.parent.length;
+        this.startX = roomLength * 0.2;
+        this.targetLength = roomLength * 0.7; //if using column width from default table, we'll try to get close.
         this.height = this.parent.height * 0.9;
         this.minHeight = 5;
 
@@ -62,6 +63,7 @@ export default class Shelf extends SceneEntity {
         this.addGUI();
 
         /* set columns */
+        this.columns = [];
         this.matchExactWidth = false; //if match then we can't use exact column width. Maybe just use them as guides.
         this.defaultWidthStep = 4; //all width will be a multiple of this. This is also the minimum width.
         this.defaultColumnWidths = [4, 6, 10]; //as multiples of defaultWidthStep
@@ -78,13 +80,15 @@ export default class Shelf extends SceneEntity {
         this.movePlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0); //maybe need to change this if the shelf is on another wall
         // this.moveMode = false;
         this.raycaster = new THREE.Raycaster();
+    }
 
+    setUpFromNothing() {
         /* update rendering */
         this.setColumns();
         this.setModifiers();
         this.update();
         this.setDimension();
-
+        return this;
     }
 
     updateCameraAndControls() {
@@ -98,14 +102,16 @@ export default class Shelf extends SceneEntity {
     }
 
     setDimension() {
-        this.dimension = new Dimension(this.sceneManager, this, new THREE.Vector3(0,-this.depth,0), new THREE.Vector3(this.lastX(),-this.depth,0), this.sceneManager.yAxis.clone().negate(), 40).update();
+        this.dimension = new Dimension(this.sceneManager, this, new THREE.Vector3(0, -this.depth, 0), new THREE.Vector3(this.lastX(), -this.depth, 0), this.sceneManager.yAxis.clone().negate(), 40).update();
         this.dimension.switchVisibility(false);
+
+        return this;
         //.update()
     }
 
     updateDimension() {
-        this.dimension.updateEndPoint(new THREE.Vector3(this.lastX(),-this.depth,0))
-        this.dimension.updateStartPoint(new THREE.Vector3(0,-this.depth,0)).update();
+        this.dimension.updateEndPoint(new THREE.Vector3(this.lastX(), -this.depth, 0))
+        this.dimension.updateStartPoint(new THREE.Vector3(0, -this.depth, 0)).update();
     }
 
     getRayCastOnPlane() {
@@ -117,9 +123,11 @@ export default class Shelf extends SceneEntity {
     }
 
     setBlockList() {
-        this.baseBlockListColumn = [PullDesk, FixedDesk, PullRack,ShippingStation,SurfRack, MiterStation,PullUpBar, VerticalBike]
-        this.baseBlockListArea = [FixedShelf, PullShelf, PlasticBin, Drawer, DisplayRack, ShoeRack, CubeShelf];
-        this.baseBlockList = this.baseBlockListColumn.concat(this.baseBlockListArea);
+        // this.baseBlockListColumn = [PullDesk, FixedDesk, PullRack,ShippingStation,SurfRack, MiterStation,PullUpBar, VerticalBike]
+        // this.baseBlockListArea = [FixedShelf, PullShelf, PlasticBin, Drawer, DisplayRack, ShoeRack, CubeShelf];
+        // this.baseBlockList = this.baseBlockListColumn.concat(this.baseBlockListArea);
+
+        this.baseBlockList = BlockList.baseBlockList();
 
         this.shelfFilling = {};
         this.shelfFillingList = [];
@@ -280,20 +288,6 @@ export default class Shelf extends SceneEntity {
     }
 
     setModifiers() {
-        // this.leftModifier = new LinearModifier(this.sceneManager, this, "line")
-        //     .setScale(1)
-        //     .updateDirection(this.sceneManager.xAxis, this.sceneManager.yAxis)
-        //     .onUpdate((modifierType, modifier) => {
-        //         if (modifierType == "clicked") {
-        //             this.startStartX = this.startX;
-        //             this.startTargetLength = this.targetLength;
-        //         } else if (modifierType == "moved") {
-        //             this.startX = Math.min(Math.max(this.startStartX + modifier.offsetDistance, this.parent.wallThickness + this.partitionThickness / 2), this.startStartX + this.startTargetLength - this.defaultWidthStep);
-        //             this.targetLength = this.startTargetLength + this.startStartX - this.startX;
-        //             this.setColumns();
-        //             this.update();
-        //         }
-        //     })
 
         let depthDimensionStartPoint = new THREE.Vector3(0, 0, 0);
 
@@ -335,27 +329,30 @@ export default class Shelf extends SceneEntity {
             .setScale(1)
             .updatePrecision(0)
             .updateDirection(this.sceneManager.yAxis, this.sceneManager.zAxis)
-            .updateDimension(depthDimensionStartPoint, depthDimensionStartPoint.clone().addScaledVector(this.sceneManager.yAxis,-this.depth), this.sceneManager.xAxis.clone().negate())
+            .updateDimension(depthDimensionStartPoint, depthDimensionStartPoint.clone().addScaledVector(this.sceneManager.yAxis, -this.depth), this.sceneManager.xAxis.clone().negate())
             .onUpdate((modifierType, modifier) => {
                 if (modifierType == "clicked") {
                     this.startDepth = this.depth;
                 } else if (modifierType == "moved") {
                     this.depth = Math.max(Math.min(this.startDepth - modifier.offsetDistance, this.maxDepth), this.minDepth);
                     this.updateModifierPosition();
-                    modifier.dimension.updateEndPoint(depthDimensionStartPoint.clone().addScaledVector(this.sceneManager.yAxis,-this.depth));
+                    modifier.dimension.updateEndPoint(depthDimensionStartPoint.clone().addScaledVector(this.sceneManager.yAxis, -this.depth));
                     this.columns.forEach((column) => {
                         column.sizeUpdate();
                     });
                     this.estimateCost();
                 }
             });
+
+        return this;
     }
 
     updateModifierPosition() {
         //this.leftModifier.updatePosition(new THREE.Vector3(- this.modifierOffset, - this.depth, 10));
-        this.rightModifier.updatePosition(new THREE.Vector3(this.lastX() + this.modifierOffset, - this.depth, 10));
-        this.rightAddColumnModifier.updatePosition(new THREE.Vector3(this.lastX() + this.modifierOffset * 3, - this.depth, this.partitions[this.partitions.length - 1].height / 2));
-        this.depthModifier.updatePosition(new THREE.Vector3(this.lastX() / 2, - this.depth - this.depthModifierOffset, 0));
+        let modifierDepth = this.partitions[this.partitions.length - 1].depth;
+        this.rightModifier.updatePosition(new THREE.Vector3(this.lastX() + this.modifierOffset, - modifierDepth, 10));
+        this.rightAddColumnModifier.updatePosition(new THREE.Vector3(this.lastX() + this.modifierOffset * 3, - modifierDepth, this.partitions[this.partitions.length - 1].height / 2));
+        this.depthModifier.updatePosition(new THREE.Vector3(this.lastX() / 2, - modifierDepth - this.depthModifierOffset, 0));
     }
 
     maxHeight() {
@@ -373,15 +370,15 @@ export default class Shelf extends SceneEntity {
     updateCrossSupports() {
         /* make cross support in the back*/
         /* column now own their cross supports */
-       
+
 
         if (false) {
-             ThreeUtilities.disposeHierarchy(this.crossSupportBack);
-        let crossSupportGeomBack = new THREE.BoxGeometry(this.lastX() + this.partitionThickness, this.crossSupportHeight, this.crossSupportThickness);
-        crossSupportGeomBack.translate(this.lastX() / 2, -this.crossSupportHeight / 2, this.crossSupportStartZ);
-        this.crossSupportBack = new THREE.Mesh(crossSupportGeomBack, this.crossSupportMaterial);
-        this.crossSupportBack.add(ThreeUtilities.returnObjectOutline(this.crossSupportBack));
-        this.object.add(this.crossSupportBack);
+            ThreeUtilities.disposeHierarchy(this.crossSupportBack);
+            let crossSupportGeomBack = new THREE.BoxGeometry(this.lastX() + this.partitionThickness, this.crossSupportHeight, this.crossSupportThickness);
+            crossSupportGeomBack.translate(this.lastX() / 2, -this.crossSupportHeight / 2, this.crossSupportStartZ);
+            this.crossSupportBack = new THREE.Mesh(crossSupportGeomBack, this.crossSupportMaterial);
+            this.crossSupportBack.add(ThreeUtilities.returnObjectOutline(this.crossSupportBack));
+            this.object.add(this.crossSupportBack);
 
             ThreeUtilities.disposeHierarchy(this.crossSupport);
             let crossSupportGeom = new THREE.BoxGeometry(this.lastX() + this.partitionThickness, this.crossSupportHeight, this.crossSupportThickness);
@@ -410,7 +407,7 @@ export default class Shelf extends SceneEntity {
         this.updateModifierPosition();
 
         /* fill shelf with interesting blocks */
-        this.resetShelf();
+        this.emptyShelf();
         this.fillShelf();
 
         /* estimate price */
@@ -421,7 +418,7 @@ export default class Shelf extends SceneEntity {
         return this.partitions[this.partitions.length - 1].xPosition;
     }
 
-    resetShelf() {
+    emptyShelf() {
         /* update all the columns (empty+reset arrays) */
         this.columns.forEach((column) => { column.fullUpdate() });
 
@@ -441,17 +438,6 @@ export default class Shelf extends SceneEntity {
     }
 
     fillShelf() {
-
-        // /* fill vertical space taken by cross supports. */
-        // this.columns.forEach((column) => {
-        //     let startIndex = Math.floor(this.crossSupportStartZ / this.verticalStep);
-        //     let endIndex = Math.ceil((this.crossSupportStartZ + this.crossSupportHeight) / this.verticalStep);
-        //     for (var i = startIndex; i <= endIndex; i++) {
-        //         column.rightOccupants[i] = this.crossSupport;
-        //         column.leftOccupants[i] = this.crossSupport;
-        //         column.centerOccupants[i] = this.crossSupport;
-        //     }
-        // });
 
         /* find to total number of columns */;
 
@@ -491,6 +477,7 @@ export default class Shelf extends SceneEntity {
                 let newBlock = new block.block(this.sceneManager, this, block.variationName).findBestPosition(true);
                 // let bestScore = insertedBlock.findBestPosition(true);
                 if (newBlock.score == 0) {
+                    newBlock.deleteEntity(false, false);
                     break; //hopefully insertedBlock gets caught by garbage collector?
                 } else {
                     block.actualFilled++;
@@ -528,7 +515,7 @@ export default class Shelf extends SceneEntity {
                     for (var i = 0; i < -diff; i++) {
                         let newBlock = new block.block(this.sceneManager, this, block.variationName).findBestPosition(true);
                         if (newBlock.score == 0) {
-                            console.log ("no more space for this block")
+                            console.log("no more space for this block")
                             break; //hopefully insertedBlock gets caught by garbage collector?
                         } else {
                             block.actualFilled++;
@@ -546,7 +533,9 @@ export default class Shelf extends SceneEntity {
 
         /* add a button to empty the shelf */
         this.guiFolder.add(this, "showInstructions")
-        this.guiFolder.add(this, "resetShelf")
+        this.guiFolder.add(this, "emptyShelf")
+        this.guiFolder.add(this, "saveShelf")
+        this.guiFolder.add(this, "loadShelf")
         /* add gui to show partition steps */
         this.guiFolder.add(this, "showPartitionSteps").onChange((value) => {
             this.partitions.forEach((partition) => {
@@ -560,15 +549,15 @@ export default class Shelf extends SceneEntity {
         });
 
         this.guiFolder.add(this, "hideAllBackgrounds").onChange((value) => {
-            let garage = this.parent;
+            let room = this.parent;
             if (value) {
-                garage.objects.backWall.visible = false;
-                garage.objects.floor.visible = false;
+                room.objects.backWall.visible = false;
+                room.objects.floor.visible = false;
                 this.sceneManager.renderer.setClearColor("#ffffff");
-            
+
             } else {
-                garage.objects.backWall.visible = true;
-                garage.objects.floor.visible = true;
+                room.objects.backWall.visible = true;
+                room.objects.floor.visible = true;
                 this.sceneManager.renderer.setClearColor("#87CEEB");
             }
         });
@@ -612,7 +601,7 @@ export default class Shelf extends SceneEntity {
         });
         let fourByEightPrice = 100;
         let fourByEightSurface = 48 * 96;
-        let plywoodCost =  surfaceArea / fourByEightSurface * fourByEightPrice;
+        let plywoodCost = surfaceArea / fourByEightSurface * fourByEightPrice;
         //console.log("plywoodCost: ", plywoodCost);
         return plywoodCost;
     }
@@ -627,6 +616,7 @@ export default class Shelf extends SceneEntity {
         //console.log("hardwareCost: ", hardwareCost);
         return hardwareCost;
     }
+
 
     estimateCost() {
         let cost = {
@@ -664,9 +654,114 @@ export default class Shelf extends SceneEntity {
         let plywoodCost = this.calculatePlywoodCost(cost);
         let hardwareCost = this.calculateHardwareCost(cost);
 
-        this.sceneManager.updateCostLabel(["Price as built : $" + Math.round((plywoodCost + hardwareCost) * 2.2) ])
+        this.sceneManager.updateCostLabel(["Price as built : $" + Math.round((plywoodCost + hardwareCost) * 2.2)])
 
         //console.log("plywoodPrice: ", plywoodPrice);
+    }
+
+    saveShelf() {
+        let data = this.toJSON();
+
+        data.metadata = {
+            time: Date.now(),
+            version: 1,
+            type: "shelf",
+        }
+        ThreeUtilities.downloadJSON(data, "shelf");
+    }
+
+    deleteEntity() {
+        /* remove from parent shelves */
+        this.parent.shelves.splice(this.parent.shelves.indexOf(this), 1);
+
+        /* remove all columns */
+        for (var i = this.columns.length - 1; i >= 0; i--) {
+            this.columns[i].deleteEntity(false); //no need to clean-up the partitions
+        }
+
+        /* remove all partitions */
+        for (var i = this.partitions.length - 1; i >= 0; i--) {
+            this.partitions[i].deleteEntity();
+        }
+
+        /* remove all modifiers */
+        this.rightModifier.deleteEntity();
+        this.rightAddColumnModifier.deleteEntity();
+        this.depthModifier.deleteEntity();
+        this.dimension.deleteEntity();
+
+        super.deleteEntity();
+    }
+
+    loadShelf() {
+        ThreeUtilities.loadJsonFile((data) => {
+            this.deleteEntity();
+            let newShelf = this.fromJSON(this.sceneManager, this.parent, data);
+            this.parent.shelves.push(newShelf);
+        });
+    }
+
+    toJSON() {
+        let columns = [];
+        this.columns.forEach((column) => {
+            columns.push(column.toJSON());
+        });
+        let partitions = [];
+        this.partitions.forEach((partition) => {
+            partitions.push(partition.toJSON());
+        });
+
+        return {
+            startX: this.startX,
+            columnWidthStep: this.columnWidthStep,
+            columns: columns,
+            partitions: partitions,
+        }
+    }
+
+    fromJSON(sceneManager, parent, data) {
+        let newShelf = new Shelf(sceneManager, parent)
+        newShelf.startX = data.startX;
+        newShelf.columnWidthStep = data.columnWidthStep;
+
+        /* set all the columns */
+        data.columns.forEach((columnData) => {
+            let newColumn = Column.fromJSON(sceneManager, newShelf, columnData);
+            newShelf.columns.push(newColumn);
+        });
+
+        /* now set all the partitions. For now we ignore previously stored partition information */
+        newShelf.setPartitions();
+        // data.partitions.forEach((partitionData) => {
+        //     let newPartition = Partition.fromJSON(sceneManager, newShelf, partitionData);
+        //     newShelf.partitions.push(newPartition);
+        // });
+        newShelf.setModifiers();
+        newShelf.setDimension();
+
+        /* now fill all the columns */
+        newShelf.columns.forEach((column) => {
+            column.setBlocksFromData();
+        });
+
+        newShelf.updateCameraAndControls();
+        /* update object position everything in the shelf will be in reference to that*/
+        newShelf.updateObjectPosition();
+        /* update modifiers position */
+        newShelf.updateModifierPosition();
+
+        /* estimate price */
+        this.estimateCost();
+
+        /* extend room if shelf doesn't fit */
+        if (newShelf.startX + newShelf.lastX() > newShelf.parent.length - newShelf.parent.wallThickness) {
+            console.log("extending room horizontally")
+            newShelf.parent.length = newShelf.startX + newShelf.lastX() + newShelf.parent.wallThickness;
+            newShelf.parent.update();
+        }
+
+        return newShelf;
+
     }
 
 }

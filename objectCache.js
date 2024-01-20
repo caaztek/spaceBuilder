@@ -3,6 +3,17 @@ import ThreeUtilities from './threeUtilities.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { SceneEntity } from './sceneManager.js';
 
+import bin10In from './models/bin10In.gltf';
+import officeMug from './models/officeMug.glb';
+import officeChair from './models/officeChair.glb';
+import coatHanger from './models/coatHanger.glb';
+import shirt from './models/shirt.gltf';
+import surfboard from './models/surfboard.gltf';
+import miterSaw from './models/miterSaw.gltf';
+import shoePair from './models/shoePair.glb';
+import sneakers from './models/sneakers.glb';
+import bicycle from './models/bicycle.glb';
+
 /* class that handles loading, storing and cloning 3d objects that are used many times accross the scene 
 Typical usage : this.sceneManager.objectCache.loadObject("plasticBin", (object) => {
     //object is a clone of the original object. It will only load it from scratch once.
@@ -12,6 +23,20 @@ export default class ObjectCache extends SceneEntity {
     constructor(sceneManager, parent) {
         super(sceneManager, parent, "objectCache");
         this.objectLibrary = {};
+    }
+
+    importObjects() {
+        this.addObject("plasticBin", bin10In, 39, 0, 0, 0, [18, 27, 40]);
+        this.addObject("officeMug", officeMug, 39, Math.PI / 2);
+        this.addObject("officeChair", officeChair, 39);
+        this.addObject("coatHanger", coatHanger, 0.15, Math.PI / 2, Math.PI / 2, 0);
+        this.addObject("shirt", shirt, 85, 0, 0, 0);
+        this.addObject("surfboard", surfboard, 50, Math.PI/2, Math.PI/2, 0);
+        this.addObject("miterSaw", miterSaw, 39, 0, 0, 0);
+        this.addObject("shoePair", shoePair, 4, Math.PI/2, Math.PI/2, 0);
+        this.addObject("sneakers", sneakers, 0.04, Math.PI/2, Math.PI/4, 0);
+        this.addObject("bicycle", bicycle, 19, Math.PI/2, Math.PI/2, Math.PI/2);
+        return this
     }
 
     addObject(name, path, scale = 1, rotateX = 0, rotateY = 0, rotateZ = 0, outlineArray = []) {
@@ -127,7 +152,7 @@ export default class ObjectCache extends SceneEntity {
                                 element.colorArray.push(child.material.color);
                             }
                         });
-                        console.log(element.colorArray);
+                        //console.log(element.colorArray);
                     }
 
 

@@ -1,0 +1,333 @@
+{
+  "startX": 67.875,
+  "columnWidthStep": 4,
+  "columns": [
+    {
+      "startX": 0,
+      "width": 16,
+      "height": 72,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 2
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 4
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 0
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 6
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 8
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 10
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 12
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 14
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 16
+        }
+      ]
+    },
+    {
+      "startX": 16,
+      "width": 16,
+      "height": 72,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 2
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 4
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 0
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 6
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 8
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 10
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 12
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 14
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 16
+        }
+      ]
+    },
+    {
+      "startX": 32,
+      "width": 16,
+      "height": 117.9375,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 2
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 4
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 0
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 6
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 8
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 10
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 12
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 14
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 16
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 18
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 20
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 22
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 24
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 26
+        }
+      ]
+    },
+    {
+      "startX": 48,
+      "width": 28,
+      "height": 117.9375,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Regular Drawer",
+          "zIndex": 0
+        },
+        {
+          "variationName": "Regular Drawer",
+          "zIndex": 2
+        },
+        {
+          "variationName": "Regular Drawer",
+          "zIndex": 4
+        },
+        {
+          "variationName": "Regular Drawer",
+          "zIndex": 6
+        },
+        {
+          "variationName": "Regular Drawer",
+          "zIndex": 8
+        },
+        {
+          "variationName": "Pull-out desk",
+          "zIndex": 11
+        },
+        {
+          "variationName": "Fixed shelf",
+          "zIndex": 12
+        },
+        {
+          "variationName": "Fixed shelf",
+          "zIndex": 14
+        },
+        {
+          "variationName": "Fixed shelf",
+          "zIndex": 16
+        },
+        {
+          "variationName": "Fixed shelf",
+          "zIndex": 18
+        },
+        {
+          "variationName": "Fixed shelf",
+          "zIndex": 20
+        },
+        {
+          "variationName": "Plastic bin",
+          "zIndex": 28
+        },
+        {
+          "variationName": "Plastic bin",
+          "zIndex": 25
+        }
+      ]
+    },
+    {
+      "startX": 76,
+      "width": 28,
+      "height": 117.9375,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Regular Drawer",
+          "zIndex": 0
+        },
+        {
+          "variationName": "Regular Drawer",
+          "zIndex": 2
+        },
+        {
+          "variationName": "Regular Drawer",
+          "zIndex": 4
+        },
+        {
+          "variationName": "Regular Drawer",
+          "zIndex": 6
+        },
+        {
+          "variationName": "Regular Drawer",
+          "zIndex": 8
+        },
+        {
+          "variationName": "Pull-out desk",
+          "zIndex": 11
+        },
+        {
+          "variationName": "Fixed shelf",
+          "zIndex": 12
+        },
+        {
+          "variationName": "Shipping Station",
+          "zIndex": 14
+        },
+        {
+          "variationName": "Plastic bin",
+          "zIndex": 28
+        },
+        {
+          "variationName": "Plastic bin",
+          "zIndex": 25
+        }
+      ]
+    }
+  ],
+  "partitions": [
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 0,
+      "height": 72
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 16,
+      "height": 72
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 32,
+      "height": 117.9375
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 48,
+      "height": 117.9375
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 76,
+      "height": 117.9375
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 104,
+      "height": 117.9375
+    }
+  ],
+  "metadata": {
+    "time": 1705708530472,
+    "version": 1,
+    "type": "shelf"
+  }
+}

@@ -1,5 +1,6 @@
 import { SceneEntity } from './sceneManager.js';
 import { LinearModifier, PlanarModifier } from './modifier.js';
+import BlockList from './blockList.js';
 import * as THREE from 'three';
 
 /* class containing all the information for a given shelf unit, made of many columns */
@@ -95,6 +96,9 @@ export default class Column extends SceneEntity {
             }
             this.leftPartition.deleteEntity();
         }
+
+        /* need to update right partition */
+        this.rightPartition.update();
 
         /* remove column from parent array */
         this.parent.columns.splice(this.returnIndex(), 1);
@@ -197,6 +201,33 @@ export default class Column extends SceneEntity {
 
     endX() {
         return this.startX + this.width;
+    }
+
+    toJSON() {
+        let blocks = [];
+        this.blocks.forEach(block => blocks.push(block.toJSON()));
+
+        let data = {
+            startX: this.leftPartition.xPosition,
+            width: this.returnWidth(),
+            height: this.height,
+            depth: this.depth,
+            blocks: blocks,
+        }
+
+        return data;
+    }
+
+    static fromJSON(sceneManager, parent,data) {
+        let newColumn = new Column(sceneManager, parent, data.startX, data.width, data.depth, data.height);
+        newColumn.blockData = data.blocks; //probably need two steps. Set-up all columns, then partitions, then fill blocks.
+        return newColumn;
+    }
+
+    setBlocksFromData() {
+        this.blockData.forEach(blockData => {
+            let newBlock = BlockList.fromJSON(this.sceneManager, this.parent,this, blockData);
+        });
     }
 
 }

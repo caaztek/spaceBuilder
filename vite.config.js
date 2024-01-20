@@ -1,7 +1,7 @@
 // vite.config.js
 export default {
     // config options
-    base: '/garageBuilder/',
+    base: '/spaceBuilder/',
 
     assetsInclude: ['**/*.glb','**/*.gltf','**/*.jpeg']
   }

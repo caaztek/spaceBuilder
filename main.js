@@ -1,12 +1,12 @@
-import Garage from './garage.js';
+import Room from './room.js';
 import SceneManager from './sceneManager.js';
 import * as THREE from 'three';
 import garageExampleImage from './images/example2.jpeg';
-document.getElementById('garageExample').src = garageExampleImage;
+document.getElementById('spaceExample').src = garageExampleImage;
 
 
 let sceneManager = new SceneManager().setUpModal();
-let garage123 = new Garage(sceneManager, sceneManager);
+let firstRoom = new Room(sceneManager, sceneManager);
 
 
 

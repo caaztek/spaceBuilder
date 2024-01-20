@@ -214,7 +214,7 @@ export class SceneEntity {
     deleteEntity(noCallback = false) {
         /* handle generic delete callbacks */
         if (!noCallback) this.callAllUpdates("delete");
-
+        
         /* delete all scene content */
         ThreeUtilities.disposeHierarchy(this.object, ThreeUtilities.disposeNode);
 
@@ -227,9 +227,6 @@ export class SceneEntity {
         //remove from scene Manager entity array, if they are the same
         if (this.sceneManager.sceneEntities[this.sceneID] == this) delete this.sceneManager.sceneEntities[this.sceneID];
 
-        //this.clickableObject = undefined;
-        //this.clickable = false;
-        //this.deleted = true; //sceneID will still be used but that's ok
         //this.sceneManager.lastId = this.sceneID; //will be used by next entity
         this.sceneManager.updateClickableObjects();
 

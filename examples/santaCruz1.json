@@ -1,0 +1,135 @@
+{
+  "startX": 50,
+  "columnWidthStep": 4,
+  "columns": [
+    {
+      "startX": 0,
+      "width": 24,
+      "height": 72,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Surf Rack",
+          "zIndex": 2
+        }
+      ]
+    },
+    {
+      "startX": 24,
+      "width": 24,
+      "height": 72,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Surf Rack",
+          "zIndex": 2
+        }
+      ]
+    },
+    {
+      "startX": 48,
+      "width": 24,
+      "height": 90,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Pull-out rack",
+          "zIndex": 16
+        },
+        {
+          "variationName": "Fixed shelf",
+          "zIndex": 17
+        },
+        {
+          "variationName": "Fixed shelf",
+          "zIndex": 19
+        },
+        {
+          "variationName": "Pull-up Bar",
+          "zIndex": 20
+        },
+        {
+          "variationName": "Plastic bin",
+          "zIndex": 2
+        },
+        {
+          "variationName": "Plastic bin",
+          "zIndex": 5
+        }
+      ]
+    },
+    {
+      "startX": 72,
+      "width": 24,
+      "height": 90,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Vertical Bike",
+          "zIndex": 18
+        },
+        {
+          "variationName": "Pull-up Bar",
+          "zIndex": 20
+        }
+      ]
+    }
+  ],
+  "partitions": [
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 0,
+      "height": 72
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 24,
+      "height": 72
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 48,
+      "height": 90
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 72,
+      "height": 90
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 96,
+      "height": 90
+    }
+  ],
+  "metadata": {
+    "time": 1705708235309,
+    "version": 1,
+    "type": "shelf"
+  }
+}

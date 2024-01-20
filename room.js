@@ -1,28 +1,18 @@
 import { SceneEntity } from './sceneManager.js';
-import ThreeUtilities from './threeUtilities';
+import ThreeUtilities from './threeUtilities.js';
 import { LinearModifier, PlanarModifier } from './modifier.js';
 import * as THREE from 'three';
 import Shelf from './shelf.js';
 import ObjectCache from './objectCache.js';
 import Dimension from './dimension.js';
 
-import bin10In from './models/bin10In.gltf';
-import officeMug from './models/officeMug.glb';
-import officeChair from './models/officeChair.glb';
-import coatHanger from './models/coatHanger.glb';
-import shirt from './models/shirt.gltf';
-import surfboard from './models/surfboard.gltf';
-import miterSaw from './models/miterSaw.gltf';
-import shoePair from './models/shoePair.glb';
-import sneakers from './models/sneakers.glb';
-import bicycle from './models/bicycle.glb';
 
-export default class Garage extends SceneEntity {
+export default class Room extends SceneEntity {
     constructor(sceneManager, parent) {
-        super(sceneManager, parent, "garage");
+        super(sceneManager, parent, "room");
 
         /* handle gui */
-        this.showGarageModifier = true;
+        this.showRoomModifier = true;
         this.addGUI();
 
         /* handle all default values  */
@@ -48,17 +38,7 @@ export default class Garage extends SceneEntity {
         // this.sceneManager.objectCache.addObject("officeChair", 'models/officeChair.glb', 39);
 
         /* set-up object cache. Need to import .glb or .gltf file at the top of this document to include them in vite compilation */
-        this.sceneManager.objectCache = new ObjectCache(this.sceneManager, this);
-        this.sceneManager.objectCache.addObject("plasticBin", bin10In, 39, 0, 0, 0, [18, 27, 40]);
-        this.sceneManager.objectCache.addObject("officeMug", officeMug, 39, Math.PI / 2);
-        this.sceneManager.objectCache.addObject("officeChair", officeChair, 39);
-        this.sceneManager.objectCache.addObject("coatHanger", coatHanger, 0.15, Math.PI / 2, Math.PI / 2, 0);
-        this.sceneManager.objectCache.addObject("shirt", shirt, 85, 0, 0, 0);
-        this.sceneManager.objectCache.addObject("surfboard", surfboard, 50, Math.PI/2, Math.PI/2, 0);
-        this.sceneManager.objectCache.addObject("miterSaw", miterSaw, 39, 0, 0, 0);
-        this.sceneManager.objectCache.addObject("shoePair", shoePair, 4, Math.PI/2, Math.PI/2, 0);
-        this.sceneManager.objectCache.addObject("sneakers", sneakers, 0.04, Math.PI/2, Math.PI/4, 0);
-        this.sceneManager.objectCache.addObject("bicycle", bicycle, 19, Math.PI/2, Math.PI/2, Math.PI/2);
+        this.sceneManager.objectCache = new ObjectCache(this.sceneManager, this).importObjects();
 
 
         //this.sceneManager.objectCache.testObjectOutline("officeMug", 100);
@@ -76,13 +56,13 @@ export default class Garage extends SceneEntity {
         this.setCamera();
 
         /* set shelves */
-        this.shelves = [new Shelf(this.sceneManager, this)];
+        this.shelves = [new Shelf(this.sceneManager, this).setUpFromNothing()];
 
     }
 
     addGUI() {
         // super.addGUI();
-        // this.showModifierController = this.guiFolder.add(this, "showGarageModifier").onChange((value) => {
+        // this.showModifierController = this.guiFolder.add(this, "showRoomModifier").onChange((value) => {
         //     this.switchModifierVisibility(value);
         // });
     }
@@ -215,8 +195,26 @@ export default class Garage extends SceneEntity {
         /* updateLights */
         this.updateLights();
 
-        /* quick dimension try */
-        // let dimension = new Dimension(this.sceneManager, this, new THREE.Vector3(0, 0, 0), new THREE.Vector3(250, -100, 0), new THREE.Vector3(0, -1, 0), 150)
-        // .update();
     }
+
+    toJSON() {
+        let shelves = [];
+        this.shelves.forEach(shelf => shelves.push(shelf.toJSON()));
+        return {
+            length: this.length,
+            height: this.height,
+            shelves: shelves
+        }
+    }
+
+    static fromJSON(sceneManager,parent, data) {
+        let newRoom = new Room(sceneManager, parent);
+        newRoom.length = data.length;
+        newRoom.height = data.height;
+        newRoom.shelves = [];
+        data.shelves.forEach(shelf => newRoom.shelves.push(Shelf.fromJSON(sceneManager, newRoom, shelf)));
+        newRoom.update();
+        return newRoom;
+    }
+
 }

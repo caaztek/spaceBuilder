@@ -244,7 +244,8 @@ export default class ThreeUtilities {
         }
     }
 
-    static downloadJSON(json, fileName = "building") {
+    static downloadJSON(data, fileName = "file") {
+        let json = JSON.stringify(data, this.replacer,2);  // Convert the JSON object to a string
         const blob = new Blob([json], { type: 'application/json' });  // Create a blob from the JSON
         const url = URL.createObjectURL(blob);  // Create a URL for the blob
         const a = document.createElement('a');  // Create an anchor element
@@ -254,6 +255,45 @@ export default class ThreeUtilities {
         a.click();  // Trigger a click to download the file
         document.body.removeChild(a);  // Remove the anchor from the document
         URL.revokeObjectURL(url);  // Clean up the blob URL
+    }
+
+    static loadJsonFile(callback) {
+        var fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = '.json';
+        fileInput.style.opacity = '0'; //we never want end user to see the button
+        fileInput.addEventListener('change', () => {
+            var file = fileInput.files[0];
+
+            if (file) {
+                var reader = new FileReader();
+                reader.readAsText(file);
+                reader.onload = (e) => {
+                    try {
+                        callback(JSON.parse(e.target.result, this.reviver));
+                        // this.deleteEntity();
+                        // this.sceneManager.building = Building.fromJSON(this.sceneManager, e.target.result);
+                    } catch (error) {
+                        console.error('Error parsing JSON:', error);
+                    }
+
+                    //let buildingData = JSON.parse(e.target.result);
+
+                    // console.log(buildingData);
+
+                    // this.sceneManager.building = Building.fromJSON(buildingData);
+
+                    //this.imageData = imageURL;
+
+                    fileInput.parentNode.removeChild(fileInput);
+                };
+
+                //reader.readAsText(file);
+            }
+        });
+
+        document.body.appendChild(fileInput);
+        fileInput.click();
     }
 
     static replacer(key, value) {

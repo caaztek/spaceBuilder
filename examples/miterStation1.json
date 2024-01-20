@@ -1,0 +1,137 @@
+{
+  "startX": 49.8125,
+  "columnWidthStep": 4,
+  "columns": [
+    {
+      "startX": 0,
+      "width": 24,
+      "height": 39.5,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Tall Drawer",
+          "zIndex": 0
+        },
+        {
+          "variationName": "Tall Drawer",
+          "zIndex": 3
+        },
+        {
+          "variationName": "Pull-out desk",
+          "zIndex": 9
+        },
+        {
+          "variationName": "Thin Drawer",
+          "zIndex": 6
+        },
+        {
+          "variationName": "Thin Drawer",
+          "zIndex": 7
+        }
+      ]
+    },
+    {
+      "startX": 24,
+      "width": 36,
+      "height": 39.5,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Tall Drawer",
+          "zIndex": 0
+        },
+        {
+          "variationName": "Tall Drawer",
+          "zIndex": 3
+        },
+        {
+          "variationName": "Miter Station",
+          "zIndex": 9
+        },
+        {
+          "variationName": "Thin Drawer",
+          "zIndex": 6
+        },
+        {
+          "variationName": "Thin Drawer",
+          "zIndex": 7
+        }
+      ]
+    },
+    {
+      "startX": 60,
+      "width": 40,
+      "height": 39.5,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Tall Drawer",
+          "zIndex": 0
+        },
+        {
+          "variationName": "Tall Drawer",
+          "zIndex": 3
+        },
+        {
+          "variationName": "Thin Drawer",
+          "zIndex": 6
+        },
+        {
+          "variationName": "Pull-out desk",
+          "zIndex": 9
+        },
+        {
+          "variationName": "Thin Drawer",
+          "zIndex": 7
+        }
+      ]
+    }
+  ],
+  "partitions": [
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 0,
+      "height": 39.5
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 24,
+      "height": 39.5
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 60,
+      "height": 39.5
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 100,
+      "height": 39.5
+    }
+  ],
+  "metadata": {
+    "time": 1705707955200,
+    "version": 1,
+    "type": "shelf"
+  }
+}

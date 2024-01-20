@@ -39,6 +39,7 @@ export default class ShippingStation extends Block {
                     centerSlotsOccupyBelow: 0,
                     centerSlotsOccupyAboveForced: 8,
                     centerSlotsOccupyBelowForced: 0,
+                    startBlockListFillingCoefficient: 0
                 }
             }
         ]

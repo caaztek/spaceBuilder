@@ -228,6 +228,7 @@ export default class Modifier extends SceneEntity {
 
     deleteEntity() {
         //will never be called again
+        if (this.dimension) this.dimension.deleteEntity();
         super.deleteEntity();
     }
 

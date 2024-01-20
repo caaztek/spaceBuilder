@@ -1,0 +1,220 @@
+{
+  "startX": 50,
+  "columns": [
+    {
+      "startX": 0,
+      "width": 16,
+      "height": 72,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Surf Rack",
+          "zIndex": 2
+        },
+        {
+          "variationName": "Thin Drawer",
+          "zIndex": 0
+        }
+      ]
+    },
+    {
+      "startX": 16,
+      "width": 16,
+      "height": 72,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Shoe Rack",
+          "zIndex": 2
+        },
+        {
+          "variationName": "Regular Drawer",
+          "zIndex": 0
+        },
+        {
+          "variationName": "Regular Drawer",
+          "zIndex": 10
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 12
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 14
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 16
+        }
+      ]
+    },
+    {
+      "startX": 32,
+      "width": 16,
+      "height": 90,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Vertical Bike",
+          "zIndex": 17
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 18
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 20
+        }
+      ]
+    },
+    {
+      "startX": 48,
+      "width": 16,
+      "height": 90,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Pull-out desk",
+          "zIndex": 8
+        },
+        {
+          "variationName": "Tall Drawer",
+          "zIndex": 0
+        },
+        {
+          "variationName": "Tall Drawer",
+          "zIndex": 3
+        },
+        {
+          "variationName": "Tall Drawer",
+          "zIndex": 9
+        },
+        {
+          "variationName": "Regular Drawer",
+          "zIndex": 12
+        },
+        {
+          "variationName": "Regular Drawer",
+          "zIndex": 14
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 16
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 18
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 20
+        },
+        {
+          "variationName": "Thin Drawer",
+          "zIndex": 6
+        }
+      ]
+    },
+    {
+      "startX": 64,
+      "width": 24,
+      "height": 90,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Pull-out rack",
+          "zIndex": 12
+        },
+        {
+          "variationName": "Pull-up Bar",
+          "zIndex": 20
+        },
+        {
+          "variationName": "Plastic bin",
+          "zIndex": 19
+        },
+        {
+          "variationName": "Regular Drawer",
+          "zIndex": 0
+        },
+        {
+          "variationName": "Regular Drawer",
+          "zIndex": 13
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 15
+        }
+      ]
+    }
+  ],
+  "partitions": [
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 0,
+      "height": 72
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 16,
+      "height": 72
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 32,
+      "height": 90
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 48,
+      "height": 90
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 64,
+      "height": 90
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 88,
+      "height": 90
+    }
+  ],
+  "metadata": {
+    "time": 1705626277559,
+    "version": 1,
+    "type": "shelf"
+  }
+}

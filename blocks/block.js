@@ -353,6 +353,8 @@ export default class Block extends SceneEntity {
         this.makeSlides();
         this.makeMovingObject();
         this.makeClickableBox();
+
+        return this;
     }
 
     makeSlides() {
@@ -577,6 +579,7 @@ export default class Block extends SceneEntity {
         let block = shelf.shelfFillingList.find(block => block.variationName == this.variationName)
         block.actualFilled++;
         shelf.shelfFilling[this.variationName]++;
+        block.controller.updateDisplay();
         block.installedBlocks.push(this);
         return this;
     }
@@ -598,6 +601,10 @@ export default class Block extends SceneEntity {
         /* need to remove this block from column and lists */
         if (releaseOccupancy) this.releaseOccupancy();
 
+        /* delete block object moving */
+        //ThreeUtilities.disposeHierarchy(this.blockObjectMoving);
+        //ThreeUtilities.disposeHierarchy(this.blockObjectFixed);
+
         //console.log("deleting block: " + this.parameters.name)
 
         //ThreeUtilities.disposeHierarchy(this.blockObjectMoving);
@@ -605,6 +612,23 @@ export default class Block extends SceneEntity {
         super.deleteEntity();
 
     }
+
+    static baseBlockList() {
+        return [PullDesk, FixedDesk, PullRack,ShippingStation,SurfRack, MiterStation,PullUpBar, VerticalBike,FixedShelf, PullShelf, PlasticBin, Drawer, DisplayRack, ShoeRack, CubeShelf]
+    }
+
+
+    toJSON() {
+        /* no need to store column or shelf. It will be called by the column */
+        let data = {
+            variationName : this.variationName,
+            zIndex : this.zIndex,
+        }
+
+        return data
+    }
+    /* from Json is handled by BlockList, because it needs to figure out which class the stored data belongs to. */
+
 
 }
 
