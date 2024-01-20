@@ -76,11 +76,11 @@ export default class Partition extends SceneEntity {
                         }
                     }
 
-                    let garage = this.findAncestorWithType("garage");
+                    let room = this.findAncestorWithType("room");
                     let shelf = this.findAncestorWithType("shelf");
                     this.minOffset = undefined;
 
-                    this.maxOffset = garage.length - garage.wallThickness - this.partitionStartX[this.partitionStartX.length - 1] - this.thickness / 2 - shelf.startX;
+                    this.maxOffset = room.length - room.wallThickness - this.partitionStartX[this.partitionStartX.length - 1] - this.thickness / 2 - shelf.startX;
 
 
                     this.firstPartitionClicked = false
@@ -88,7 +88,7 @@ export default class Partition extends SceneEntity {
                     if (this.parent.partitions.indexOf(this) == 0) {
                         /* we will be moving the entire shelf */
                         this.firstPartitionClicked = true;
-                        this.minOffset = garage.wallThickness + this.thickness / 2 - shelf.startX;
+                        this.minOffset = room.wallThickness + this.thickness / 2 - shelf.startX;
                     } else {
                         this.maxOffsetColumnSize = shelf.maxColumnWidth * shelf.columnWidthStep - this.leftColumn.returnWidth()
                         this.maxOffset = Math.min(this.maxOffset, this.maxOffsetColumnSize);
@@ -106,7 +106,7 @@ export default class Partition extends SceneEntity {
                 } else if (modifierType == "moved") {
                     /* need to snap to a multiple of  shelf.columnWidthStep*/
                     let shelf = this.findAncestorWithType("shelf");
-                    let garage = this.findAncestorWithType("garage");
+                    let room = this.findAncestorWithType("room");
                     let widthStep = shelf.columnWidthStep;
                     let offsetDistance = modifier.offsetDistance;
                     if (!this.firstPartitionClicked) offsetDistance = Math.round(offsetDistance / widthStep) * widthStep
@@ -143,14 +143,14 @@ export default class Partition extends SceneEntity {
                                             } else {
                                                 /* Current partition is now the first. Need to update maxoffset. No worries about column too big */
                                                 this.firstPartitionClicked = true;
-                                                this.minOffset = garage.wallThickness + this.thickness / 2 - shelf.startX - this.partitionStartX[0];
+                                                this.minOffset = room.wallThickness + this.thickness / 2 - shelf.startX - this.partitionStartX[0];
 
                                                 this.shelfStartX += this.partitionStartX[0];
                                                 // shelf.startX = this.xPosition;
                                                 // shelf.updateObjectPosition();
                                                 // shelf.updateCameraAndControls();
                                                 
-                                                this.maxOffset = garage.length - garage.wallThickness - this.partitionStartX[this.partitionStartX.length - 1] - this.thickness / 2 - shelf.startX;
+                                                this.maxOffset = room.length - room.wallThickness - this.partitionStartX[this.partitionStartX.length - 1] - this.thickness / 2 - shelf.startX;
                                             }
                                             
                                         }

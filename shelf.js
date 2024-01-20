@@ -701,6 +701,14 @@ export default class Shelf extends SceneEntity {
         });
     }
 
+    maxHeight() {
+        let maxHeight = 0;
+        this.columns.forEach((column) => {
+            maxHeight = Math.max(maxHeight, column.height);
+        });
+        return maxHeight;
+    }
+
     toJSON() {
         let columns = [];
         this.columns.forEach((column) => {
@@ -756,7 +764,13 @@ export default class Shelf extends SceneEntity {
         /* extend room if shelf doesn't fit */
         if (newShelf.startX + newShelf.lastX() > newShelf.parent.length - newShelf.parent.wallThickness) {
             console.log("extending room horizontally")
-            newShelf.parent.length = newShelf.startX + newShelf.lastX() + newShelf.parent.wallThickness;
+            newShelf.parent.length = newShelf.startX + newShelf.lastX() + newShelf.parent.wallThickness + newShelf.partitions[newShelf.partitions.length - 1].thickness / 2;
+            newShelf.parent.update();
+        }
+
+        if (newShelf.maxHeight() > newShelf.parent.height) {
+            console.log("extending room vertically")
+            newShelf.parent.height = newShelf.maxHeight();
             newShelf.parent.update();
         }
 

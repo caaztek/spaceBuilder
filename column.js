@@ -39,8 +39,8 @@ export default class Column extends SceneEntity {
                 if (modifierType == "clicked") {
                     this.startHeight = this.height;
                 } else if (modifierType == "moved") {
-                    let garage = this.findAncestorWithType("garage");
-                    let targetHeight = Math.max(Math.min(this.startHeight + modifier.offsetDistance, garage.height), this.parent.minHeight);
+                    let room = this.findAncestorWithType("room");
+                    let targetHeight = Math.max(Math.min(this.startHeight + modifier.offsetDistance, room.height), this.parent.minHeight);
                     let index = this.returnIndex();
                     if (index > 0 && Math.abs(targetHeight - this.parent.columns[index - 1].height) < this.heightSnapDistance) {
                         targetHeight = this.parent.columns[index - 1].height;
