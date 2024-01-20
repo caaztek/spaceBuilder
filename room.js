@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import Shelf from './shelf.js';
 import ObjectCache from './objectCache.js';
 import Dimension from './dimension.js';
+import startShelf from './examples/startMix1.json';
 
 
 export default class Room extends SceneEntity {
@@ -56,7 +57,8 @@ export default class Room extends SceneEntity {
         this.setCamera();
 
         /* set shelves */
-        this.shelves = [new Shelf(this.sceneManager, this).setUpFromNothing()];
+        this.shelves = [Shelf.fromJSON(this.sceneManager, this, startShelf)];
+        //this.shelves = [new Shelf(this.sceneManager, this).setUpFromNothing()];
 
     }
 

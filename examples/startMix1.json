@@ -1,0 +1,289 @@
+{
+  "startX": 50,
+  "columnWidthStep": 4,
+  "columns": [
+    {
+      "startX": 0,
+      "width": 24,
+      "height": 72,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Surf Rack",
+          "zIndex": 2
+        },
+        {
+          "variationName": "Thin Drawer",
+          "zIndex": 0
+        }
+      ]
+    },
+    {
+      "startX": 24,
+      "width": 16,
+      "height": 90,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Vertical Bike",
+          "zIndex": 17
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 18
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 20
+        }
+      ]
+    },
+    {
+      "startX": 40,
+      "width": 16,
+      "height": 90,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 18
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 20
+        },
+        {
+          "variationName": "Shoe Rack",
+          "zIndex": 0
+        },
+        {
+          "variationName": "Tall Drawer",
+          "zIndex": 8
+        },
+        {
+          "variationName": "Regular Drawer",
+          "zIndex": 11
+        },
+        {
+          "variationName": "Regular Drawer",
+          "zIndex": 13
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 15
+        }
+      ]
+    },
+    {
+      "startX": 56,
+      "width": 24,
+      "height": 90,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Pull-out rack",
+          "zIndex": 12
+        },
+        {
+          "variationName": "Regular Drawer",
+          "zIndex": 0
+        },
+        {
+          "variationName": "Regular Drawer",
+          "zIndex": 13
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 15
+        },
+        {
+          "variationName": "Plastic bin",
+          "zIndex": 18
+        },
+        {
+          "variationName": "Pull-up Bar",
+          "zIndex": 20
+        }
+      ]
+    },
+    {
+      "startX": 80,
+      "width": 24,
+      "height": 90,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Tall Drawer",
+          "zIndex": 0
+        },
+        {
+          "variationName": "Tall Drawer",
+          "zIndex": 3
+        },
+        {
+          "variationName": "Plastic bin",
+          "zIndex": 18
+        },
+        {
+          "variationName": "Regular Drawer",
+          "zIndex": 9
+        },
+        {
+          "variationName": "Regular Drawer",
+          "zIndex": 11
+        },
+        {
+          "variationName": "Pull-out Shelf",
+          "zIndex": 13
+        },
+        {
+          "variationName": "Thin Drawer",
+          "zIndex": 6
+        },
+        {
+          "variationName": "Pull-out desk",
+          "zIndex": 8
+        },
+        {
+          "variationName": "Pull-up Bar",
+          "zIndex": 20
+        }
+      ]
+    },
+    {
+      "startX": 104,
+      "width": 36,
+      "height": 35.75,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Miter Station",
+          "zIndex": 8
+        },
+        {
+          "variationName": "Tall Drawer",
+          "zIndex": 0
+        },
+        {
+          "variationName": "Tall Drawer",
+          "zIndex": 3
+        },
+        {
+          "variationName": "Thin Drawer",
+          "zIndex": 6
+        }
+      ]
+    },
+    {
+      "startX": 140,
+      "width": 28,
+      "height": 35.75,
+      "depth": 30,
+      "blocks": [
+        {
+          "variationName": "Pull-out desk",
+          "zIndex": 8
+        },
+        {
+          "variationName": "Tall Drawer",
+          "zIndex": 0
+        },
+        {
+          "variationName": "Tall Drawer",
+          "zIndex": 3
+        },
+        {
+          "variationName": "Thin Drawer",
+          "zIndex": 6
+        }
+      ]
+    }
+  ],
+  "partitions": [
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 0,
+      "height": 72
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 24,
+      "height": 90
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 40,
+      "height": 90
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 56,
+      "height": 90
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 80,
+      "height": 90
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 104,
+      "height": 90
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 140,
+      "height": 35.75
+    },
+    {
+      "thickness": 1.5,
+      "depth": 30,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 168,
+      "height": 35.75
+    }
+  ],
+  "metadata": {
+    "time": 1705712411240,
+    "version": 1,
+    "type": "shelf"
+  }
+}

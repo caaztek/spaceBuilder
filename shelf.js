@@ -4,21 +4,8 @@ import { LinearModifier, PlanarModifier, buttonModifier } from './modifier.js';
 import * as THREE from 'three';
 import Column from './column.js';
 import Block from './blocks/block.js';
-// import PullDesk from './blocks/pullDesk.js';
-// import PlasticBin from './blocks/plasticBin.js';
-// import FixedDesk from './blocks/fixedDesk.js';
-// import PullRack from './blocks/pullRack.js';
 import Partition from './partition.js';
-// import Drawer from './blocks/drawer.js';
-// import DisplayRack from './blocks/displayRack.js';
-// import ShippingStation from './blocks/shippingStation.js';
-// import SurfRack from './blocks/surfRack.js';
 import Dimension from './dimension.js';
-// import MiterStation from './blocks/miterStation.js';
-// import PullUpBar from './blocks/pullUpBar.js';
-// import ShoeRack from './blocks/shoeRack.js';
-// import CubeShelf from './blocks/cubeShelf.js';
-// import VerticalBike from './blocks/verticalBike.js';
 import BlockList from './blockList.js';
 
 /* class containing all the information for a given shelf unit, made of many columns */
@@ -727,7 +714,7 @@ export default class Shelf extends SceneEntity {
         }
     }
 
-    fromJSON(sceneManager, parent, data) {
+    static fromJSON(sceneManager, parent, data) {
         let newShelf = new Shelf(sceneManager, parent)
         newShelf.startX = data.startX;
         newShelf.columnWidthStep = data.columnWidthStep;
@@ -759,7 +746,7 @@ export default class Shelf extends SceneEntity {
         newShelf.updateModifierPosition();
 
         /* estimate price */
-        this.estimateCost();
+        newShelf.estimateCost();
 
         /* extend room if shelf doesn't fit */
         if (newShelf.startX + newShelf.lastX() > newShelf.parent.length - newShelf.parent.wallThickness) {
