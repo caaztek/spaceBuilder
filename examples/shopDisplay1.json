@@ -1,0 +1,224 @@
+{
+  "startX": 41.6875,
+  "columnWidthStep": 4,
+  "depth" : 16,
+  "columns": [
+    {
+      "startX": 0,
+      "width": 16,
+      "height": 43.125,
+      "depth": 16,
+      "blocks": [
+        {
+          "variationName": "Display Rack",
+          "zIndex": 2
+        },
+        {
+          "variationName": "Display Rack",
+          "zIndex": 6
+        },
+        {
+          "variationName": "Display Rack",
+          "zIndex": 10
+        }
+      ]
+    },
+    {
+      "startX": 16,
+      "width": 16,
+      "height": 75.375,
+      "depth": 16,
+      "blocks": [
+        {
+          "variationName": "Display Rack",
+          "zIndex": 2
+        },
+        {
+          "variationName": "Display Rack",
+          "zIndex": 6
+        },
+        {
+          "variationName": "Display Rack",
+          "zIndex": 14
+        },
+        {
+          "variationName": "Display Rack",
+          "zIndex": 18
+        }
+      ]
+    },
+    {
+      "startX": 32,
+      "width": 16,
+      "height": 91.625,
+      "depth": 16,
+      "blocks": [
+        {
+          "variationName": "Display Rack",
+          "zIndex": 2
+        },
+        {
+          "variationName": "Display Rack",
+          "zIndex": 6
+        },
+        {
+          "variationName": "Display Rack",
+          "zIndex": 10
+        },
+        {
+          "variationName": "Display Rack",
+          "zIndex": 14
+        },
+        {
+          "variationName": "Display Rack",
+          "zIndex": 18
+        },
+        {
+          "variationName": "Display Rack",
+          "zIndex": 22
+        }
+      ]
+    },
+    {
+      "startX": 48,
+      "width": 16,
+      "height": 75.5625,
+      "depth": 16,
+      "blocks": [
+        {
+          "variationName": "Display Rack",
+          "zIndex": 2
+        },
+        {
+          "variationName": "Display Rack",
+          "zIndex": 6
+        },
+        {
+          "variationName": "Display Rack",
+          "zIndex": 10
+        },
+        {
+          "variationName": "Display Rack",
+          "zIndex": 14
+        },
+        {
+          "variationName": "Display Rack",
+          "zIndex": 18
+        }
+      ]
+    },
+    {
+      "startX": 64,
+      "width": 16,
+      "height": 59.5,
+      "depth": 16,
+      "blocks": [
+        {
+          "variationName": "Display Rack",
+          "zIndex": 2
+        },
+        {
+          "variationName": "Display Rack",
+          "zIndex": 10
+        },
+        {
+          "variationName": "Display Rack",
+          "zIndex": 14
+        }
+      ]
+    },
+    {
+      "startX": 80,
+      "width": 16,
+      "height": 27.5625,
+      "depth": 16,
+      "blocks": [
+        {
+          "variationName": "Display Rack",
+          "zIndex": 2
+        },
+        {
+          "variationName": "Display Rack",
+          "zIndex": 6
+        }
+      ]
+    }
+  ],
+  "partitions": [
+    {
+      "thickness": 1.5,
+      "depth": 16,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 0,
+      "height": 43.125
+    },
+    {
+      "thickness": 1.5,
+      "depth": 16,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 16,
+      "height": 75.375
+    },
+    {
+      "thickness": 1.5,
+      "depth": 16,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 32,
+      "height": 91.625
+    },
+    {
+      "thickness": 1.5,
+      "depth": 16,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 48,
+      "height": 91.625
+    },
+    {
+      "thickness": 1.5,
+      "depth": 16,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 64,
+      "height": 75.5625
+    },
+    {
+      "thickness": 1.5,
+      "depth": 16,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 80,
+      "height": 59.5
+    },
+    {
+      "thickness": 1.5,
+      "depth": 16,
+      "bandWidth": 1.5,
+      "footWidth": 1,
+      "footHeight": 10,
+      "crossHeight": 10,
+      "xPosition": 96,
+      "height": 27.5625
+    }
+  ],
+  "metadata": {
+    "time": 1705717476934,
+    "version": 1,
+    "type": "shelf"
+  }
+}

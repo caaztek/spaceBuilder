@@ -8,6 +8,12 @@ import Partition from './partition.js';
 import Dimension from './dimension.js';
 import BlockList from './blockList.js';
 
+import startMix1 from './examples/startMix1.json';
+import shopDisplay1 from './examples/shopDisplay1.json';
+import santaCruz1 from './examples/santaCruz1.json';
+import miterStation1 from './examples/miterStation1.json';
+import potteryStudio1 from './examples/potteryStudio1.json';
+
 /* class containing all the information for a given shelf unit, made of many columns */
 export default class Shelf extends SceneEntity {
     constructor(sceneManager, parent) {
@@ -67,6 +73,20 @@ export default class Shelf extends SceneEntity {
         this.movePlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0); //maybe need to change this if the shelf is on another wall
         // this.moveMode = false;
         this.raycaster = new THREE.Raycaster();
+
+        /* listened for arrow up clicks*/
+        this.sceneManager.onUpdate((updateType, event) => {
+            if (updateType == "keyDown" && event == "ArrowUp") {
+                console.log("arrow up");
+                if (this.hoveredBlock != undefined) {
+                    this.hoveredBlock.arrowUpClicked();
+                }
+            }
+        });
+
+        this.examples = [startMix1, shopDisplay1, santaCruz1, miterStation1, potteryStudio1];
+        this.exampleIndex = 0;
+
     }
 
     setUpFromNothing() {
@@ -151,6 +171,8 @@ export default class Shelf extends SceneEntity {
 
 
     switchModifierVisibility(value) {
+        this.showModifiers = value;
+        this.showModifierController.updateDisplay();
         //this.leftModifier.switchVisibility(value);
         this.rightModifier.switchVisibility(value);
         this.rightAddColumnModifier.switchVisibility(value);
@@ -475,7 +497,6 @@ export default class Shelf extends SceneEntity {
 
         /* update GUI display to reflect the actual filled values */
         this.updateGUI();
-
     }
 
     addGUI() {
@@ -502,7 +523,8 @@ export default class Shelf extends SceneEntity {
                     for (var i = 0; i < -diff; i++) {
                         let newBlock = new block.block(this.sceneManager, this, block.variationName).findBestPosition(true);
                         if (newBlock.score == 0) {
-                            console.log("no more space for this block")
+                            //console.log("no more space for this block")
+                            this.sceneManager.newAlert("No more space for new modules. Try remove some first.")
                             break; //hopefully insertedBlock gets caught by garbage collector?
                         } else {
                             block.actualFilled++;
@@ -523,15 +545,13 @@ export default class Shelf extends SceneEntity {
         this.guiFolder.add(this, "emptyShelf")
         this.guiFolder.add(this, "saveShelf")
         this.guiFolder.add(this, "loadShelf")
+        this.guiFolder.add(this, "loadNextExample")
         /* add gui to show partition steps */
-        this.guiFolder.add(this, "showPartitionSteps").onChange((value) => {
-            this.partitions.forEach((partition) => {
-                partition.drawSteps = value;
-                partition.update();
-            });
+        this.showStepController = this.guiFolder.add(this, "showPartitionSteps").onChange((value) => {
+            this.switchPartitionStepsVisibility(value);
         });
 
-        this.guiFolder.add(this, "showModifiers").onChange((value) => {
+        this.showModifierController = this.guiFolder.add(this, "showModifiers").onChange((value) => {
             this.parent.switchModifierVisibility(value);
         });
 
@@ -558,6 +578,15 @@ export default class Shelf extends SceneEntity {
         })
 
 
+    }
+
+    switchPartitionStepsVisibility(value = true) {
+        this.showPartitionSteps = value;
+        this.showStepController.updateDisplay();
+        this.partitions.forEach((partition) => {
+            partition.drawSteps = value;
+            partition.update();
+        });
     }
 
     updateGUI() {
@@ -602,6 +631,19 @@ export default class Shelf extends SceneEntity {
         });
         //console.log("hardwareCost: ", hardwareCost);
         return hardwareCost;
+    }
+
+    loadNextExample() {
+        let showModifiers = this.showModifiers;
+        let showPartitionSteps = this.showPartitionSteps;
+        this.deleteEntity();
+        let exampleIndex = (this.exampleIndex + 1) % this.examples.length;
+        let newShelf = Shelf.fromJSON(this.sceneManager, this.parent, this.examples[this.exampleIndex]);
+        newShelf.exampleIndex = exampleIndex;
+        newShelf.switchModifierVisibility(showModifiers);
+        newShelf.switchPartitionStepsVisibility(showPartitionSteps);
+
+        this.parent.shelves.push(newShelf);
     }
 
 
@@ -683,7 +725,7 @@ export default class Shelf extends SceneEntity {
     loadShelf() {
         ThreeUtilities.loadJsonFile((data) => {
             this.deleteEntity();
-            let newShelf = this.fromJSON(this.sceneManager, this.parent, data);
+            let newShelf = Shelf.fromJSON(this.sceneManager, this.parent, data);
             this.parent.shelves.push(newShelf);
         });
     }
@@ -711,13 +753,22 @@ export default class Shelf extends SceneEntity {
             columnWidthStep: this.columnWidthStep,
             columns: columns,
             partitions: partitions,
+            depth : this.depth,
         }
     }
 
     static fromJSON(sceneManager, parent, data) {
         let newShelf = new Shelf(sceneManager, parent)
+
+        if (data == undefined) {
+            data = newShelf.examples[newShelf.exampleIndex];
+            newShelf.exampleIndex = (newShelf.exampleIndex + 1) % newShelf.examples.length;
+        }
+
+
         newShelf.startX = data.startX;
         newShelf.columnWidthStep = data.columnWidthStep;
+        newShelf.depth = data.depth;
 
         /* set all the columns */
         data.columns.forEach((columnData) => {

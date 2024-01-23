@@ -1,6 +1,7 @@
 {
   "startX": 49.8125,
   "columnWidthStep": 4,
+  "depth" : 30,
   "columns": [
     {
       "startX": 0,

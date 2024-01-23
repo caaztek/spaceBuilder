@@ -94,8 +94,8 @@ export default class DisplayRack extends Block {
         let p = this.parameters;
         let frontGeometry = new THREE.BoxGeometry(this.width, p.slideWidth, p.slideHeight);
         frontGeometry.translate(0, 0, p.slideHeight / 2);
-        this.blockMesh = ThreeUtilities.returnGroupAtDetailedCoord(frontGeometry, this.blockSlidesMaterial, new THREE.Vector3(0, -this.depth + partitionDepth / 2, 0));
-        let slideMeshBack = ThreeUtilities.returnGroupAtDetailedCoord(frontGeometry, this.blockSlidesMaterial, new THREE.Vector3(0, -partitionDepth / 2, 0));
+        this.blockMesh = ThreeUtilities.returnGroupAtDetailedCoord(frontGeometry, this.blockObjectMaterial, new THREE.Vector3(0, -this.depth + partitionDepth / 2, 0));
+        let slideMeshBack = ThreeUtilities.returnGroupAtDetailedCoord(frontGeometry, this.blockObjectMaterial, new THREE.Vector3(0, -partitionDepth / 2, 0));
         this.blockObjectMoving.add(this.blockMesh);
         this.blockObjectMoving.add(slideMeshBack);
 

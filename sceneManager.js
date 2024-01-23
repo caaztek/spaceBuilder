@@ -271,6 +271,7 @@ export default class SceneManager extends SceneEntity {
 
         /* set-up display div */
         this.setUpDisplayDiv();
+        this.setUpAlertDiv();
 
         /* initializing all three scene items */
         this.initializeThreeScene();
@@ -825,14 +826,37 @@ export default class SceneManager extends SceneEntity {
         this.costDivExpanded = false;
         this.updateCostLabel(['Price as built: $0']);
         this.costDisplayDiv.addEventListener('click', () => {
-            // if (this.costDivExpanded) {
-            //     this.costLabel.innerHTML = this.costLabelShortText;
-            // } else {
-            //     this.costLabel.innerHTML = this.costLabelLongText.join('<br>');
-            // }
             this.costDivExpanded = !this.costDivExpanded;
             this.updateCostLabel();
         });
+    }
+
+    setUpAlertDiv() {
+        this.alertDiv = document.createElement('div');
+        this.alertDiv.style.position = 'fixed';
+        this.alertDiv.style.zIndex = "10";
+        this.alertDiv.style.top = '20px';
+        this.alertDiv.style.left = '0';         // Align left edge to the parent
+        this.alertDiv.style.right = '0';        // Align right edge to the parent
+        this.alertDiv.style.margin = 'auto';    // Center horizontally
+        this.alertDiv.style.textAlign = 'center'; // Center text horizontally
+        //this.alertDiv.style.left = 25 + 'px';
+        this.alertDiv.style.fontSize = '20px'; // Bigger font size
+        //this.alertDiv.style.fontWeight = 'bold'; // Bold text
+        this.alertDiv.style.color = 'white'; // White text
+        this.alertDiv.style.display = 'none';   // Initially hide the div
+
+
+        this.alertLabel = document.createElement('alertLabel');
+        this.alertLabel.innerHTML = "test";
+        this.alertDiv.appendChild(this.alertLabel);
+        document.body.appendChild(this.alertDiv);
+    }
+
+    newAlert(text) {
+        this.alertLabel.innerHTML = text;
+        this.alertDiv.style.display = 'block';
+        setTimeout(() => { this.alertDiv.style.display = 'none'; }, 3000);
     }
 
     addSphereHelper(position, radius = 5, color = 0xffff00, segments = 8) {

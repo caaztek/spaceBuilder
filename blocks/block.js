@@ -568,10 +568,16 @@ export default class Block extends SceneEntity {
     hoveredIn() {
         /* maybe we could differentiate with moveMode? */
         this.changeObjectColor(this.sceneManager.defaults.selection.colorHovered);
+        this.shelf.hoveredObject = this;
     }
 
     hoveredOut() {
         this.changeObjectColor();
+        this.shelf.hoveredBlock = undefined;
+    }
+
+    arrowUpClicked() {
+
     }
 
     addToShelfFilling() {
