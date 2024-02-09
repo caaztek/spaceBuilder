@@ -100,22 +100,22 @@ export default class Block extends SceneEntity {
         if (checkOccupancy) {
             /* check slot occupancy*/
             for (var i = zIndex - param.rightSlotsOccupyBelow; i < zIndex + param.rightSlotsOccupyAbove; i++) {
-                if (i < 0 || i > column.maxZIndex() || column.rightOccupants[i] != undefined) { 
+                if (i < 0 || i > column.maxZIndex() || (column.occupants[i] != undefined && column.occupants[i].right != undefined)) { 
                     return false 
                 }
             }
             for (var i = zIndex - param.leftSlotsOccupyBelow; i < zIndex + param.leftSlotsOccupyAbove; i++) {
-                if (i < 0 || i > column.maxZIndex() || column.leftOccupants[i] != undefined) { 
+                if (i < 0 || i > column.maxZIndex() || (column.occupants[i] != undefined && column.occupants[i].left != undefined)) { 
                     return false 
                 }
             }
             for (var i = zIndex - (usedForced? param.centerSlotsOccupyBelowForced : param.centerSlotsOccupyBelow); i < zIndex + (usedForced? param.centerSlotsOccupyAboveForced : param.centerSlotsOccupyAbove); i++) {
                 /* potential problem: we override on the non-forced coefficient, so potentially the area above a fixed shelf could be occupied by a fixed desk. Shouldn't happen but not sure if it is a problem */
                 if (i < 0) return false;
-                else if (column.centerOccupants[i] != undefined) {
+                else if (column.occupants[i] != undefined && column.occupants[i].center != undefined) {
                     if (!usedForced) return false;
                     //check if that block would still interfere if we used forced parameter.
-                    let occupant = column.centerOccupants[i];
+                    let occupant = column.occupants[i].center;
                     if (i < occupant.zIndex + occupant.parameters.centerSlotsOccupyAboveForced && i >= occupant.zIndex - occupant.parameters.centerSlotsOccupyBelowForced) return false;
                 }
             }
@@ -174,28 +174,31 @@ export default class Block extends SceneEntity {
         /* occupy the column objects according to block size */
         let param = this.parameters;
         for (var i = zIndex - param.rightSlotsOccupyBelow; i < zIndex + param.rightSlotsOccupyAbove; i++) {
-            if (erase && this.parent.rightOccupants[i] != undefined) {
-                this.parent.rightOccupants[i].deleteEntity(true, true);
+            if (erase && this.parent.occupants[i] != undefined && this.parent.occupants[i].right != undefined) {
+                this.parent.occupants[i].right.deleteEntity(true, true);
             }
-            this.parent.rightOccupants[i] = this;
+            if (this.parent.occupants[i] == undefined) this.parent.occupants[i] = {};
+            this.parent.occupants[i].right = this;
         }
         for (var i = zIndex - param.leftSlotsOccupyBelow; i < zIndex + param.leftSlotsOccupyAbove; i++) {
-            if (erase && this.parent.leftOccupants[i] != undefined) {
-                this.parent.leftOccupants[i].deleteEntity(true, true);
+            if (erase && this.parent.occupants[i] != undefined && this.parent.occupants[i].left != undefined) {
+                this.parent.occupants[i].left.deleteEntity(true, true);
             }
-            this.parent.leftOccupants[i] = this;
+            if (this.parent.occupants[i] == undefined) this.parent.occupants[i] = {};
+            this.parent.occupants[i].left = this;
         }
 
         for (var i = zIndex - (usedForced ? param.centerSlotsOccupyBelowForced : param.centerSlotsOccupyBelow); i < zIndex + (usedForced ? param.centerSlotsOccupyAboveForced : param.centerSlotsOccupyAbove); i++) {
-            if (erase && this.parent.centerOccupants[i] != undefined) {
-                if (!usedForced) this.parent.centerOccupants[i].deleteEntity(true, true);
+            if (erase && this.parent.occupants[i] != undefined && this.parent.occupants[i].center != undefined) {
+                if (!usedForced) this.parent.occupants[i].center.deleteEntity(true, true);
                 else {
-                    let occupant = this.parent.centerOccupants[i];
+                    let occupant = this.parent.occupants[i].center;
                     if (i < occupant.zIndex + occupant.parameters.centerSlotsOccupyAboveForced && i >= occupant.zIndex - occupant.parameters.centerSlotsOccupyBelowForced)
-                        this.parent.centerOccupants[i].deleteEntity(true, true);
+                        this.parent.occupants[i].center.deleteEntity(true, true);
                 }
             }
-            this.parent.centerOccupants[i] = this;
+            if (this.parent.occupants[i] == undefined) this.parent.occupants[i] = {};
+            this.parent.occupants[i].center = this;
         }
     }
 
@@ -207,13 +210,13 @@ export default class Block extends SceneEntity {
         let param = this.parameters;
         let zIndex = this.zIndex;
         for (var i = zIndex - param.rightSlotsOccupyBelow; i < zIndex + param.rightSlotsOccupyAbove; i++) {
-            if (this.parent.rightOccupants[i] === this) this.parent.rightOccupants[i] = undefined; //check is necessary because during move another block has already taken the spot before this is deleted
+            if (this.parent.occupants[i] != undefined && this.parent.occupants[i].right === this) this.parent.occupants[i].right = undefined; //check is necessary because during move another block has already taken the spot before this is deleted
         }
         for (var i = zIndex - param.leftSlotsOccupyBelow; i < zIndex + param.leftSlotsOccupyAbove; i++) {
-            if (this.parent.leftOccupants[i] === this) this.parent.leftOccupants[i] = undefined;
+            if (this.parent.occupants[i] != undefined && this.parent.occupants[i].left === this) this.parent.occupants[i].left = undefined;
         }
         for (var i = zIndex - param.centerSlotsOccupyBelow; i < zIndex + param.centerSlotsOccupyAbove; i++) {
-            if (this.parent.centerOccupants[i] === this) this.parent.centerOccupants[i] = undefined;
+            if (this.parent.occupants[i] != undefined && this.parent.occupants[i].center === this) this.parent.occupants[i].center = undefined;
         }
     }
 

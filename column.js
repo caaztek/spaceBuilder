@@ -20,9 +20,12 @@ export default class Column extends SceneEntity {
 
         this.object.position.set(this.startX + this.width / 2, 0, 0); //column object is centered on column
 
-        this.rightOccupants = {};
-        this.leftOccupants = {};
-        this.centerOccupants = {};
+        this.resetOccupancy(); //array of occupants in this column
+        
+
+        // this.rightOccupants = {};
+        // this.leftOccupants = {};
+        // this.centerOccupants = {};
 
         this.blocks = []; //array of blocks attached to this column
 
@@ -151,6 +154,13 @@ export default class Column extends SceneEntity {
         }
     }
 
+    resetOccupancy() {
+        this.occupants = {};
+        for (var i = 0; i < this.maxZIndex(); i++) {
+            this.occupants[i] = {};
+        }
+    }
+
     fullUpdate() {
         /* called when we want to fill column from scratch */
 
@@ -160,9 +170,11 @@ export default class Column extends SceneEntity {
         //this.object.remove(this.pointLight);
 
         /* set array of occupancy */
-        this.rightOccupants = {};
-        this.leftOccupants = {};
-        this.centerOccupants = {};
+        this.resetOccupancy();
+        //this.occupants = {};
+        // this.rightOccupants = {};
+        // this.leftOccupants = {};
+        // this.centerOccupants = {};
 
         this.updateModifierPosition();
     }

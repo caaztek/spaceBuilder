@@ -12,13 +12,14 @@ import PullUpBar from './blocks/pullUpBar.js';
 import ShoeRack from './blocks/shoeRack.js';
 import CubeShelf from './blocks/cubeShelf.js';
 import VerticalBike from './blocks/verticalBike.js';
+import CrossSupport from './blocks/crossSupport.js';
 
 export default class BlockList {
     constructor() {
     }
 
     static baseBlockList() {
-        return [PullDesk, FixedDesk, PullRack,ShippingStation,SurfRack, MiterStation,PullUpBar, VerticalBike,FixedShelf, PullShelf, PlasticBin, Drawer, DisplayRack, ShoeRack, CubeShelf]
+        return [PullDesk, FixedDesk, PullRack,ShippingStation,SurfRack, MiterStation,PullUpBar, VerticalBike,FixedShelf, PullShelf, PlasticBin, Drawer, DisplayRack, ShoeRack, CubeShelf, CrossSupport]
     }
 
     static fromJSON(sceneManager,shelf,column,data) {

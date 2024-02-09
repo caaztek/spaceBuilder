@@ -92,11 +92,20 @@ export default class Drawer extends Block {
         return super.scoreOption(column, zIndex);
     }
 
-    makeSlides() {
+    setDimensions() {
+        super.setDimensions();
         let p = this.parameters;
-        let step = this.findAncestorWithType("shelf").verticalStep;
+        let step = this.parent.verticalStep;
         this.sliderHeight = step * p.rightSlotsOccupyAbove - p.sliderMargin;
         this.slideHeight = this.sliderHeight - p.slideMargin;
+        this.faceHeight = step * p.rightSlotsOccupyAbove - p.faceMargin;
+        this.totalHeight = this.faceHeight
+    }
+
+    makeSlides() {
+        let p = this.parameters;
+        //let step = this.findAncestorWithType("shelf").verticalStep;
+
 
 
         let slideGeometry = new THREE.BoxGeometry(p.slideThickness, this.depth - p.faceThickness, this.slideHeight);
@@ -111,9 +120,6 @@ export default class Drawer extends Block {
         slideMesh2.add(ThreeUtilities.returnObjectOutline(slideMesh2));
         this.blockObjectFixed.add(slideMesh2);
 
-        //super.makeSlides();
-
-
     }
 
     makeMovingObject() {
@@ -124,7 +130,12 @@ export default class Drawer extends Block {
         let step = this.findAncestorWithType("shelf").verticalStep;
         let sliderHeight = step * p.rightSlotsOccupyAbove - p.sliderMargin;
         let slideHeight = sliderHeight - p.slideMargin;
-        this.faceHeight = step * p.rightSlotsOccupyAbove - p.faceMargin;
+
+
+        let lastIndex = this.zIndex + p.rightSlotsOccupyAbove - 1;
+        if (this.parent.occupants[lastIndex] != undefined && this.parent.occupants[lastIndex].cross != undefined) {
+            this.faceHeight -= this.parent.occupants[lastIndex].cross.parameters.crossThickness;
+        }
 
         /* make face of drawer */
         let faceGeometry = new THREE.BoxGeometry(this.width, p.faceThickness, this.faceHeight);

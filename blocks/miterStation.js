@@ -170,12 +170,12 @@ export default class MiterStation extends Block {
         /* look for neighboring columns */
         this.leftDesk = undefined;
         this.rightDesk = undefined;
-        if (this.parent.leftPartition.leftColumn != undefined && this.parent.leftPartition.leftColumn.rightOccupants[this.zIndex].variationName == "Pull-out desk") {
-            this.leftDesk = this.parent.leftPartition.leftColumn.rightOccupants[this.zIndex];
+        if (this.parent.leftPartition.leftColumn != undefined && this.parent.leftPartition.leftColumn.occupants[this.zIndex] && this.parent.leftPartition.leftColumn.occupants[this.zIndex].right.variationName == "Pull-out desk") {
+            this.leftDesk = this.parent.leftPartition.leftColumn.occupants[this.zIndex].right;
             this.leftDesk.animateOut();
         }
-        if (this.parent.rightPartition.rightColumn != undefined && this.parent.rightPartition.rightColumn.leftOccupants[this.zIndex].variationName == "Pull-out desk") {
-            this.rightDesk = this.parent.rightPartition.rightColumn.leftOccupants[this.zIndex];
+        if (this.parent.rightPartition.rightColumn != undefined && this.parent.rightPartition.rightColumn.occupants[this.zIndex] && this.parent.rightPartition.rightColumn.occupants[this.zIndex].left.variationName == "Pull-out desk") {
+            this.rightDesk = this.parent.rightPartition.rightColumn.occupants[this.zIndex].left;
             this.rightDesk.animateOut();
         }
 

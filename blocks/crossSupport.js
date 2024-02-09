@@ -3,7 +3,6 @@ import Block from './block.js';
 import * as THREE from 'three';
 import ThreeUtilities from '../threeUtilities.js';
 import { CSG } from 'three-csg-ts';
-import { Vector } from 'three-csg-ts/lib/esm/Vector.js';
 
 /* default template.
 1. Change TemplateName
@@ -15,13 +14,13 @@ import { Vector } from 'three-csg-ts/lib/esm/Vector.js';
 7. In Shelf.js, import /block/templateName.js and update setBlockList to include the new block type
  */
 
-export default class DisplayRack extends Block {
+export default class CrossSupport extends Block {
     constructor(sceneManager, parent, variationName) {
         super(sceneManager, parent, variationName);
     }
 
     setParameters() {
-        this.parameters = DisplayRack.parameters();
+        this.parameters = CrossSupport.parameters();
     }
 
     static parameters() {
@@ -30,33 +29,28 @@ export default class DisplayRack extends Block {
 
         param.variations = [
             {
-                variationName: "Display Rack",
+                variationName: "Cross Support",
                 variationParameters: {
                     rightSlotsOccupyAbove: 1,
                     rightSlotsOccupyBelow: 0,
                     leftSlotsOccupyAbove: 1,
                     leftSlotsOccupyBelow: 0,
-                    centerSlotsOccupyAbove: 4,
+                    centerSlotsOccupyAbove: 1,
+                    centerSlotsOccupyBelow: 0,
                     centerSlotsOccupyAboveForced: 1,
-                    centerSlotsOccupyBelow: 0,
                     centerSlotsOccupyBelowForced: 0,
-                    startBlockListFillingCoefficient : 0,
-                    centerSlotsOccupyBelow: 0,
-
+                    startBlockListFillingCoefficient: 0,
                 }
             }
         ]
 
         param.widthMargin = 0;
-
-        param.slideHeight = 1.5;
-        param.slideWidth = 1.5;
+        param.crossThickness = 0.75;
+        param.crossDepth = 1.5;
 
         param.priority = 2
         param.onePerColumn = false
         param.fillPerColumn = false
-
-        param.allowSlide = false
 
         return param;
     }
@@ -67,18 +61,6 @@ export default class DisplayRack extends Block {
     }
 
     makeSlides() {
-        let p = this.parameters;
-        let partitionDepth = this.parent.rightPartition.bandWidth
-        let slideGeometry = new THREE.BoxGeometry(p.slideWidth, this.depth - partitionDepth * 2, p.slideHeight);
-        slideGeometry.translate(0, -this.depth / 2, p.slideHeight / 2);
-        let slideMesh = ThreeUtilities.returnGroupAtDetailedCoord(slideGeometry, this.blockSlidesMaterial, new THREE.Vector3(this.parent.returnWidth() / 2, 0, 0));
-        this.blockObjectFixed.add(slideMesh);
-
-        if (!this.parent.leftPartition.leftColumn || !(this.parent.leftPartition.leftColumn.occupants[this.zIndex] && this.parent.leftPartition.leftColumn.occupants[this.zIndex].right instanceof this.constructor)) {
-            let slideMesh2 = ThreeUtilities.returnGroupAtDetailedCoord(slideGeometry, this.blockSlidesMaterial, new THREE.Vector3(-this.parent.returnWidth() / 2, 0, 0));
-            this.blockObjectFixed.add(slideMesh2);
-        }
-
         //super.makeSlides();
     }
 
@@ -87,19 +69,43 @@ export default class DisplayRack extends Block {
         super.changeObjectColor(color);
     }
 
+    setOccupancyAtIndex(zIndex, erase = true, usedForced = false) {
+        /* occupy the column objects according to block size */
+        let param = this.parameters;
+
+        if (erase && this.parent.occupants[zIndex] != undefined && this.parent.occupants[zIndex].cross) {
+            this.parent.occupants[zIndex].cross.deleteEntity();
+        }
+        if (this.parent.occupants[zIndex] == undefined) this.parent.occupants[zIndex] = {};
+        this.parent.occupants[this.zIndex].cross = this;
+    }
+
+    releaseOccupancy() {
+        this.parent.blocks.splice(this.parent.blocks.indexOf(this), 1);
+
+        if (this.parent.occupants[this.zIndex] != undefined) this.parent.occupants[this.zIndex].cross = undefined;
+    }
+
+    checkOptionAvailability(column = this.parent, zIndex = this.zIndex, checkFit = true, checkOccupancy = true, usedForced = true) {
+        /* fit should never be a problem */
+        if (checkOccupancy && column.occupants[zIndex] != undefined) {
+            if (column.occupants[zIndex].cross != undefined) return false;
+            if (column.occupants[zIndex].right != undefined) return false;
+            if (column.occupants[zIndex].left != undefined) return false;
+            if (column.occupants[zIndex].center != undefined) return false;
+        }
+        return true
+    }
+
     makeMovingObject() {
         /* if customized, make sure to add this.makeClickable(object to click) */
         //super.makeMovingObject();
-        let partitionDepth = this.parent.rightPartition.bandWidth
         let p = this.parameters;
-        let frontGeometry = new THREE.BoxGeometry(this.width, p.slideWidth, p.slideHeight);
-        frontGeometry.translate(0, 0, p.slideHeight / 2);
-        this.blockMesh = ThreeUtilities.returnGroupAtDetailedCoord(frontGeometry, this.blockObjectMaterial, new THREE.Vector3(0, -this.depth + partitionDepth / 2, 0));
-        let slideMeshBack = ThreeUtilities.returnGroupAtDetailedCoord(frontGeometry, this.blockObjectMaterial, new THREE.Vector3(0, -partitionDepth / 2, 0));
-        this.blockObjectMoving.add(this.blockMesh);
-        this.blockObjectMoving.add(slideMeshBack);
+        let step = this.parent.verticalStep;
+        let crossGeom = new THREE.BoxGeometry(this.width, p.sectionDepth, p.crossThickness);
+        let crossMesh = ThreeUtilities.returnGroupAtDetailedCoord(crossGeom, this.blockObjectMaterial, new THREE.Vector3(0, -this.depth + p.crossDepth / 2, step - p.crossThickness / 2));
+        this.blockObjectFixed.add(crossMesh);
 
-        this.makeClickable(this.blockMesh)
     }
 
     estimateCost() {
@@ -112,11 +118,9 @@ export default class DisplayRack extends Block {
         /* estimate plywood total surface */
         cost.plywoodUsage += 0
 
-        let partitionDepth = this.parent.rightPartition.bandWidth
-
         /* plywood cuts */
-        cost.plywoodCuts.push({ x: this.depth - partitionDepth * 2, y: this.parameters.slideWidth, quantity: 2, thickness: 0.75 });
-        cost.plywoodCuts.push({ x: this.width, y: this.parameters.slideHeight, quantity: 2, thickness: 1.5 });
+        cost.plywoodCuts.push({ x: this.depth, y: this.width, quantity: 1, thickness: 0.75 });
+        cost.plywoodCuts.push({ x: this.depth, y: this.parameters.slideHeight, quantity: 2, thickness: 0.75 });
 
         /* additional hardware */
         cost.hardwareList.push({
